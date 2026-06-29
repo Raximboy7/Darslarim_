@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 1: Dasturlashga Kirish - Kod Ichida Tushuntirish</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+            font-size: 0.95em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .info-box p {
+            color: var(--dark);
+        }
+
+        /* KOD BLOKI - WITH EXPLANATION */
+        .code-container {
+            background: #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+            border: 2px solid var(--primary);
+        }
+
+        .code-with-comment {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 60px;
+        }
+
+        .code-with-comment.full {
+            grid-template-columns: 1fr;
+        }
+
+        .code-part {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .code-with-comment.full .code-part {
+            border-right: none;
+        }
+
+        .comment-part {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            background: rgba(16, 185, 129, 0.05);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .code-line.executing .code-part {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .code-line.executing .comment-part {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .code-line {
+            margin-bottom: 0;
+            transition: all 0.3s ease;
+        }
+
+        .code-line.executing {
+            background: rgba(16, 185, 129, 0.1);
+            animation: highlight 0.5s ease-out;
+        }
+
+        @keyframes highlight {
+            from {
+                background: rgba(16, 185, 129, 0.3);
+            }
+            to {
+                background: rgba(16, 185, 129, 0.1);
+            }
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        /* MEMORY */
+        .memory {
+            background: var(--primary-light);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .memory-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+
+        .variable {
+            background: var(--white);
+            border: 2px solid #d1e7f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .variable.active {
+            border-color: var(--primary);
+            background: #f0fdf4;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .var-name {
+            font-weight: bold;
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 1em;
+        }
+
+        .var-value {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+            color: var(--white);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        /* OUTPUT */
+        .output-box {
+            background: #1f2937;
+            color: #34d399;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            border-left: 4px solid var(--primary);
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .output-line {
+            opacity: 0;
+            animation: fadeInOutput 0.6s ease-out forwards;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        @keyframes fadeInOutput {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* BUTTONS */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-run {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+            color: var(--white);
+        }
+
+        .btn-run:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0e7490 100%);
+            color: var(--white);
+        }
+
+        .btn-reset:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* STEP INDICATOR */
+        .step-indicator {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+            color: var(--white);
+            padding: 18px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            animation: slideUp 0.5s ease-out;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .explanation-box {
+            background: #f8f9fa;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            line-height: 1.7;
+            color: var(--dark);
+        }
+
+        .explanation-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+
+            .code-part {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .arrow-down {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.5em;
+            margin: 20px 0;
+            animation: moveDown 1.5s ease-in-out infinite;
+        }
+
+        @keyframes moveDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT PANEL -->
+        <div class="panel">
+            <header>
+                <h1>Dasturlashga Kirish</h1>
+                <p>Modul 1 — Asoslar | Dars 1</p>
+            </header>
+
+            <div class="section">
+                <h2>Kod Nima?</h2>
+                <div class="description">
+                    <strong>Kod</strong> — bu kompyuterni o'qitish uchun yozilgan buyruqlarning ketma-ketligi. 
+                    Har bir qator — bitta buyruq. Kompyuter bu qatorlarni bitta-bitta bajaradi!
+                </div>
+
+                <h3>O'zgaruvchi Nima?</h3>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
+                    <strong>O'zgaruvchi</strong> — bu xotirada qiymat saqlash uchun nomi berilgan joy. 
+                    Xonali kutilarni tasavvur qiling — har qutining nomi va unda saqlangan qiymat bor!
+                </p>
+
+                <div class="explanation-box">
+                    <div class="explanation-title">Misol:</div>
+                    <strong style="color: var(--primary-dark);">a = 5</strong>
+                    <p style="margin-top: 8px;">
+                        "a" nomli o'zgaruvchi yaratiladi<br>
+                        Unga <span class="highlight-var">5</span> qiymatini saqlaymiz<br>
+                        Keyin boshqa qatorlarda "a" deb yozsak, kompyuter biladi — bu 5!
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Kod Struktura va Tushuntirish</h2>
+                <div class="description">
+                    Quyida ko'rasiz: Kod qatorlarining har biri birga keltirilgan tushuntirish bilan. 
+                    Kompyuter kodni o'qiganda, har bir qatorni 1-2 soniyada bajaradi.
+                </div>
+
+                <!-- KOD BLOKI -->
+                <div class="code-container">
+                    <div class="code-line" id="line1">
+                        <div class="code-with-comment">
+                            <div class="code-part">
+                                <span class="keyword">a</span> = <span class="number">5</span>
+                            </div>
+                            <div class="comment-part">
+                                # "a" o'zgaruvchiga 5 qo'y
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-line" id="line2">
+                        <div class="code-with-comment">
+                            <div class="code-part">
+                                <span class="keyword">b</span> = <span class="number">3</span>
+                            </div>
+                            <div class="comment-part">
+                                # "b" o'zgaruvchiga 3 qo'y
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-line" id="line3">
+                        <div class="code-with-comment">
+                            <div class="code-part">
+                                <span class="keyword">natija</span> = <span class="keyword">a</span> <span class="operator">+</span> <span class="keyword">b</span>
+                            </div>
+                            <div class="comment-part">
+                                # a (5) + b (3) = 8 hisoblash
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-line" id="line4">
+                        <div class="code-with-comment full">
+                            <div class="code-part">
+                                <span class="function">print</span>(<span class="keyword">natija</span>)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="code-line" id="line4-comment">
+                        <div class="code-with-comment full">
+                            <div class="comment-part">
+                                # natija (8) ni ekranga chap qil
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explanation-box">
+                    <div class="explanation-title">"#" Belgisi:</div>
+                    Pythonda <span class="highlight-var">#</span> belgisidan keyin yozilgan barcha narsa — tushuntirish. 
+                    Kompyuter buni bajarolmaydi, faqat dasturchiga o'rta.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Qator-qatorcha Tahlil</h2>
+
+                <div class="explanation-box">
+                    <div class="explanation-title">Qator 1️⃣: a = 5</div>
+                    <strong style="color: var(--primary-dark);">Nima bo'ladi?</strong>
+                    <p style="margin-top: 8px;">
+                        Xotirada <span class="highlight-var">a</span> nomli o'zgaruvchi yaratiladi va unga <span class="highlight-var">5</span> qiymatini saqlaymiz.
+                    </p>
+                    <strong style="color: var(--primary-dark); margin-top: 10px; display: block;">Xotirada:</strong>
+                    <p style="margin-top: 8px; font-family: monospace; background: #f0fdf4; padding: 8px; border-radius: 4px;">
+                        a = 5
+                    </p>
+                </div>
+
+                <div class="explanation-box">
+                    <div class="explanation-title">Qator 2️⃣: b = 3</div>
+                    <strong style="color: var(--primary-dark);">Nima bo'ladi?</strong>
+                    <p style="margin-top: 8px;">
+                        Xotirada <span class="highlight-var">b</span> nomli o'zgaruvchi yaratiladi va unga <span class="highlight-var">3</span> qiymatini saqlaymiz.
+                    </p>
+                    <strong style="color: var(--primary-dark); margin-top: 10px; display: block;">Xotirada:</strong>
+                    <p style="margin-top: 8px; font-family: monospace; background: #f0fdf4; padding: 8px; border-radius: 4px;">
+                        a = 5<br>
+                        b = 3
+                    </p>
+                </div>
+
+                <div class="explanation-box">
+                    <div class="explanation-title">Qator 3️⃣: natija = a + b</div>
+                    <strong style="color: var(--primary-dark);">Nima bo'ladi?</strong>
+                    <p style="margin-top: 8px;">
+                        <span class="highlight-var">a</span> (5) va <span class="highlight-var">b</span> (3) ni qo'shamiz: 5 + 3 = 8<br>
+                        Natijani <span class="highlight-var">natija</span> nomli o'zgaruvchiga saqlaymiz.
+                    </p>
+                    <strong style="color: var(--primary-dark); margin-top: 10px; display: block;">Xotirada:</strong>
+                    <p style="margin-top: 8px; font-family: monospace; background: #f0fdf4; padding: 8px; border-radius: 4px;">
+                        a = 5<br>
+                        b = 3<br>
+                        natija = 8
+                    </p>
+                </div>
+
+                <div class="explanation-box">
+                    <div class="explanation-title">Qator 4️⃣: print(natija)</div>
+                    <strong style="color: var(--primary-dark);">Nima bo'ladi?</strong>
+                    <p style="margin-top: 8px;">
+                        <span class="highlight-var">natija</span> o'zgaruvchining qiymatini (8) ekranga chap qilamiz.
+                    </p>
+                    <strong style="color: var(--primary-dark); margin-top: 10px; display: block;">Ekranda:</strong>
+                    <p style="margin-top: 8px; font-family: monospace; background: #1f2937; color: #34d399; padding: 8px; border-radius: 4px;">
+                        8
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Muhim Nuqta</strong>
+                <p>
+                    Kod qatorlarini ketma-ket bajaramiz (1 → 2 → 3 → 4). 
+                    Har bir qator oldingisiga bog'liq bo'lishi mumkin. 
+                    Tartib juda muhimdir!
+                </p>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="panel right">
+            <header>
+                <h1>Kod Bajarilishi (Animatsiya)</h1>
+                <p>Real-time Visualization</p>
+            </header>
+
+            <!-- STEP INDICATOR -->
+            <div class="step-indicator" id="stepIndicator">
+                Boshlash uchun tugmasini bosing
+            </div>
+
+            <!-- KOD ANIMATED -->
+            <div>
+                <div style="font-weight: bold; color: var(--dark); margin-bottom: 10px;">
+                    Python Kodi (Tushuntirishlar Bilan):
+                </div>
+                <div class="code-container">
+                    <div class="code-line" id="anim-line1">
+                        <div class="code-with-comment">
+                            <div class="code-part">
+                                <span class="keyword">a</span> = <span class="number">5</span>
+                            </div>
+                            <div class="comment-part">
+                                # "a" ga 5 qo'y
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-line" id="anim-line2">
+                        <div class="code-with-comment">
+                            <div class="code-part">
+                                <span class="keyword">b</span> = <span class="number">3</span>
+                            </div>
+                            <div class="comment-part">
+                                # "b" ga 3 qo'y
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-line" id="anim-line3">
+                        <div class="code-with-comment">
+                            <div class="code-part">
+                                <span class="keyword">natija</span> = <span class="keyword">a</span> <span class="operator">+</span> <span class="keyword">b</span>
+                            </div>
+                            <div class="comment-part">
+                                # 5 + 3 = 8
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-line" id="anim-line4">
+                        <div class="code-with-comment full">
+                            <div class="code-part">
+                                <span class="function">print</span>(<span class="keyword">natija</span>)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="code-line" id="anim-line4-comment">
+                        <div class="code-with-comment full">
+                            <div class="comment-part">
+                                # 8 ni ekranga chap qil
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEMORY -->
+            <div class="memory">
+                <div class="memory-title">💾 Xotirada Saqlangan O'zgaruvchilar:</div>
+                <div id="memoryBlock">
+                    <p style="color: var(--gray); text-align: center; padding: 20px;">
+                        Kodni bajargach, o'zgaruvchilar shu yerda ko'rinadi
+                    </p>
+                </div>
+            </div>
+
+            <!-- ARROW -->
+            <div class="arrow-down">⬇️</div>
+
+            <!-- OUTPUT -->
+            <div>
+                <div style="font-weight: bold; color: var(--dark); margin-bottom: 10px;">
+                    Natija (Output - Ekran):
+                </div>
+                <div class="output-box" id="outputBox">
+                    <div style="color: var(--gray);">
+                        Natija shu yerda ko'rinadi...
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="button-group">
+                <button class="btn-run" onclick="runCode()" id="runBtn">
+                    Kodni Bajaring
+                </button>
+                <button class="btn-reset" onclick="resetCode()">
+                    Qayta O'ynash
+                </button>
+            </div>
+
+            <!-- STEPS -->
+            <h3 style="margin-top: 30px; color: var(--dark);">Kod Qanday Bajariladi:</h3>
+            <div class="step-list">
+                <div class="step-item">
+                    <div class="step-icon">1</div>
+                    <div class="step-content">
+                        <strong>a = 5</strong>
+                        <p>"a" o'zgaruvchiga 5 saqlanadi</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-icon">2</div>
+                    <div class="step-content">
+                        <strong>b = 3</strong>
+                        <p>"b" o'zgaruvchiga 3 saqlanadi</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-icon">3</div>
+                    <div class="step-content">
+                        <strong>natija = a + b</strong>
+                        <p>5 + 3 = 8 ni hisoblang va "natija" ga saqlanadi</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-icon">4</div>
+                    <div class="step-content">
+                        <strong>print(natija)</strong>
+                        <p>8 ni ekranga chap qiling</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>O'zgaruvchi va print() Funksiyasi</strong>
+                <p>
+                    O'zgaruvchi — xotirada saqlash joyi. print() — natijani ekranga chap qilish. 
+                    Bu dasturlashning eng asosiy amallari!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runCode() {
+            const runBtn = document.getElementById('runBtn');
+            const resetBtn = document.querySelector('.btn-reset');
+            runBtn.disabled = true;
+            resetBtn.disabled = true;
+
+            // Step 1
+            await executeStep(1, "a = 5 ni bajaring", "anim-line1", {name: 'a', value: '5'});
+
+            // Step 2
+            await executeStep(2, "b = 3 ni bajaring", "anim-line2", {name: 'b', value: '3'});
+
+            // Step 3
+            await executeStep(3, "natija = a + b ni bajaring (5 + 3 = 8)", "anim-line3", {name: 'natija', value: '8'});
+
+            // Step 4
+            await executeStep(4, "print(natija) — 8 ni ekranga chap qiling", "anim-line4", null, true);
+
+            runBtn.disabled = false;
+            resetBtn.disabled = false;
+        }
+
+        async function executeStep(step, description, lineId, variable, isOutput = false) {
+            return new Promise(resolve => {
+                const line = document.getElementById(lineId);
+                line.classList.add('executing');
+
+                const stepIndicator = document.getElementById('stepIndicator');
+                stepIndicator.textContent = `Step ${step}: ${description}`;
+
+                setTimeout(() => {
+                    if (variable && !isOutput) {
+                        updateMemory(variable);
+                    }
+
+                    if (isOutput) {
+                        showOutput();
+                        // Highlight 4-comment qatorini ham
+                        const line4comment = document.getElementById('anim-line4-comment');
+                        line4comment.classList.add('executing');
+                        setTimeout(() => {
+                            line4comment.classList.remove('executing');
+                        }, 1000);
+                        stepIndicator.textContent = `Tamom! Kod muvaffaqiyatli bajarildi ✓`;
+                    }
+
+                    line.classList.remove('executing');
+
+                    setTimeout(() => {
+                        resolve();
+                    }, 500);
+                }, 1500);
+            });
+        }
+
+        function updateMemory(variable) {
+            const memoryBlock = document.getElementById('memoryBlock');
+            
+            let existingVars = memoryBlock.querySelectorAll('.variable');
+            
+            let found = false;
+            existingVars.forEach(varElement => {
+                if (varElement.querySelector('.var-name').textContent.trim() === variable.name) {
+                    varElement.querySelector('.var-value').textContent = variable.value;
+                    varElement.classList.add('active');
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                const newVar = document.createElement('div');
+                newVar.className = 'variable active';
+                newVar.innerHTML = `
+                    <span class="var-name">${variable.name}</span>
+                    <span class="var-value">= ${variable.value}</span>
+                `;
+                memoryBlock.appendChild(newVar);
+            }
+        }
+
+        function showOutput() {
+            const outputBox = document.getElementById('outputBox');
+            outputBox.innerHTML = '';
+            
+            const outputLine = document.createElement('div');
+            outputLine.className = 'output-line';
+            outputLine.textContent = '>>> 8';
+            
+            outputBox.appendChild(outputLine);
+        }
+
+        function resetCode() {
+            document.querySelectorAll('.code-line').forEach(line => {
+                line.classList.remove('executing');
+            });
+
+            document.getElementById('memoryBlock').innerHTML = `
+                <p style="color: var(--gray); text-align: center; padding: 20px;">
+                    Kodni bajargach, o'zgaruvchilar shu yerda ko'rinadi
+                </p>
+            `;
+
+            document.getElementById('outputBox').innerHTML = `
+                <div style="color: var(--gray);">
+                    Natija shu yerda ko'rinadi...
+                </div>
+            `;
+
+            document.getElementById('stepIndicator').textContent = 'Boshlash uchun tugmasini bosing';
+        }
+    </script>
+</body>
+</html>
