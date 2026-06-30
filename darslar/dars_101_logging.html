@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 101: Logging (Jurnal Yuritish)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); color: var(--dark); cursor: pointer; flex: 1; min-width: 140px; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 15 — Concurrency va Advanced · Dars 101 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Logging (Jurnal Yuritish)</h1>
+                <p>Modul 15 — Concurrency va Advanced | Dars 101</p>
+            </header>
+
+            <div class="section">
+                <h2>Logging Nima?</h2>
+                <div class="description">
+                    <strong>Logging</strong> (jurnal yuritish) — bu dasturning ishlashi davomida nima
+                    bo'layotganini <strong>yozib borish</strong> demakdir. Dastur qachon ishga tushdi,
+                    qaysi amal bajarildi, qayerda xato chiqdi — bularning hammasi maxsus
+                    <span class="highlight-var">jurnal (log)</span> sifatida saqlanadi.
+                </div>
+                <div class="description">
+                    Avval biz xabarlarni ko'rsatish uchun <span class="highlight-var">print()</span> dan
+                    foydalandik. Lekin katta dasturlarda print() yetarli emas. Aynan shu yerda
+                    <strong>logging</strong> moduli yordamga keladi. U xabarlarni darajalarga ajratadi,
+                    vaqtini yozadi va faylga saqlash imkonini beradi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy taqqoslash</strong>
+                    <p>
+                        <span class="highlight-var">print()</span> — bu shunchaki ekranga gapirish.<br>
+                        <span class="highlight-var">logging</span> — bu daftarga tartib bilan, vaqti
+                        bilan yozib borish. Keyin daftarni qaytadan o'qib, nima bo'lganini bilib olasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>logging Modulini Ulash</h2>
+                <div class="description">
+                    Logging — Python ichidagi tayyor modul. Uni o'rnatish shart emas, faqat
+                    <span class="highlight-var">import</span> qilish kifoya.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> logging<br>
+                        <br>
+                        logging.<span class="function">warning</span>(<span class="string">"Bu ogohlantirish xabari"</span>)<br>
+                        logging.<span class="function">error</span>(<span class="string">"Bu xato xabari"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # logging modulini chaqirdik va ikkita xabar yozdik
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> WARNING:root:Bu ogohlantirish xabari<br>
+                    >>> ERROR:root:Bu xato xabari
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        Standart holatda logging faqat <span class="highlight-var">WARNING</span> va
+                        undan yuqori darajadagi xabarlarni ko'rsatadi. DEBUG va INFO xabarlari
+                        ko'rinmaydi — buni sozlash kerak (pastda ko'ramiz).
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Log Darajalari (Levels)</h2>
+                <div class="description">
+                    Har bir log xabarining <strong>darajasi</strong> bor. Daraja xabarning naqadar
+                    muhim ekanini bildiradi. Pastdan yuqoriga qarab muhimligi oshib boradi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Daraja</th><th>Qachon ishlatiladi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>DEBUG</code></td><td>Mayda-chuyda tekshiruv ma'lumotlari (faqat dasturchi uchun)</td><td>"x qiymati = 5"</td></tr>
+                        <tr><td><code>INFO</code></td><td>Dastur normal ishlayapti, oddiy xabar</td><td>"Foydalanuvchi tizimga kirdi"</td></tr>
+                        <tr><td><code>WARNING</code></td><td>Muammo bor, lekin dastur hali ishlayapti</td><td>"Disk joyi kamayyapti"</td></tr>
+                        <tr><td><code>ERROR</code></td><td>Jiddiy xato, biror amal bajarilmadi</td><td>"Fayl topilmadi"</td></tr>
+                        <tr><td><code>CRITICAL</code></td><td>Halokatli xato, dastur to'xtashi mumkin</td><td>"Ma'lumotlar bazasi o'chdi"</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> logging<br>
+                        <br>
+                        logging.<span class="function">debug</span>(<span class="string">"Tekshiruv: x = 5"</span>)<br>
+                        logging.<span class="function">info</span>(<span class="string">"Dastur ishga tushdi"</span>)<br>
+                        logging.<span class="function">warning</span>(<span class="string">"Disk joyi kam"</span>)<br>
+                        logging.<span class="function">error</span>(<span class="string">"Fayl topilmadi"</span>)<br>
+                        logging.<span class="function">critical</span>(<span class="string">"Tizim ishdan chiqdi"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Beshta daraja — eng past DEBUG, eng yuqori CRITICAL
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>basicConfig — Loggingni Sozlash</h2>
+                <div class="description">
+                    <span class="highlight-var">logging.basicConfig()</span> — bu loggingni sozlaydigan
+                    asosiy funksiya. U bilan biz <strong>qaysi darajadan</strong> boshlab xabar
+                    ko'rsatishni va xabar <strong>ko'rinishini (formatini)</strong> belgilaymiz.
+                </div>
+                <h3>level — daraja chegarasi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> logging<br>
+                        <br>
+                        logging.<span class="function">basicConfig</span>(level=logging.DEBUG)<br>
+                        <br>
+                        logging.<span class="function">debug</span>(<span class="string">"Endi bu ham ko'rinadi"</span>)<br>
+                        logging.<span class="function">info</span>(<span class="string">"Bu ham ko'rinadi"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # level=DEBUG -> DEBUG va undan yuqori hammasi ko'rinadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> DEBUG:root:Endi bu ham ko'rinadi<br>
+                    >>> INFO:root:Bu ham ko'rinadi
+                </div>
+
+                <h3>format — xabar ko'rinishi</h3>
+                <div class="description">
+                    <span class="highlight-var">format</span> orqali har bir xabar oldidan
+                    <strong>vaqt</strong>, <strong>daraja</strong> va <strong>matn</strong>ni qo'shamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> logging<br>
+                        <br>
+                        logging.<span class="function">basicConfig</span>(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;level=logging.INFO,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;format=<span class="string">"%(asctime)s - %(levelname)s - %(message)s"</span><br>
+                        )<br>
+                        <br>
+                        logging.<span class="function">info</span>(<span class="string">"Dastur boshlandi"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # asctime = vaqt, levelname = daraja, message = matn
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 2026-06-30 10:15:42,531 - INFO - Dastur boshlandi
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Faylga Log Yozish</h2>
+                <div class="description">
+                    Eng kuchli xususiyat — loglarni <strong>faylga saqlash</strong>. Buning uchun
+                    <span class="highlight-var">filename=</span> parametrini beramiz. Endi xabarlar
+                    ekranga emas, faylga yoziladi va keyin ham o'qishingiz mumkin.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> logging<br>
+                        <br>
+                        logging.<span class="function">basicConfig</span>(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;filename=<span class="string">"dastur.log"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;level=logging.INFO,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;format=<span class="string">"%(asctime)s - %(levelname)s - %(message)s"</span><br>
+                        )<br>
+                        <br>
+                        logging.<span class="function">info</span>(<span class="string">"Foydalanuvchi tizimga kirdi"</span>)<br>
+                        logging.<span class="function">error</span>(<span class="string">"Parol noto'g'ri"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Endi xabarlar ekranga emas, "dastur.log" fayliga yoziladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    <span class="comment"># dastur.log fayli ichida:</span><br>
+                    2026-06-30 10:20:01,114 - INFO - Foydalanuvchi tizimga kirdi<br>
+                    2026-06-30 10:20:01,118 - ERROR - Parol noto'g'ri
+                </div>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>
+                        Fayl avtomatik yaratiladi. Har safar dastur ishlaganda yangi xabarlar
+                        fayl <strong>oxiriga qo'shiladi</strong> — eskilari o'chmaydi. Shuning uchun
+                        dastur tarixini har doim ko'rib chiqishingiz mumkin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nega print() dan Yaxshi?</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>print()</th><th>logging</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Darajalar (muhimlik)</td><td>Yo'q</td><td>Bor (DEBUG..CRITICAL)</td></tr>
+                        <tr><td>Vaqtni yozish</td><td>Yo'q</td><td>Bor (avtomatik)</td></tr>
+                        <tr><td>Faylga saqlash</td><td>Qiyin, qo'lda</td><td>Oson (filename=)</td></tr>
+                        <tr><td>Keraksizini o'chirish</td><td>Qatorma-qator o'chirish</td><td>Bitta level bilan</td></tr>
+                        <tr><td>Katta loyihaga mos</td><td>Yo'q</td><td>Ha</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Asosiy fikr</strong>
+                    <p>
+                        print() — o'rganish va tezkor sinash uchun yaxshi. Lekin haqiqiy dasturlarda
+                        nima bo'layotganini kuzatish uchun <span class="highlight-var">logging</span>
+                        ishlatiladi. Bitta <span class="highlight-var">level</span> ni o'zgartirib,
+                        barcha keraksiz xabarlarni yashirib qo'yasiz — kodni o'chirmaysiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Daraja Tanlash va Xabarlar</h2>
+                <div class="description">
+                    Pastdan darajani tanlang. Faqat tanlangan darajadan <strong>yuqori yoki teng</strong>
+                    bo'lgan xabarlar ko'rinadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="levelSelect">
+                            <option value="10">DEBUG</option>
+                            <option value="20" selected>INFO</option>
+                            <option value="30">WARNING</option>
+                            <option value="40">ERROR</option>
+                            <option value="50">CRITICAL</option>
+                        </select>
+                        <button onclick="demoLevels()">Ko'rsat</button>
+                    </div>
+                    <div class="demo-result" id="resultLevels"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Log Xabari Formati</h2>
+                <div class="description">
+                    Xabaringizni yozing va darajani tanlang. Logging xabarni
+                    <strong>vaqt + daraja + matn</strong> ko'rinishida shakllantirib beradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="fmtMsg" placeholder="Xabar matni" value="Foydalanuvchi tizimga kirdi">
+                        <select id="fmtLevel">
+                            <option value="DEBUG">DEBUG</option>
+                            <option value="INFO" selected>INFO</option>
+                            <option value="WARNING">WARNING</option>
+                            <option value="ERROR">ERROR</option>
+                            <option value="CRITICAL">CRITICAL</option>
+                        </select>
+                        <button onclick="demoFormat()">Formatla</button>
+                    </div>
+                    <div class="demo-result" id="resultFormat"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: print() vs logging</h2>
+                <div class="description">
+                    Bitta xabarni ikki usulda ko'ring: oddiy <span class="highlight-var">print()</span>
+                    va tartibli <span class="highlight-var">logging</span> bilan. Farqni sezing.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="cmpMsg" placeholder="Xabar" value="Fayl saqlandi">
+                        <button onclick="demoCompare()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Faylga Yozishni Tasavvur Qilish</h2>
+                <div class="description">
+                    Bir necha xabar qo'shing — ular <span class="highlight-var">dastur.log</span>
+                    fayliga qanday saqlanishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="fileMsg" placeholder="Yangi log qatori" value="Buyurtma qabul qilindi">
+                        <select id="fileLevel">
+                            <option value="INFO" selected>INFO</option>
+                            <option value="WARNING">WARNING</option>
+                            <option value="ERROR">ERROR</option>
+                        </select>
+                        <button onclick="demoFile()">Faylga yoz</button>
+                    </div>
+                    <div class="demo-result" id="resultFile"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>logging modulini ulang</strong>
+                            <p>Fayl boshida import logging yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>basicConfig sozlang</strong>
+                            <p>level=logging.INFO va format (vaqt, daraja, matn) bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>filename qo'shing</strong>
+                            <p>filename="mening.log" bilan loglarni faylga yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Turli darajalarda yozing</strong>
+                            <p>info(), warning() va error() bilan kamida 3 ta xabar chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 102: Debugging (Xatolarni Topish)</p>
+                    <p style="opacity: 0.9;">
+                        Loglarni yozishni o'rgandingiz!<br>
+                        Endi dasturdagi xatolarni topish va tuzatishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LEVELS = [
+            { name: 'DEBUG', val: 10 },
+            { name: 'INFO', val: 20 },
+            { name: 'WARNING', val: 30 },
+            { name: 'ERROR', val: 40 },
+            { name: 'CRITICAL', val: 50 }
+        ];
+        const MSGS = {
+            'DEBUG': 'Tekshiruv: x = 5',
+            'INFO': 'Dastur normal ishlayapti',
+            'WARNING': 'Disk joyi kamayyapti',
+            'ERROR': 'Fayl topilmadi',
+            'CRITICAL': 'Tizim ishdan chiqdi'
+        };
+
+        function nowStamp() {
+            const d = new Date();
+            const p = n => String(n).padStart(2, '0');
+            const ms = String(d.getMilliseconds()).padStart(3, '0');
+            return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())},${ms}`;
+        }
+
+        function demoLevels() {
+            const chosen = parseInt(document.getElementById('levelSelect').value);
+            let lines = '';
+            let shown = 0;
+            LEVELS.forEach(l => {
+                if (l.val >= chosen) {
+                    lines += `>>> ${l.name}:root:${MSGS[l.name]}<br>`;
+                    shown++;
+                }
+            });
+            const chosenName = LEVELS.find(l => l.val === chosen).name;
+            const result = document.getElementById('resultLevels');
+            result.classList.add('show');
+            result.innerHTML = `<span style="color:#fbbf24;">level=${chosenName} -> ${shown} ta xabar ko'rinadi:</span><br>` + lines;
+        }
+
+        function demoFormat() {
+            const msg = document.getElementById('fmtMsg').value || "(bo'sh xabar)";
+            const lvl = document.getElementById('fmtLevel').value;
+            const result = document.getElementById('resultFormat');
+            result.classList.add('show');
+            result.innerHTML = `<span style="color:#fbbf24;">format = "%(asctime)s - %(levelname)s - %(message)s"</span><br>>>> ${nowStamp()} - ${lvl} - ${msg}`;
+        }
+
+        function demoCompare() {
+            const msg = document.getElementById('cmpMsg').value || "(bo'sh xabar)";
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML =
+                `<span style="color:#f87171;">print("${msg}"):</span><br>>>> ${msg}<br><br>` +
+                `<span style="color:#34d399;">logging.info("${msg}"):</span><br>>>> ${nowStamp()} - INFO - ${msg}`;
+        }
+
+        let fileLines = [];
+        function demoFile() {
+            const msg = document.getElementById('fileMsg').value || "(bo'sh xabar)";
+            const lvl = document.getElementById('fileLevel').value;
+            fileLines.push(`${nowStamp()} - ${lvl} - ${msg}`);
+            const result = document.getElementById('resultFile');
+            result.classList.add('show');
+            let body = fileLines.map(l => '&nbsp;&nbsp;' + l).join('<br>');
+            result.innerHTML = `<span style="color:#fbbf24;"># dastur.log fayli (${fileLines.length} qator):</span><br>` + body;
+        }
+
+        // dastlabki ko'rinish
+        demoLevels();
+    </script>
+</body>
+</html>

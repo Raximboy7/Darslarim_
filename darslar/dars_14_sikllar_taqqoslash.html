@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 14: Sikllarni Taqqoslash (For vs While)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SIDE-BY-SIDE CODE COMPARE */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 15px 0;
+        }
+        .compare-col {
+            background: #1f2937;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        .compare-col.for-col { border-color: var(--primary); }
+        .compare-col.while-col { border-color: var(--secondary); }
+        .compare-head {
+            padding: 8px 14px;
+            font-weight: bold;
+            font-size: 0.85em;
+            color: var(--white);
+        }
+        .for-col .compare-head { background: var(--primary-dark); }
+        .while-col .compare-head { background: var(--secondary); }
+        .compare-body {
+            padding: 14px 16px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.7;
+        }
+
+        /* LOOP STEP VISUALIZER */
+        .loop-viz { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .loop-step {
+            min-width: 44px; height: 44px; padding: 0 10px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #34d399;
+            border-radius: 8px; font-family: monospace; font-weight: bold; font-size: 1.05em;
+            border: 2px solid var(--primary);
+        }
+        .loop-arrow { display: flex; align-items: center; color: var(--gray); font-weight: bold; }
+
+        /* QUIZ */
+        .quiz-q {
+            background: var(--white);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .quiz-q p { color: var(--dark); margin-bottom: 10px; line-height: 1.5; }
+        .quiz-q .quiz-num { color: var(--primary-dark); font-weight: bold; }
+        .quiz-btns { display: flex; gap: 8px; }
+        .quiz-btns button { flex: 1; }
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            display: none;
+        }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.ok { background: #f0fdf4; border-left: 4px solid var(--primary); color: var(--primary-dark); }
+        .quiz-feedback.no { background: #fffbeb; border-left: 4px solid #f59e0b; color: #b45309; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+            .compare-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 3 — Shartlar va sikllar · Dars 14 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Sikllarni Taqqoslash (For vs While)</h1>
+                <p>Modul 3 — Shartlar va sikllar | Dars 14</p>
+            </header>
+
+            <div class="section">
+                <h2>Ikki Xil Sikl</h2>
+                <div class="description">
+                    Pythonda kodni takrorlash uchun ikkita asosiy sikl bor:
+                    <span class="highlight-var">for</span> va <span class="highlight-var">while</span>.
+                    Ikkalasi ham bir vazifani — kodni qayta-qayta bajarishni hal qiladi, lekin ular
+                    <strong>turli holatlar</strong> uchun qulay. Bu darsda qachon qaysi birini tanlashni o'rganamiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>for — soni MA'LUM bo'lganda</h2>
+                <div class="description">
+                    <span class="highlight-var">for</span> sikli ketma-ketlik (ro'yxat, matn, range) ustida
+                    yuradi. Necha marta takrorlanishi <strong>oldindan ma'lum</strong> bo'lsa, for tanlanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i)
+                    </div>
+                    <div class="comment-part">
+                        # 1 dan 5 gacha — 5 marta
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1<br>>>> 2<br>>>> 3<br>>>> 4<br>>>> 5
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>while — soni NOMA'LUM bo'lganda</h2>
+                <div class="description">
+                    <span class="highlight-var">while</span> sikli shart <span class="highlight-var">True</span>
+                    bo'lguncha takrorlanadi. Necha marta aylanishi <strong>oldindan noma'lum</strong> bo'lsa
+                    (masalan, foydalanuvchi to'xtatguncha) — while tanlanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        i = <span class="number">1</span><br>
+                        <span class="keyword">while</span> i <span class="operator">&lt;=</span> <span class="number">5</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;i <span class="operator">+=</span> <span class="number">1</span>
+                    </div>
+                    <div class="comment-part">
+                        # shart True bo'lguncha
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1<br>>>> 2<br>>>> 3<br>>>> 4<br>>>> 5
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Bir Natija — Ikki Yo'l</h2>
+                <div class="description">
+                    1 dan 5 gacha sonlarni chiqarish — bir xil natija, lekin ikki xil yo'l bilan.
+                    Yonma-yon solishtiring:
+                </div>
+                <div class="compare-grid">
+                    <div class="compare-col for-col">
+                        <div class="compare-head">for sikli</div>
+                        <div class="compare-body">
+                            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>,<span class="number">6</span>):<br>
+                            &nbsp;&nbsp;<span class="function">print</span>(i)
+                        </div>
+                    </div>
+                    <div class="compare-col while-col">
+                        <div class="compare-head">while sikli</div>
+                        <div class="compare-body">
+                            i <span class="operator">=</span> <span class="number">1</span><br>
+                            <span class="keyword">while</span> i <span class="operator">&lt;=</span> <span class="number">5</span>:<br>
+                            &nbsp;&nbsp;<span class="function">print</span>(i)<br>
+                            &nbsp;&nbsp;i <span class="operator">+=</span> <span class="number">1</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        for da hisoblagich (i) avtomatik o'zgaradi. while da esa
+                        <span class="highlight-var">i = 1</span> ni boshlash va
+                        <span class="highlight-var">i += 1</span> ni qo'lda yozish kerak.
+                        Shu sababli bu vazifa uchun <strong>for qisqaroq va o'qishga osonroq</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy Farqlar Jadvali</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>for</th><th>while</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Qachon</td><td>soni ma'lum</td><td>soni noma'lum</td></tr>
+                        <tr><td>Asosi</td><td>ketma-ketlik</td><td>shart (True/False)</td></tr>
+                        <tr><td>Hisoblagich</td><td>avtomatik</td><td>qo'lda</td></tr>
+                        <tr><td>Misol</td><td>ro'yxat, range, matn</td><td>parol, menyu, o'yin</td></tr>
+                        <tr><td>Cheksizlik xavfi</td><td>kam</td><td>katta (i++ unutsa)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Qaysi Birini Tanlash?</h2>
+                <div class="concept-card">
+                    <strong>for tanlang, agar...</strong>
+                    <p>
+                        • Ro'yxat yoki matn elementlari ustida yursangiz<br>
+                        • Aniq <span class="highlight-var">N</span> marta takrorlash kerak bo'lsa<br>
+                        • <span class="highlight-var">range()</span> bilan sonlar bo'yicha yursangiz
+                    </p>
+                </div>
+                <div class="concept-card">
+                    <strong>while tanlang, agar...</strong>
+                    <p>
+                        • Takrorlanish soni oldindan noma'lum bo'lsa<br>
+                        • Foydalanuvchi <span class="highlight-var">to'g'ri parol</span> kiritguncha kutsangiz<br>
+                        • Bir shart bajarilmaguncha davom etish kerak bo'lsa
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: ma'lum soni uchun while (i++ unutilgan)</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            i = <span class="number">1</span><br>
+                            <span class="keyword">while</span> i <span class="operator">&lt;=</span> <span class="number">5</span>:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i)  <span style="color:#f87171;"># i o'zgarmaydi — cheksiz!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        i hech qachon o'zgarmagani uchun shart doim True qoladi — dastur muzlab qoladi.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: ma'lum soni uchun for ishlating</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> 1 2 3 4 5  (xavfsiz, qisqa)
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">for</span> — takrorlanish soni MA'LUM bo'lganda<br>
+                    • <span class="highlight-var">while</span> — soni NOMA'LUM, shart asosida<br>
+                    • Ikkalasi bir natija berishi mumkin — qulayrog'ini tanlang<br>
+                    • while da hisoblagichni o'zgartirishni unutmang (cheksiz siklga ehtiyot bo'ling)
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Bir Vazifa — Ikki Sikl</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="rangeN" placeholder="N gacha" value="5" min="1" max="12">
+                        <button onclick="demoBoth()">Ikkalasini ishlat</button>
+                    </div>
+                    <div class="demo-result" id="resultBoth"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    1 dan N gacha — for va while bir xil natija beradi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Sikl Qadamlari (for)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="vizStart" placeholder="boshi" value="1" style="min-width:70px;">
+                        <input type="number" id="vizStop" placeholder="oxiri" value="6" style="min-width:70px;">
+                        <input type="number" id="vizStep" placeholder="qadam" value="1" style="min-width:70px;">
+                        <button onclick="demoRangeViz()">range() ni ko'rsat</button>
+                    </div>
+                    <div class="loop-viz" id="loopBox"></div>
+                    <div class="demo-result" id="resultViz"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    <span class="highlight-var">range(boshi, oxiri, qadam)</span> — oxiri kirmaydi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Qaysi Sikl Yaxshi? (Viktorina)</h2>
+                <div class="interactive-demo">
+                    <div class="quiz-q">
+                        <p><span class="quiz-num">1.</span> Ro'yxatdagi har bir ismni ekranga chiqarish kerak. Qaysi sikl?</p>
+                        <div class="quiz-btns">
+                            <button onclick="quizAns(1,'for')">for</button>
+                            <button onclick="quizAns(1,'while')">while</button>
+                        </div>
+                        <div class="quiz-feedback" id="qf1"></div>
+                    </div>
+                    <div class="quiz-q">
+                        <p><span class="quiz-num">2.</span> Foydalanuvchi to'g'ri parol kiritguncha so'rab turish kerak. Qaysi sikl?</p>
+                        <div class="quiz-btns">
+                            <button onclick="quizAns(2,'for')">for</button>
+                            <button onclick="quizAns(2,'while')">while</button>
+                        </div>
+                        <div class="quiz-feedback" id="qf2"></div>
+                    </div>
+                    <div class="quiz-q">
+                        <p><span class="quiz-num">3.</span> 1 dan 100 gacha sonlar yig'indisini hisoblash kerak. Qaysi sikl?</p>
+                        <div class="quiz-btns">
+                            <button onclick="quizAns(3,'for')">for</button>
+                            <button onclick="quizAns(3,'while')">while</button>
+                        </div>
+                        <div class="quiz-feedback" id="qf3"></div>
+                    </div>
+                    <div class="quiz-q">
+                        <p><span class="quiz-num">4.</span> Bank hisobidagi pul tugaguncha har oy yechib turish. Qaysi sikl?</p>
+                        <div class="quiz-btns">
+                            <button onclick="quizAns(4,'for')">for</button>
+                            <button onclick="quizAns(4,'while')">while</button>
+                        </div>
+                        <div class="quiz-feedback" id="qf4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Parol Tekshiruvi (while)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="pwGuess" placeholder="Parolni toping" value="1111">
+                        <button onclick="demoPassword()">Urinish</button>
+                    </div>
+                    <div class="demo-result" id="resultPw"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    To'g'ri parol: <span class="highlight-var">1234</span>. Soni noma'lum — bu yerda while qulay.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: for ⇄ while Taqqoslash Jadvali</h2>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="showCompare('when')">Qachon</button>
+                        <button onclick="showCompare('counter')">Hisoblagich</button>
+                        <button onclick="showCompare('risk')">Xavf</button>
+                        <button onclick="showCompare('use')">Qo'llanish</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>for bilan yozing</strong>
+                            <p>1 dan 10 gacha sonlarni for sikli bilan chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>while bilan takrorlang</strong>
+                            <p>Xuddi shu natijani while bilan yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Parol o'yini yarating</strong>
+                            <p>To'g'ri parol kiritilguncha so'rovchi while yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>O'zingiz tanlang</strong>
+                            <p>Har vazifa uchun for yoki while — qaysi biri qulayroq, izohlang</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 15: Sikllardagi Xatolar</p>
+                    <p style="opacity: 0.9;">
+                        For va while orasidagi farqni bildingiz!<br>
+                        Endi sikllarda eng ko'p uchraydigan xatolarni va ulardan qochishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoBoth() {
+            let n = parseInt(document.getElementById('rangeN').value);
+            if (isNaN(n) || n < 1) n = 1;
+            if (n > 20) n = 20;
+            const nums = [];
+            for (let i = 1; i <= n; i++) nums.push(i);
+            const result = document.getElementById('resultBoth');
+            result.classList.add('show');
+            result.innerHTML =
+                `# for sikli<br>` +
+                `&gt;&gt;&gt; for i in range(1, ${n + 1}): print(i)<br>` +
+                `&gt;&gt;&gt; ${nums.join(' ')}<br><br>` +
+                `# while sikli<br>` +
+                `&gt;&gt;&gt; i=1; while i&lt;=${n}: print(i); i+=1<br>` +
+                `&gt;&gt;&gt; ${nums.join(' ')}<br><br>` +
+                `# Natija bir xil ✓`;
+        }
+
+        function demoRangeViz() {
+            let a = parseInt(document.getElementById('vizStart').value);
+            let b = parseInt(document.getElementById('vizStop').value);
+            let s = parseInt(document.getElementById('vizStep').value);
+            if (isNaN(a)) a = 0;
+            if (isNaN(b)) b = 0;
+            if (isNaN(s) || s === 0) s = 1;
+            const box = document.getElementById('loopBox');
+            box.innerHTML = '';
+            const vals = [];
+            if (s > 0) {
+                for (let i = a; i < b; i += s) vals.push(i);
+            } else {
+                for (let i = a; i > b; i += s) vals.push(i);
+            }
+            const safe = vals.slice(0, 30);
+            safe.forEach((v, idx) => {
+                if (idx > 0) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'loop-arrow';
+                    arrow.textContent = '→';
+                    box.appendChild(arrow);
+                }
+                const cell = document.createElement('div');
+                cell.className = 'loop-step';
+                cell.textContent = v;
+                box.appendChild(cell);
+            });
+            const result = document.getElementById('resultViz');
+            result.classList.add('show');
+            result.innerHTML =
+                `&gt;&gt;&gt; list(range(${a}, ${b}, ${s}))<br>` +
+                `&gt;&gt;&gt; [${vals.join(', ')}]<br>` +
+                `&gt;&gt;&gt; ${vals.length} ta qadam`;
+        }
+
+        const quizData = {
+            1: { correct: 'for', why: "Ro'yxat elementlari soni ma'lum va biz ketma-ketlik ustida yuramiz — for qulay." },
+            2: { correct: 'while', why: "Foydalanuvchi necha urinishda topishi noma'lum — to'g'ri parolgacha while takrorlaydi." },
+            3: { correct: 'for', why: "1 dan 100 gacha — aniq son ma'lum, range(1, 101) bilan for ishlatamiz." },
+            4: { correct: 'while', why: "Pul necha oyda tugashi noma'lum — balans tugaguncha while davom etadi." }
+        };
+        function quizAns(n, pick) {
+            const data = quizData[n];
+            const fb = document.getElementById('qf' + n);
+            fb.classList.add('show');
+            if (pick === data.correct) {
+                fb.className = 'quiz-feedback show ok';
+                fb.innerHTML = `✓ To'g'ri! <strong>${data.correct}</strong> — ${data.why}`;
+            } else {
+                fb.className = 'quiz-feedback show no';
+                fb.innerHTML = `✗ Aslida <strong>${data.correct}</strong> to'g'riroq. ${data.why}`;
+            }
+        }
+
+        function demoPassword() {
+            const real = "1234";
+            const guess = document.getElementById('pwGuess').value;
+            const result = document.getElementById('resultPw');
+            result.classList.add('show');
+            if (guess === real) {
+                result.innerHTML =
+                    `&gt;&gt;&gt; parol = input("Parol: ")  # "${guess}"<br>` +
+                    `&gt;&gt;&gt; "${guess}" == "1234" → True<br>` +
+                    `&gt;&gt;&gt; Kirish ruxsat etildi ✓`;
+            } else {
+                result.innerHTML =
+                    `&gt;&gt;&gt; while parol != "1234":<br>` +
+                    `&gt;&gt;&gt; siz: "${guess}" → noto'g'ri<br>` +
+                    `&gt;&gt;&gt; Sikl yana so'raydi... (soni noma'lum)`;
+            }
+        }
+
+        const compareData = {
+            when: ['Qachon ishlatamiz?', 'for → takrorlanish soni MA\'LUM', 'while → takrorlanish soni NOMA\'LUM'],
+            counter: ['Hisoblagich (i)', 'for → avtomatik oshadi', 'while → qo\'lda: i = 1 va i += 1'],
+            risk: ['Cheksiz sikl xavfi', 'for → kam (ketma-ketlik tugaydi)', 'while → katta (i++ unutilsa muzlaydi)'],
+            use: ['Tipik qo\'llanish', 'for → ro\'yxat, range, matn ustida', 'while → parol, menyu, o\'yin tsikli']
+        };
+        function showCompare(key) {
+            const d = compareData[key];
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML =
+                `# ${d[0]}<br>` +
+                `&gt;&gt;&gt; ${d[1]}<br>` +
+                `&gt;&gt;&gt; ${d[2]}`;
+        }
+
+        // dastlabki ko'rinish
+        demoRangeViz();
+    </script>
+</body>
+</html>

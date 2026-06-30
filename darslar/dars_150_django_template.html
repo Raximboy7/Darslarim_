@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 150: Template (Shablon)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+        .tag { color: #f472b6; font-weight: bold; }
+        .dtl { color: #2dd4bf; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 21 — Django · Dars 150 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Template (Shablon)</h1>
+                <p>Modul 21 — Django | Dars 150</p>
+            </header>
+
+            <div class="section">
+                <h2>Template Nima?</h2>
+                <div class="description">
+                    <strong>Template (shablon)</strong> — bu foydalanuvchiga ko'rsatiladigan
+                    <strong>HTML sahifa</strong>. U oddiy HTML, lekin ichida
+                    <strong>bo'sh joylar (placeholderlar)</strong> bor — Django ularni
+                    haqiqiy ma'lumot bilan to'ldiradi.
+                </div>
+                <div class="description">
+                    Misol uchun, bitta shablon yozasiz, lekin har bir foydalanuvchi uchun
+                    uning <strong>ismi</strong> boshqacha ko'rinadi. Ya'ni shablon
+                    <span class="highlight-var">dinamik</span> — bir andoza, ko'p natija.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy taqqoslash</strong>
+                    <p>
+                        Template — bu xat namunasi (blank). "Hurmatli ____, sizning balansingiz ____ so'm."
+                        Django bo'sh joylarni har bir mijoz ma'lumoti bilan to'ldirib, alohida xatlar yasaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Django Template Language (DTL)</h2>
+                <div class="description">
+                    Django shablonlarida maxsus til ishlatiladi —
+                    <strong>Django Template Language (DTL)</strong>. Uning ikkita asosiy belgisi bor:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Belgi</th><th>Vazifasi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>{{ ... }}</code></td><td>O'zgaruvchi qiymatini chiqaradi</td><td>{{ ism }}</td></tr>
+                        <tr><td><code>{% ... %}</code></td><td>Mantiq: takror, shart, meros</td><td>{% if %}, {% for %}</td></tr>
+                        <tr><td><code>{# ... #}</code></td><td>Izoh (ko'rinmaydi)</td><td>{# eslatma #}</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Eslab qoling</strong>
+                    <p>
+                        • <span class="highlight-var">{{ }}</span> — qiymatni <strong>ko'rsatadi</strong><br>
+                        • <span class="highlight-var">{% %}</span> — biror <strong>amal bajaradi</strong> (takror, shart)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>{{ o'zgaruvchi }} — Qiymat Chiqarish</h2>
+                <div class="description">
+                    Ikki jingalak qavs ichidagi nom — bu <strong>o'zgaruvchi</strong>.
+                    View undan kelgan qiymatni shu joyga qo'yadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment">&lt;!-- salom.html shabloni --&gt;</span><br>
+                        <span class="tag">&lt;h1&gt;</span>Salom, <span class="dtl">{{ ism }}</span>!<span class="tag">&lt;/h1&gt;</span><br>
+                        <span class="tag">&lt;p&gt;</span>Sizning yoshingiz: <span class="dtl">{{ yosh }}</span><span class="tag">&lt;/p&gt;</span>
+                    </div>
+                    <div class="comment-part">
+                        # ism va yosh — view dan keladigan qiymatlar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom, Ali!<br>
+                    >>> Sizning yoshingiz: 25
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>render() — View Bilan Bog'lash</h2>
+                <div class="description">
+                    View funksiyasi shablonni <span class="highlight-var">render()</span> bilan
+                    chaqiradi va unga <strong>context</strong> (lug'at) orqali ma'lumot beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># views.py</span><br>
+                        <span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">salom</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;context = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"ism"</span>: <span class="string">"Ali"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"yosh"</span>: <span class="number">25</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">render</span>(request, <span class="string">"salom.html"</span>, context)
+                    </div>
+                    <div class="comment-part">
+                        # render(request, 'shablon.html', context)<br>
+                        # context — lug'at: kalit shablonda {{ kalit }} bo'ladi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Oqim</strong>
+                    <p>
+                        Foydalanuvchi → View (render + context) → Shablon ({{ }} to'ldiriladi) → Tayyor HTML → Brauzer
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>{% for %} — Ro'yxatni Aylanish</h2>
+                <div class="description">
+                    <span class="highlight-var">{% for %}</span> tegi ro'yxatdagi har bir element uchun
+                    HTML bo'lagini takrorlaydi. Oxirida <span class="highlight-var">{% endfor %}</span> yoziladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="tag">&lt;ul&gt;</span><br>
+                        <span class="dtl">{% for ovqat in menyu %}</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;li&gt;</span><span class="dtl">{{ ovqat }}</span><span class="tag">&lt;/li&gt;</span><br>
+                        <span class="dtl">{% endfor %}</span><br>
+                        <span class="tag">&lt;/ul&gt;</span>
+                    </div>
+                    <div class="comment-part">
+                        # menyu = ["Osh", "Lag'mon", "Manti"]<br>
+                        # har bir element &lt;li&gt; ga aylanadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> • Osh<br>
+                    >>> • Lag'mon<br>
+                    >>> • Manti
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>{% if %} — Shart Tekshirish</h2>
+                <div class="description">
+                    <span class="highlight-var">{% if %}</span> shart to'g'ri bo'lsagina ichidagi HTML ni ko'rsatadi.
+                    <span class="highlight-var">{% else %}</span> va <span class="highlight-var">{% endif %}</span> bilan ishlatiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="dtl">{% if kirgan %}</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;p&gt;</span>Xush kelibsiz, <span class="dtl">{{ ism }}</span>!<span class="tag">&lt;/p&gt;</span><br>
+                        <span class="dtl">{% else %}</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;p&gt;</span>Iltimos, tizimga kiring.<span class="tag">&lt;/p&gt;</span><br>
+                        <span class="dtl">{% endif %}</span>
+                    </div>
+                    <div class="comment-part">
+                        # kirgan = True bo'lsa birinchi qator,<br>
+                        # aks holda ikkinchi qator chiqadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>templates Papkasi</h2>
+                <div class="description">
+                    Django shablonlarni <span class="highlight-var">templates</span> nomli papkadan qidiradi.
+                    Odatda har bir ilova ichida shu papka bo'ladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        loyiha/<br>
+                        &nbsp;&nbsp;└── ilova/<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── views.py<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── templates/<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── salom.html<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── menyu.html
+                    </div>
+                    <div class="comment-part">
+                        # render(request, "salom.html") shu papkadan topadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Static Fayllar (CSS / JS)</h2>
+                <div class="description">
+                    CSS, JavaScript va rasmlar <strong>static fayllar</strong> deyiladi. Ular
+                    <span class="highlight-var">static</span> papkasida saqlanadi. Shablonda
+                    avval <span class="highlight-var">{% load static %}</span> yoziladi, keyin
+                    <span class="highlight-var">{% static '...' %}</span> bilan fayl ulanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="dtl">{% load static %}</span><br>
+                        <span class="tag">&lt;link</span> rel=<span class="string">"stylesheet"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;href=<span class="string">"</span><span class="dtl">{% static 'style.css' %}</span><span class="string">"</span><span class="tag">&gt;</span>
+                    </div>
+                    <div class="comment-part">
+                        # static/style.css faylini sahifaga ulaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Template Meros (extends / block)</h2>
+                <div class="description">
+                    Ko'p sahifalarda bir xil qism bo'ladi (menyu, footer). Ularni har safar
+                    qayta yozmaslik uchun bitta <strong>asosiy shablon (base.html)</strong> yasab,
+                    boshqa sahifalar undan <span class="highlight-var">meros</span> oladi.
+                </div>
+                <h3>1. Asosiy shablon — base.html</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment">&lt;!-- base.html --&gt;</span><br>
+                        <span class="tag">&lt;body&gt;</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;h1&gt;</span>Mening Saytim<span class="tag">&lt;/h1&gt;</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="dtl">{% block kontent %}{% endblock %}</span><br>
+                        <span class="tag">&lt;/body&gt;</span>
+                    </div>
+                    <div class="comment-part">
+                        # block — bu bolalar to'ldiradigan bo'sh joy
+                    </div>
+                </div>
+                <h3>2. Bola shablon — uy.html</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment">&lt;!-- uy.html --&gt;</span><br>
+                        <span class="dtl">{% extends 'base.html' %}</span><br>
+                        <span class="dtl">{% block kontent %}</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;p&gt;</span>Bu bosh sahifa.<span class="tag">&lt;/p&gt;</span><br>
+                        <span class="dtl">{% endblock %}</span>
+                    </div>
+                    <div class="comment-part">
+                        # extends — base.html ni meros oladi<br>
+                        # block — faqat o'z qismini to'ldiradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Mening Saytim<br>
+                    >>> Bu bosh sahifa.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: {{ o'zgaruvchi }} Almashishi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="varIsm" placeholder="ism" value="Ali">
+                        <input type="number" id="varYosh" placeholder="yosh" value="25" style="min-width:80px;">
+                        <button onclick="demoVar()">To'ldir</button>
+                    </div>
+                    <div class="demo-result" id="resultVar"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: {% for %} Ro'yxatni HTML ga Aylantirish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="forList" placeholder="vergul bilan ajrating" value="Osh, Lag'mon, Manti">
+                        <button onclick="demoFor()">Aylantir</button>
+                    </div>
+                    <div class="demo-result" id="resultFor"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Template Meros (extends / block)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="inhTitle" placeholder="sayt nomi" value="Mening Saytim">
+                        <input type="text" id="inhBody" placeholder="sahifa matni" value="Bu bosh sahifa.">
+                        <button onclick="demoInherit()">Birlashtir</button>
+                    </div>
+                    <div class="demo-result" id="resultInherit"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: {% if %} Shartni Sinab Ko'rish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="ifIsm" placeholder="ism" value="Vali">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoIf(true)">kirgan = True</button>
+                        <button onclick="demoIf(false)">kirgan = False</button>
+                    </div>
+                    <div class="demo-result" id="resultIf"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>templates papkasi yarating</strong>
+                            <p>Ilova ichida templates/ papkasini oching</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>profil.html shabloni yozing</strong>
+                            <p>Ichida {{ ism }} va {{ shahar }} ishlating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>View dan context bering</strong>
+                            <p>render(request, "profil.html", {"ism": "Ali", "shahar": "Toshkent"})</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>{% for %} qo'shing</strong>
+                            <p>Hobbylar ro'yxatini &lt;li&gt; lar bilan chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 151: Django Forma</p>
+                    <p style="opacity: 0.9;">
+                        Shablonlar bilan ma'lumotni chiroyli ko'rsatishni o'rgandingiz!<br>
+                        Endi foydalanuvchidan ma'lumot olishni — formalarni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function esc(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function demoVar() {
+            const ism = document.getElementById('varIsm').value || "Ali";
+            const yosh = document.getElementById('varYosh').value || "0";
+            const result = document.getElementById('resultVar');
+            result.classList.add('show');
+            result.innerHTML =
+                '# Shablon:<br>' +
+                esc('<h1>Salom, {{ ism }}!</h1>') + '<br>' +
+                esc('<p>Yosh: {{ yosh }}</p>') + '<br><br>' +
+                '# Natija:<br>' +
+                esc('<h1>Salom, ' + ism + '!</h1>') + '<br>' +
+                esc('<p>Yosh: ' + yosh + '</p>');
+        }
+
+        function demoFor() {
+            const raw = document.getElementById('forList').value;
+            const items = raw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            const result = document.getElementById('resultFor');
+            result.classList.add('show');
+            let out = '# Shablon:<br>' +
+                esc('{% for ovqat in menyu %}') + '<br>' +
+                '&nbsp;&nbsp;' + esc('<li>{{ ovqat }}</li>') + '<br>' +
+                esc('{% endfor %}') + '<br><br># Natija:<br>' +
+                esc('<ul>') + '<br>';
+            items.forEach(it => {
+                out += '&nbsp;&nbsp;' + esc('<li>' + it + '</li>') + '<br>';
+            });
+            out += esc('</ul>');
+            result.innerHTML = out;
+        }
+
+        function demoInherit() {
+            const title = document.getElementById('inhTitle').value || "Mening Saytim";
+            const body = document.getElementById('inhBody').value || "Matn";
+            const result = document.getElementById('resultInherit');
+            result.classList.add('show');
+            result.innerHTML =
+                '# base.html:<br>' +
+                esc('<h1>' + title + '</h1>') + '<br>' +
+                esc('{% block kontent %}{% endblock %}') + '<br><br>' +
+                '# uy.html:<br>' +
+                esc("{% extends 'base.html' %}") + '<br>' +
+                esc('{% block kontent %}') + esc('<p>' + body + '</p>') + esc('{% endblock %}') + '<br><br>' +
+                '# Birlashgan natija:<br>' +
+                esc('<h1>' + title + '</h1>') + '<br>' +
+                esc('<p>' + body + '</p>');
+        }
+
+        function demoIf(kirgan) {
+            const ism = document.getElementById('ifIsm').value || "Foydalanuvchi";
+            const result = document.getElementById('resultIf');
+            result.classList.add('show');
+            let out = '# kirgan = ' + (kirgan ? 'True' : 'False') + '<br><br># Natija:<br>';
+            if (kirgan) {
+                out += esc('<p>Xush kelibsiz, ' + ism + '!</p>');
+            } else {
+                out += esc('<p>Iltimos, tizimga kiring.</p>');
+            }
+            result.innerHTML = out;
+        }
+
+        // dastlabki ko'rinish
+        demoVar();
+    </script>
+</body>
+</html>

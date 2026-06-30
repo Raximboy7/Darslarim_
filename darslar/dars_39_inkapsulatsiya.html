@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 39: Inkapsulatsiya</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        .demo-result.error { color: #f87171; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: var(--gray);
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+        .comment { color: #6b7280; font-style: italic; }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 7 — OOP (Obyektga asoslangan dasturlash) · Dars 39 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Inkapsulatsiya</h1>
+                <p>Modul 7 — OOP (Obyektga asoslangan dasturlash) | Dars 39</p>
+            </header>
+
+            <div class="section">
+                <h2>Inkapsulatsiya Nima?</h2>
+                <div class="description">
+                    <strong>Inkapsulatsiya</strong> — bu obyekt ichidagi ma'lumotlarni
+                    <strong>himoyalash va yashirish</strong> degani. Ya'ni ba'zi xususiyatlarga
+                    tashqaridan to'g'ridan-to'g'ri tegib bo'lmaydi — ularga faqat maxsus
+                    metodlar orqali kirish mumkin.
+                </div>
+                <div class="description">
+                    Buni <strong>bank hisobi</strong> bilan tasavvur qiling. Bankdagi
+                    pulingizni (balansni) o'z qo'lingiz bilan o'zgartira olmaysiz —
+                    siz pul qo'yasiz yoki yechasiz, bank esa har bir amalni
+                    <strong>tekshiradi</strong>. Inkapsulatsiya ham aynan shunday ishlaydi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Public Xususiyatlar</h2>
+                <div class="description">
+                    <strong>Public</strong> (ochiq) xususiyatlarga hamma joydan
+                    erkin kirish mumkin. Ularning oldida hech qanday belgi bo'lmaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Hisob</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, egasi):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.egasi <span class="operator">=</span> egasi&nbsp;&nbsp;<span class="comment"># public</span><br>
+                        <br>
+                        h <span class="operator">=</span> <span class="function">Hisob</span>(<span class="string">"Ali"</span>)<br>
+                        <span class="function">print</span>(h.egasi)<br>
+                        h.egasi <span class="operator">=</span> <span class="string">"Vali"</span>&nbsp;&nbsp;<span class="comment"># erkin o'zgartirish mumkin</span>
+                    </div>
+                    <div class="comment-part">
+                        # egasi — public xususiyat: o'qish ham, yozish ham mumkin
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Private Xususiyatlar (__balans)</h2>
+                <div class="description">
+                    Xususiyat nomi oldiga <span class="highlight-var">__</span> (ikkita pastki chiziq)
+                    qo'yilsa, u <strong>private</strong> (yashirin) bo'ladi. Unga klass
+                    <strong>tashqarisidan</strong> to'g'ridan-to'g'ri tegib bo'lmaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Hisob</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, balans):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__balans <span class="operator">=</span> balans&nbsp;&nbsp;<span class="comment"># private</span><br>
+                        <br>
+                        h <span class="operator">=</span> <span class="function">Hisob</span>(<span class="number">1000</span>)<br>
+                        <span class="function">print</span>(h.__balans)&nbsp;&nbsp;<span class="comment"># XATO!</span>
+                    </div>
+                    <div class="comment-part">
+                        # __balans — private. Tashqaridan kirish AttributeError beradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> AttributeError: 'Hisob' object has no attribute '__balans'
+                </div>
+                <div class="info-box">
+                    <strong>Nega bu kerak?</strong>
+                    <p>
+                        Agar balansga hamma erkin tegsa, kimdir uni manfiy songa
+                        aylantirib qo'yishi mumkin. Private qilib, biz balansni
+                        <strong>noto'g'ri qiymatlardan himoyalaymiz</strong> — unga faqat
+                        tekshiruvdan o'tgan metodlar orqali kiriladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Metod Orqali Kirish (Getter / Setter)</h2>
+                <div class="description">
+                    Private xususiyatga kirish uchun maxsus metodlar yoziladi:<br>
+                    • <strong>getter</strong> — qiymatni <strong>o'qib beradi</strong>;<br>
+                    • <strong>setter</strong> — qiymatni <strong>tekshirib o'rnatadi</strong>.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Hisob</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__balans <span class="operator">=</span> <span class="number">0</span><br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">pul_qoy</span>(self, summa):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> summa <span class="operator">&gt;</span> <span class="number">0</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__balans <span class="operator">+=</span> summa<br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">balansni_kor</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.__balans
+                    </div>
+                    <div class="comment-part">
+                        # pul_qoy — setter (tekshiruv bilan), balansni_kor — getter
+                    </div>
+                </div>
+                <div class="output-demo">
+                    h = Hisob()<br>
+                    h.pul_qoy(500)<br>
+                    >>> print(h.balansni_kor())  →  500
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>@property Dekorator</h2>
+                <div class="description">
+                    <span class="highlight-var">@property</span> — bu metodni xuddi oddiy
+                    xususiyatdek <strong>qavssiz</strong> chaqirish imkonini beradi.
+                    Shunda foydalanuvchi <code>h.balans()</code> emas, balki
+                    <code>h.balans</code> deb yozadi — lekin ortda baribir tekshiruvli
+                    metod ishlaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Hisob</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__balans <span class="operator">=</span> <span class="number">0</span><br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">@property</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">balans</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.__balans<br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">@balans.setter</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">balans</span>(self, qiymat):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> qiymat <span class="operator">&gt;=</span> <span class="number">0</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__balans <span class="operator">=</span> qiymat
+                    </div>
+                    <div class="comment-part">
+                        # h.balans  → getter ishlaydi (qavssiz)
+                        <br># h.balans = 200  → setter ishlaydi (tekshiruv bilan)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    h = Hisob()<br>
+                    h.balans = 200&nbsp;&nbsp;# setter chaqiriladi<br>
+                    >>> print(h.balans)  →  200
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xususiyatlar Turlari</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Yozilishi</th><th>Turi</th><th>Kirish mumkinmi?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>self.ism</code></td><td>Public</td><td>Hamma joydan erkin</td></tr>
+                        <tr><td><code>self._ism</code></td><td>Himoyalangan (kelishuv)</td><td>Texnik mumkin, lekin tegmang</td></tr>
+                        <tr><td><code>self.__ism</code></td><td>Private</td><td>Faqat klass ichida</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Nega Metod Orqali Kirish Afzal?</strong>
+                <p>
+                    • Metodga <strong>tekshiruv qo'shish</strong> mumkin (manfiy summani rad etish)<br>
+                    • Ma'lumotni <strong>noto'g'ri qiymatlardan himoyalaydi</strong><br>
+                    • Keyinchalik ichki mantiqni o'zgartirsangiz, tashqi kod buzilmaydi<br>
+                    • Kod ishonchli va xavfsiz bo'ladi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Bank Hisobi (Private Balans)</h2>
+                <div class="description">
+                    Balans private. Unga to'g'ridan-to'g'ri tegib bo'lmaydi — faqat
+                    <strong>pul qo'yish / yechish</strong> metodlari orqali. Manfiy summa rad etiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="amount1" placeholder="Summa" value="500">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoDeposit()">Pul qo'yish</button>
+                        <button onclick="demoWithdraw()">Pul yechish</button>
+                        <button onclick="demoDirect()">__balans = -100 (urinib ko'r)</button>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: @property Getter</h2>
+                <div class="description">
+                    Balansni <strong>qavssiz</strong> o'qiymiz — <code>h.balans</code>.
+                    Ortda getter metodi ishlaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoGetter()">h.balans ni o'qish</button>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Setter Validatsiyasi</h2>
+                <div class="description">
+                    <code>h.balans = qiymat</code> deganda setter ishlaydi va qiymatni
+                    <strong>tekshiradi</strong>. Manfiy son kiritsangiz — rad etiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="setVal" placeholder="Yangi balans" value="300">
+                        <button onclick="demoSetter()">h.balans = qiymat</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Hisob klassini yarating</strong>
+                            <p>__init__ ichida self.__balans = 0 (private) qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>pul_qoy(summa) metodini yozing</strong>
+                            <p>Agar summa &gt; 0 bo'lsa balansga qo'shing, aks holda rad eting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>@property balans qo'shing</strong>
+                            <p>Getter __balans ni qaytarsin (qavssiz o'qiladi)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Setter validatsiyasini sinab ko'ring</strong>
+                            <p>Manfiy qiymat o'rnatishga urinib, rad etilishini tekshiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 40: Static va Class Metodlar</p>
+                    <p style="opacity: 0.9;">
+                        Inkapsulatsiya bilan ma'lumotni himoyalashni o'rgandingiz!<br>
+                        Endi @staticmethod va @classmethod metodlarni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: private balans bilan ishlovchi soxta "obyekt"
+        let balans = 1000;
+
+        function demoDeposit() {
+            const summa = parseInt(document.getElementById('amount1').value);
+            const result = document.getElementById('result1');
+            result.classList.remove('error');
+            result.classList.add('show');
+            if (isNaN(summa) || summa <= 0) {
+                result.classList.add('error');
+                result.innerHTML = `>>> h.pul_qoy(${isNaN(summa) ? '?' : summa})<br>>>> Xato: summa musbat bo'lishi kerak! Rad etildi.`;
+                return;
+            }
+            balans += summa;
+            result.innerHTML = `>>> h.pul_qoy(${summa})<br>>>> ${summa} qo'yildi. Yangi balans: ${balans}`;
+        }
+
+        function demoWithdraw() {
+            const summa = parseInt(document.getElementById('amount1').value);
+            const result = document.getElementById('result1');
+            result.classList.remove('error');
+            result.classList.add('show');
+            if (isNaN(summa) || summa <= 0) {
+                result.classList.add('error');
+                result.innerHTML = `>>> h.pul_yech(${isNaN(summa) ? '?' : summa})<br>>>> Xato: summa musbat bo'lishi kerak! Rad etildi.`;
+                return;
+            }
+            if (summa > balans) {
+                result.classList.add('error');
+                result.innerHTML = `>>> h.pul_yech(${summa})<br>>>> Xato: balans yetarli emas (${balans}). Rad etildi.`;
+                return;
+            }
+            balans -= summa;
+            result.innerHTML = `>>> h.pul_yech(${summa})<br>>>> ${summa} yechildi. Yangi balans: ${balans}`;
+        }
+
+        function demoDirect() {
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.classList.add('error');
+            result.innerHTML = `>>> h.__balans = -100<br>>>> AttributeError: tashqaridan __balans ga tegib bo'lmaydi!<br>>>> Balans himoyalangan. Hozirgi balans: ${balans}`;
+        }
+
+        // Misol 2: @property getter
+        function demoGetter() {
+            const result = document.getElementById('result2');
+            result.classList.remove('error');
+            result.classList.add('show');
+            result.innerHTML = `>>> h.balans&nbsp;&nbsp;# qavssiz, getter ishlaydi<br>>>> ${balans}`;
+        }
+
+        // Misol 3: setter validatsiyasi
+        function demoSetter() {
+            const qiymat = parseInt(document.getElementById('setVal').value);
+            const result = document.getElementById('result3');
+            result.classList.remove('error');
+            result.classList.add('show');
+            if (isNaN(qiymat)) {
+                result.classList.add('error');
+                result.innerHTML = `>>> h.balans = ?<br>>>> Xato: son kiriting!`;
+                return;
+            }
+            if (qiymat < 0) {
+                result.classList.add('error');
+                result.innerHTML = `>>> h.balans = ${qiymat}<br>>>> Setter tekshirdi: balans manfiy bo'lolmaydi! Rad etildi.`;
+                return;
+            }
+            balans = qiymat;
+            result.innerHTML = `>>> h.balans = ${qiymat}<br>>>> Setter tekshirdi: qiymat to'g'ri. Yangi balans: ${balans}`;
+        }
+    </script>
+</body>
+</html>

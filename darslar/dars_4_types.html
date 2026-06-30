@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 4: O'zgaruvchilar va Turlar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .type-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .type-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .type-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 150px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 1 — Asoslar · Dars 4 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>O'zgaruvchilar va Turlar</h1>
+                <p>Modul 1 — Asoslar | Dars 4</p>
+            </header>
+
+            <div class="section">
+                <h2>O'zgaruvchi Nima?</h2>
+                <div class="description">
+                    <strong>O'zgaruvchi</strong> — bu xotirada qiymat saqlash uchun nomi berilgan joy. 
+                    Kompyuter o'zgaruvchini ko'rganda, uning qiymatini eslaydi va qo'llaydi.
+                </div>
+
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
+                    O'zgaruvchi yaratish sodda:
+                </p>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        <span class="keyword">ism</span> = <span class="string">"Ali"</span>
+                    </div>
+                </div>
+                <p style="color: var(--dark); margin-top: 10px;">
+                    Bu degani: <span class="highlight-var">ism</span> nomli o'zgaruvchiga <span class="highlight-var">"Ali"</span> qiymatini qo'ydik.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Ma'lumot Turlari (Data Types)</h2>
+                <div class="description">
+                    Python'da turli xil ma'lumot turlari bor. Kompyuter har birni boshqacha ishlab chiqaradi.
+                </div>
+
+                <h3>1️⃣ int (Butun son)</h3>
+                <div class="type-card">
+                    <strong>int — Butun son</strong>
+                    <p>Minus (-), nol (0), va musbat (+) raqamlar.</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            yosh = <span class="number">25</span>  # int turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> yosh = 25<br>
+                        >>> type(yosh) # &lt;class 'int'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">10</span>, <span class="highlight-var">-5</span>, <span class="highlight-var">0</span>, <span class="highlight-var">1000</span>
+                    </p>
+                </div>
+
+                <h3>2️⃣ float (O'nli Kasr Raqam)</h3>
+                <div class="type-card">
+                    <strong>float - O'nli kasr raqam</strong>
+                    <p>Nuqta (.) bilan o'nli kasr raqamlar.</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            bo'yi = <span class="number">1.75</span>  # float turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> bo'yi = 1.75<br>
+                        >>> type(bo'yi) # &lt;class 'float'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">3.14</span>, <span class="highlight-var">-2.5</span>, <span class="highlight-var">0.5</span>
+                    </p>
+                </div>
+
+                <h3>3️⃣ str (String - Matn)</h3>
+                <div class="type-card">
+                    <strong>str - String (matn)</strong>
+                    <p>Tirnoq ichidagi barcha narsalar (harflar, belgilar, hatto raqamlar).</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            ism = <span class="string">"Muhammad"</span>  # str turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> ism = "Muhammad"<br>
+                        >>> type(ism) # &lt;class 'str'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">"Salom"</span>, <span class="highlight-var">"123"</span> (tirnoq ichida), <span class="highlight-var">""</span> (bo'sh)
+                    </p>
+                </div>
+
+                <h3>4️⃣ bool (Boolean - Rost/Yolg'on)</h3>
+                <div class="type-card">
+                    <strong>bool — Boolean (Rost yoki Yolg'on)</strong>
+                    <p>Faqat ikkita qiymat: <span class="highlight-var">True</span> yoki <span class="highlight-var">False</span></p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            faol = <span class="boolean">True</span>  # bool turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> faol = True<br>
+                        >>> type(faol) # &lt;class 'bool'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">True</span>, <span class="highlight-var">False</span> (katta harfda!)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Turlarni Taqqoslash</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Tur</th>
+                            <th>Nomi</th>
+                            <th>Misol</th>
+                            <th>Tirnoq?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="highlight-var">int</span></td>
+                            <td>Butun son</td>
+                            <td>42, -10, 0</td>
+                            <td>YO'Q</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-var">float</span></td>
+                            <td>O'nli kasr</td>
+                            <td>3.14, -2.5</td>
+                            <td>YO'Q</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-var">str</span></td>
+                            <td>Matn</td>
+                            <td>"Salom", "123"</td>
+                            <td>HA!</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-var">bool</span></td>
+                            <td>Rost/Yolg'on</td>
+                            <td>True, False</td>
+                            <td>YO'Q</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Turni Bilish: type()</h2>
+                <div class="description">
+                    O'zgaruvchining turi nima ekanligini bilish uchun <span class="highlight-var">type()</span> funksiyasini ishlating.
+                </div>
+
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="function">type</span>(<span class="number">42</span>))
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> &lt;class 'int'&gt;
+                </div>
+
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="function">type</span>(<span class="string">"Salom"</span>))
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> &lt;class 'str'&gt;
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Turlarni Almashtirish (Type Conversion)</h2>
+                <div class="description">
+                    Ba'zida bir turni boshqa turga o'tkazish kerak. Buni <span class="highlight-var">int()</span>, 
+                    <span class="highlight-var">float()</span>, <span class="highlight-var">str()</span> funksiyalari bilan qilamiz.
+                </div>
+
+                <h3>String-dan int-ga</h3>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        son = <span class="function">int</span>(<span class="string">"25"</span>)  # "25" soni bo'ladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> son = 25 (int turi)
+                </div>
+
+                <h3>int-dan string-ga</h3>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        matn = <span class="function">str</span>(<span class="number">42</span>)  # 42 matni bo'ladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> matn = "42" (str turi)
+                </div>
+
+                <h3>float-dan int-ga</h3>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        son = <span class="function">int</span>(<span class="number">3.99</span>)  # Kasr qismini butunlashtiradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> son = 3 (o'nli qismi o'chiriladi!)
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslaydigan Narsa</strong>
+                <p>
+                    • <span class="highlight-var">int</span> — raqam (butun)<br>
+                    • <span class="highlight-var">float</span> — raqam (o'nli)<br>
+                    • <span class="highlight-var">str</span> — matn (TIRNOQ ICHIDA!)<br>
+                    • <span class="highlight-var">bool</span> — True yoki False
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: int Turi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="intVal" placeholder="Raqam" value="42">
+                        <button onclick="demoInt()">Turini Ko'rish</button>
+                    </div>
+                    <div class="demo-result" id="resultInt"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: float Turi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" step="0.01" id="floatVal" placeholder="O'nli kasr" value="3.14">
+                        <button onclick="demoFloat()">Turini Ko'rish</button>
+                    </div>
+                    <div class="demo-result" id="resultFloat"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: str Turi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="strVal" placeholder="Matn" value="Salom">
+                        <button onclick="demoStr()">Turini Ko'rish</button>
+                    </div>
+                    <div class="demo-result" id="resultStr"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: bool Turi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="boolVal" style="flex: 1; min-width: 150px; padding: 10px 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 0.95em;">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                        <button onclick="demoBool()">Turini Ko'rish</button>
+                    </div>
+                    <div class="demo-result" id="resultBool"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: Turni Almashtirish</h2>
+                <div class="example-box">
+                    <div class="example-title">String → int</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            son = <span class="function">int</span>(<span class="string">"42"</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">int → str</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            matn = <span class="function">str</span>(<span class="number">42</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">float → int</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            son = <span class="function">int</span>(<span class="number">3.99</span>)  # 3 bo'ladi
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Qo'shish: Raqam va String</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: int + str</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="number">42</span> + <span class="string">"5"</span>)  # XATO!
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Xato: Raqam va matnni to'g'ridan-to'g'ri qo'sha olmaysiz!
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: Turni almashtirib</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="number">42</span> + <span class="function">int</span>(<span class="string">"5"</span>))  # 47
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> 47
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Kod Ichida Tushuntirishlari Bilan</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>O'zgaruvchi yaratish</strong>
+                            <p><span class="highlight-var">a = 42</span> (int turi)</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Turini tekshirish</strong>
+                            <p><span class="highlight-var">type(a)</span> → &lt;class 'int'&gt;</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Chiqarish</strong>
+                            <p><span class="highlight-var">print(a)</span> → 42</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Turni almashtirish</strong>
+                            <p><span class="highlight-var">str(a)</span> → "42" (str turi)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashq</h2>
+                <div class="info-box">
+                    <strong>Kod Yozish</strong>
+                    <p>
+                        1. Yangi fayl: <span class="highlight-var">types.py</span><br>
+                        2. Turli o'zgaruvchilar yarating<br>
+                        3. Ularning turlarini chiqaring<br>
+                        4. Bajarish: <span class="highlight-var">python types.py</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 5: Operatorlar va Matematik</p>
+                    <p style="opacity: 0.9;">
+                        O'zgaruvchilarni bildingiz!<br>
+                        Endi raqamlar bilan matematik amallarni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoInt() {
+            const val = document.getElementById('intVal').value;
+            const result = document.getElementById('resultInt');
+            result.classList.add('show');
+            result.innerHTML = `>>> a = ${val}<br>>>> type(a)<br>&lt;class 'int'&gt;`;
+        }
+
+        function demoFloat() {
+            const val = document.getElementById('floatVal').value;
+            const result = document.getElementById('resultFloat');
+            result.classList.add('show');
+            result.innerHTML = `>>> b = ${val}<br>>>> type(b)<br>&lt;class 'float'&gt;`;
+        }
+
+        function demoStr() {
+            const val = document.getElementById('strVal').value;
+            const result = document.getElementById('resultStr');
+            result.classList.add('show');
+            result.innerHTML = `>>> c = "${val}"<br>>>> type(c)<br>&lt;class 'str'&gt;`;
+        }
+
+        function demoBool() {
+            const val = document.getElementById('boolVal').value;
+            const result = document.getElementById('resultBool');
+            result.classList.add('show');
+            result.innerHTML = `>>> d = ${val}<br>>>> type(d)<br>&lt;class 'bool'&gt;`;
+        }
+    </script>
+</body>
+</html>

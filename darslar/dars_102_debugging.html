@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 102: Debugging (Xatolarni Topish)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TRACEBACK / STEP HIGHLIGHT */
+        .tb-line {
+            padding: 4px 8px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .tb-line.hit {
+            background: rgba(248, 113, 113, 0.18);
+            border-left: 3px solid #f87171;
+        }
+        .step-code-line {
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            color: #d4d4d4;
+        }
+        .step-code-line.active {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateX(6px);
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: var(--gray);
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 15 — Concurrency va Advanced · Dars 102 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Debugging (Xatolarni Topish)</h1>
+                <p>Modul 15 — Concurrency va Advanced | Dars 102</p>
+            </header>
+
+            <div class="section">
+                <h2>Debugging Nima?</h2>
+                <div class="description">
+                    <strong>Debugging</strong> — bu dasturdagi <strong>xatolarni topib tuzatish</strong>
+                    jarayoni. Xato — inglizcha <span class="highlight-var">bug</span> (qo'ng'iz) deyiladi,
+                    shuning uchun ularni topib yo'qotish <span class="highlight-var">debugging</span> deb ataladi.
+                </div>
+                <div class="description">
+                    Kod ishlamay qolsa yoki noto'g'ri natija bersa, vahima qilmang. Debugging — bu
+                    detektiv ishi: kodni qadamma-qadam kuzatib, xato <strong>qayerda</strong> va
+                    <strong>nima uchun</strong> yuzaga kelganini topasiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xato Turlarini Tushunish</h2>
+                <div class="description">
+                    Avval xatoning qaysi turdan ekanini bilish kerak. Uch asosiy tur bor:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tur</th><th>Ma'nosi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>SyntaxError</code></td><td>Yozuvda xato — Python kodni o'qiy olmaydi</td><td>qavs yopilmagan</td></tr>
+                        <tr><td><code>NameError</code></td><td>Aniqlanmagan o'zgaruvchi ishlatildi</td><td><code>print(x)</code> — x yo'q</td></tr>
+                        <tr><td><code>TypeError</code></td><td>Mos kelmaydigan turlar qo'shildi</td><td><code>"5" + 3</code></td></tr>
+                        <tr><td><code>ZeroDivisionError</code></td><td>Nolga bo'lish</td><td><code>10 / 0</code></td></tr>
+                        <tr><td><code>IndexError</code></td><td>Mavjud bo'lmagan indeks</td><td>bo'sh ro'yxatdan <code>[0]</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Traceback (Xato Izi) ni O'qish</h2>
+                <div class="description">
+                    Xato yuz berganda Python <strong>traceback</strong> (xato izi) chiqaradi. Uni
+                    <strong>pastdan yuqoriga</strong> emas, balki <strong>oxirgi qatordan</strong>
+                    o'qing — eng muhim ma'lumot eng pastda turadi.
+                </div>
+                <div class="output-demo">
+                    Traceback (most recent call last):<br>
+                    &nbsp;&nbsp;File "main.py", line 3, in &lt;module&gt;<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;natija = bol(10, 0)<br>
+                    &nbsp;&nbsp;File "main.py", line 1, in bol<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;return a / b<br>
+                    <span style="color:#f87171;">ZeroDivisionError: division by zero</span>
+                </div>
+                <div class="info-box">
+                    <strong>Tracebackni qanday o'qish kerak?</strong>
+                    <p>
+                        • Eng <strong>oxirgi qator</strong> — xato turi va sababi (<code>ZeroDivisionError: division by zero</code>)<br>
+                        • <strong>line 1</strong> — xato qaysi qatorda yuz berdi<br>
+                        • <strong>File "main.py"</strong> — qaysi faylda<br>
+                        • Yuqori qatorlar — qaysi yo'l orqali shu xatoga yetib kelindi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1-usul: print() bilan Debugging</h2>
+                <div class="description">
+                    Eng sodda usul — shubhali joylarga <span class="highlight-var">print()</span>
+                    qo'yib, o'zgaruvchilar qiymatini ekranga chiqarish. Tez va oson, lekin keyin
+                    ularni tozalash kerak — shuning uchun bu <strong>tartibsiz</strong> usul.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">narx_hisobla</span>(soni, narx):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"soni ="</span>, soni)&nbsp;&nbsp;<span class="comment"># tekshiruv</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"narx ="</span>, narx)&nbsp;&nbsp;<span class="comment"># tekshiruv</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;jami = soni <span class="operator">*</span> narx<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> jami
+                    </div>
+                    <div class="comment-part">
+                        # print() bilan har bir o'zgaruvchi qiymatini ko'ramiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> soni = 3<br>
+                    >>> narx = 5000<br>
+                    >>> 15000
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-usul: pdb — Python Debugger</h2>
+                <div class="description">
+                    <span class="highlight-var">pdb</span> — Pythonning rasmiy debug vositasi. U
+                    dasturni belgilangan joyda <strong>to'xtatadi</strong> va siz o'zgaruvchilarni
+                    tekshirib, kodni qadamma-qadam bajarishingiz mumkin.
+                </div>
+                <h3>breakpoint() — to'xtash nuqtasi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">bol</span>(a, b):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">breakpoint</span>()&nbsp;&nbsp;<span class="comment"># shu yerda to'xtaydi</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> a <span class="operator">/</span> b
+                    </div>
+                    <div class="comment-part">
+                        # breakpoint() — Python 3.7+ da eng oson usul
+                    </div>
+                </div>
+                <div class="description">
+                    Eski usul ham bor (xuddi shu vazifani bajaradi):
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> pdb<br>
+                        pdb.<span class="function">set_trace</span>()&nbsp;&nbsp;<span class="comment"># breakpoint() bilan bir xil</span>
+                    </div>
+                    <div class="comment-part">
+                        # import pdb; pdb.set_trace() — klassik to'xtash nuqtasi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>pdb Buyruqlari (Qadamma-qadam)</h2>
+                <div class="description">
+                    Dastur to'xtaganda <span class="highlight-var">(Pdb)</span> ko'rinadi. Endi bu
+                    buyruqlar bilan kodni kuzatasiz:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Buyruq</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>n</code> (next)</td><td>Keyingi qatorga o'tish</td></tr>
+                        <tr><td><code>s</code> (step)</td><td>Funksiya ichiga kirib qadam tashlash</td></tr>
+                        <tr><td><code>c</code> (continue)</td><td>Davom etish (keyingi to'xtashgacha)</td></tr>
+                        <tr><td><code>p o'zgaruvchi</code></td><td>O'zgaruvchi qiymatini ko'rsatish</td></tr>
+                        <tr><td><code>l</code> (list)</td><td>Atrofdagi kodni ko'rsatish</td></tr>
+                        <tr><td><code>q</code> (quit)</td><td>Debuggerdan chiqish</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>O'zgaruvchilarni Kuzatish</strong>
+                    <p>
+                        To'xtash nuqtasida <code>p soni</code> deb yozsangiz, Python o'sha paytdagi
+                        <code>soni</code> qiymatini ko'rsatadi. Shu tariqa xato qaysi o'zgaruvchidan
+                        kelganini aniqlaysiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Tracebackni O'qish</h2>
+                <div class="description">
+                    Quyidagi tugmalarni bosing — Python tracebackni qanday o'qishni ko'rsatadi.
+                    Har bir qator nimani anglatishini tushuntiramiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="output-demo" style="border-left-color:#f87171;">
+                        <div class="tb-line" id="tb-0">Traceback (most recent call last):</div>
+                        <div class="tb-line" id="tb-1">&nbsp;&nbsp;File "main.py", line 3, in &lt;module&gt;</div>
+                        <div class="tb-line" id="tb-2">&nbsp;&nbsp;&nbsp;&nbsp;natija = bol(10, 0)</div>
+                        <div class="tb-line" id="tb-3">&nbsp;&nbsp;File "main.py", line 2, in bol</div>
+                        <div class="tb-line" id="tb-4">&nbsp;&nbsp;&nbsp;&nbsp;return a / b</div>
+                        <div class="tb-line" id="tb-5" style="color:#f87171;">ZeroDivisionError: division by zero</div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="explainTraceback()">Xatoni tushuntir</button>
+                        <button onclick="resetTraceback()">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultTraceback"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: breakpoint da To'xtash</h2>
+                <div class="description">
+                    Bu demo <span class="highlight-var">breakpoint()</span> ishini simulyatsiya qiladi.
+                    Dastur to'xtaganda o'zgaruvchini tanlab, uning qiymatini <code>p</code> buyrug'i
+                    bilan ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="code-part" style="border-radius:8px; margin-bottom:12px;">
+                        <span class="keyword">def</span> <span class="function">bol</span>(a, b):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">breakpoint</span>()&nbsp;&nbsp;<span class="comment"># &lt;-- dastur shu yerda to'xtadi</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> a <span class="operator">/</span> b<br>
+                        <br>
+                        natija = <span class="function">bol</span>(<span class="number">10</span>, <span class="number">0</span>)
+                    </div>
+                    <div class="demo-input">
+                        <select id="pdbVar" style="flex:1; min-width:120px; padding:10px 15px; border:2px solid var(--primary); border-radius:8px; font-size:0.95em; font-family:inherit; background:var(--white);">
+                            <option value="a">p a</option>
+                            <option value="b">p b</option>
+                            <option value="ab">p a / b</option>
+                        </select>
+                        <button onclick="demoBreakpoint()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultBreakpoint"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Qadamma-qadam Bajarish</h2>
+                <div class="description">
+                    <strong>Keyingi qadam (n)</strong> tugmasini bosib, kodni qator-qator bajaring.
+                    Har qadamda qaysi qator bajarilayotgani va o'zgaruvchilar qiymati ko'rinadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="code-part" style="border-radius:8px; margin-bottom:12px;">
+                        <div class="step-code-line" id="sc-0">jami = 0</div>
+                        <div class="step-code-line" id="sc-1">narxlar = [100, 200, 300]</div>
+                        <div class="step-code-line" id="sc-2">for n in narxlar:</div>
+                        <div class="step-code-line" id="sc-3">&nbsp;&nbsp;&nbsp;&nbsp;jami = jami + n</div>
+                        <div class="step-code-line" id="sc-4">print(jami)</div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="stepNext()">Keyingi qadam (n)</button>
+                        <button onclick="stepReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultStep"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Xato Turini Aniqlash</h2>
+                <div class="description">
+                    Kodni tanlang — Python qanday xato berishini va sababini ko'rsatamiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="showError('zero')">10 / 0</button>
+                        <button onclick="showError('name')">print(x)</button>
+                        <button onclick="showError('type')">"5" + 3</button>
+                        <button onclick="showError('index')">[][0]</button>
+                    </div>
+                    <div class="demo-result" id="resultError"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Tracebackni <span class="highlight-var">oxirgi qatordan</span> o'qing — xato turi va sababi shu yerda<br>
+                    • <span class="highlight-var">print()</span> — sodda, tez, lekin tartibsiz usul<br>
+                    • <span class="highlight-var">breakpoint()</span> — dasturni to'xtatib, ichini ko'rish imkonini beradi<br>
+                    • pdb da <span class="highlight-var">n</span> — keyingi qator, <span class="highlight-var">p</span> — qiymatni ko'rish, <span class="highlight-var">c</span> — davom etish
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Xatoli kod yozing</strong>
+                            <p>Atayin xato qiling, masalan: natija = 10 / 0</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Tracebackni o'qing</strong>
+                            <p>Oxirgi qatorga qarang — qaysi xato va qaysi qatorda?</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>breakpoint() qo'shing</strong>
+                            <p>Shubhali qatordan oldin breakpoint() yozing va ishga tushiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>O'zgaruvchini kuzating</strong>
+                            <p>pdb da p o'zgaruvchi yozib qiymatni tekshiring, keyin xatoni tuzating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 103: Profiling (Tezlikni O'lchash)</p>
+                    <p style="opacity: 0.9;">
+                        Xatolarni topishni o'rgandingiz!<br>
+                        Endi kodingiz qancha tez ishlashini o'lchashni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function explainTraceback() {
+            const lines = [
+                "Traceback boshlanishi — pastga qarab o'qing",
+                "Asosiy dasturda, 3-qatorda xato bo'ldi",
+                "U yerda bol(10, 0) chaqirildi",
+                "bol funksiyasi ichida, 2-qatorda",
+                "return a / b bajarilganda xato yuz berdi",
+                "XATO: nolga bo'lib bo'lmaydi (b = 0)"
+            ];
+            for (let i = 0; i < 6; i++) {
+                const el = document.getElementById('tb-' + i);
+                if (el) el.classList.toggle('hit', i === 5);
+            }
+            const result = document.getElementById('resultTraceback');
+            result.classList.add('show');
+            result.innerHTML = ">>> Eng muhim qator (eng past):<br>" +
+                ">>> ZeroDivisionError: division by zero<br>" +
+                ">>> Ma'nosi: " + lines[5] + "<br>" +
+                ">>> Joyi: bol funksiyasi, 2-qator (return a / b)";
+        }
+
+        function resetTraceback() {
+            for (let i = 0; i < 6; i++) {
+                const el = document.getElementById('tb-' + i);
+                if (el) el.classList.remove('hit');
+            }
+            const result = document.getElementById('resultTraceback');
+            result.classList.remove('show');
+            result.innerHTML = '';
+        }
+
+        function demoBreakpoint() {
+            const choice = document.getElementById('pdbVar').value;
+            const a = 10, b = 0;
+            let cmd, out;
+            if (choice === 'a') { cmd = 'p a'; out = a; }
+            else if (choice === 'b') { cmd = 'p b'; out = b; }
+            else { cmd = 'p a / b'; out = '*** ZeroDivisionError: division by zero'; }
+            const result = document.getElementById('resultBreakpoint');
+            result.classList.add('show');
+            result.innerHTML = "(Pdb) " + cmd + "<br>" + out +
+                (choice === 'ab' ? "<br>>>> Mana xato! b = 0 bo'lgani uchun bo'lib bo'lmaydi." :
+                 "<br>>>> Qiymatni ko'rdingiz. Endi 'p a / b' ni sinab ko'ring.");
+        }
+
+        let stepIndex = -1;
+        let stepJami = 0;
+        let stepNarxlar = [100, 200, 300];
+        let stepLoopPos = 0;
+
+        function stepNext() {
+            const lines = ['sc-0', 'sc-1', 'sc-2', 'sc-3', 'sc-4'];
+            lines.forEach(id => document.getElementById(id).classList.remove('active'));
+
+            const result = document.getElementById('resultStep');
+            result.classList.add('show');
+            let msg = '';
+
+            if (stepIndex < 0) {
+                stepIndex = 0; stepJami = 0; stepLoopPos = 0;
+                document.getElementById('sc-0').classList.add('active');
+                msg = "1-qadam: jami = 0<br>>>> jami = 0";
+            } else if (stepIndex === 0) {
+                stepIndex = 1;
+                document.getElementById('sc-1').classList.add('active');
+                msg = "narxlar ro'yxati yaratildi<br>>>> narxlar = [100, 200, 300]";
+            } else if (stepIndex >= 1 && stepLoopPos < stepNarxlar.length) {
+                if (stepIndex === 1 || stepIndex === 3) {
+                    stepIndex = 2;
+                    document.getElementById('sc-2').classList.add('active');
+                    msg = "for sikli: n = " + stepNarxlar[stepLoopPos] + " olindi";
+                } else {
+                    stepIndex = 3;
+                    const n = stepNarxlar[stepLoopPos];
+                    stepJami += n;
+                    document.getElementById('sc-3').classList.add('active');
+                    msg = "jami = jami + " + n + "<br>>>> jami = " + stepJami;
+                    stepLoopPos++;
+                }
+            } else {
+                stepIndex = 4;
+                document.getElementById('sc-4').classList.add('active');
+                msg = "Sikl tugadi. Natija chiqarildi.<br>>>> " + stepJami;
+            }
+            result.innerHTML = msg;
+        }
+
+        function stepReset() {
+            ['sc-0', 'sc-1', 'sc-2', 'sc-3', 'sc-4'].forEach(id => document.getElementById(id).classList.remove('active'));
+            stepIndex = -1; stepJami = 0; stepLoopPos = 0;
+            const result = document.getElementById('resultStep');
+            result.classList.remove('show');
+            result.innerHTML = '';
+        }
+
+        function showError(kind) {
+            const data = {
+                zero: { code: '10 / 0', err: 'ZeroDivisionError: division by zero', why: "Nolga bo'lib bo'lmaydi" },
+                name: { code: 'print(x)', err: "NameError: name 'x' is not defined", why: 'x aniqlanmagan — avval qiymat bering' },
+                type: { code: '"5" + 3', err: 'TypeError: can only concatenate str (not "int") to str', why: "Matn va sonni qo'shib bo'lmaydi" },
+                index: { code: '[][0]', err: 'IndexError: list index out of range', why: "Bo'sh ro'yxatda 0-element yo'q" }
+            };
+            const d = data[kind];
+            const result = document.getElementById('resultError');
+            result.classList.add('show');
+            result.innerHTML = ">>> " + d.code + "<br>" +
+                "<span style='color:#f87171;'>" + d.err + "</span><br>" +
+                ">>> Sabab: " + d.why;
+        }
+    </script>
+</body>
+</html>

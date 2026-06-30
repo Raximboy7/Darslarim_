@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 90: Database Asoslari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DATABASE JADVAL VIZUALIZATSIYASI */
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .db-table th {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 10px 12px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .db-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            background: var(--white);
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+        .db-table .col-hit { background: var(--primary); color: var(--white); }
+        .db-table td.col-hit { background: var(--primary-light); }
+        .db-table tr.row-hit td { background: var(--primary); color: var(--white); font-weight: bold; }
+
+        /* DATABASE vs FAYL TAQQOSLASH */
+        .vs-grid { display: flex; gap: 12px; flex-wrap: wrap; margin: 15px 0; }
+        .vs-card {
+            flex: 1; min-width: 200px;
+            border-radius: 10px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            background: var(--white);
+        }
+        .vs-card.db { border-color: var(--primary); }
+        .vs-card.file { border-color: var(--gray); }
+        .vs-card h4 { margin-bottom: 10px; font-size: 1em; }
+        .vs-card.db h4 { color: var(--primary-dark); }
+        .vs-card.file h4 { color: var(--gray); }
+        .vs-card ul { list-style: none; }
+        .vs-card li { padding: 6px 0; font-size: 0.88em; color: var(--dark); line-height: 1.4; }
+
+        /* ULANISH OQIMI */
+        .flow-steps { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+        .flow-step {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: var(--light);
+            border-left: 4px solid #d1d5db;
+            opacity: 0.45;
+            transition: all 0.4s ease;
+        }
+        .flow-step.active {
+            opacity: 1;
+            background: var(--primary-light);
+            border-left-color: var(--primary);
+            transform: translateX(6px);
+        }
+        .flow-num {
+            width: 32px; height: 32px; flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--white);
+            color: var(--primary-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .flow-step.active .flow-num { background: var(--primary); color: var(--white); }
+        .flow-text { font-size: 0.9em; color: var(--dark); }
+        .flow-text code { font-family: 'Monaco', monospace; color: var(--secondary); font-weight: bold; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 14 — Database va SQL · Dars 90 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Database Asoslari</h1>
+                <p>Modul 14 — Database va SQL | Dars 90</p>
+            </header>
+
+            <div class="section">
+                <h2>Database Nima?</h2>
+                <div class="description">
+                    <strong>Database</strong> (ma'lumotlar bazasi) — bu ma'lumotlarni <strong>tartibli</strong>,
+                    <strong>ishonchli</strong> va <strong>tez topiladigan</strong> shaklda saqlaydigan ombor.
+                    Uni katta, aqlli bir daftar deb tasavvur qiling: u yerda har bir ma'lumot o'z joyida turadi
+                    va istalgan paytda osongina topiladi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy misol</strong>
+                    <p>
+                        Tasavvur qiling, sizda 10 000 ta foydalanuvchi bor. Ularning ismi, yoshi va emailini
+                        oddiy matnli faylga yozsangiz, kerakli odamni topish juda qiyin bo'ladi.
+                        Database esa "yoshi 20 dan katta foydalanuvchilarni ber" desangiz, bir lahzada javob beradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Excel Jadvaliga O'xshaydi</h2>
+                <div class="description">
+                    Agar siz <strong>Excel</strong> yoki <strong>Google Sheets</strong> ko'rgan bo'lsangiz,
+                    database tushunchasini allaqachon bilasiz! Database ham xuddi Excel kabi
+                    <strong>ustun</strong> va <strong>qatorlardan</strong> tashkil topgan jadvallardir.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Excel atamasi</th><th>Database atamasi</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Varaq (Sheet)</td><td><code>table</code> (jadval)</td><td>Bir turdagi ma'lumotlar to'plami</td></tr>
+                        <tr><td>Ustun (Column)</td><td><code>column</code> (ustun)</td><td>Ma'lumot turi: ism, yosh, email</td></tr>
+                        <tr><td>Qator (Row)</td><td><code>row</code> (qator)</td><td>Bitta yozuv: bitta odam haqida</td></tr>
+                        <tr><td>Katakcha (Cell)</td><td><code>field</code> (maydon)</td><td>Bitta qiymat: masalan "Ali"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Jadval Tuzilmasi</h2>
+                <div class="description">
+                    Quyida <span class="highlight-var">foydalanuvchilar</span> nomli jadval.
+                    Yuqoridagi sarlavhalar — bu <strong>ustunlar</strong>, har bir satr — bitta <strong>qator</strong>.
+                </div>
+                <table class="db-table">
+                    <thead>
+                        <tr><th>id</th><th>ism</th><th>yosh</th><th>shahar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Ali</td><td>25</td><td>Toshkent</td></tr>
+                        <tr><td>2</td><td>Vali</td><td>30</td><td>Samarqand</td></tr>
+                        <tr><td>3</td><td>Guli</td><td>22</td><td>Buxoro</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Diqqat: id ustuni</strong>
+                    <p>
+                        Deyarli har bir jadvalda <span class="highlight-var">id</span> ustuni bo'ladi.
+                        U har bir qatorni boshqalardan ajratuvchi <strong>noyob raqam</strong>.
+                        Ikki Ali bo'lishi mumkin, lekin ularning id raqami har xil bo'ladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>SQL Nima?</h2>
+                <div class="description">
+                    <strong>SQL</strong> (Structured Query Language) — bu database bilan
+                    <strong>gaplashish tili</strong>. SQL orqali siz databasega buyruq berasiz:
+                    "ma'lumot qo'sh", "ma'lumotni ko'rsat", "o'zgartir" yoki "o'chir".
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>SQL buyrug'i</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>CREATE TABLE</code></td><td>Yangi jadval yaratish</td></tr>
+                        <tr><td><code>INSERT</code></td><td>Yangi qator (ma'lumot) qo'shish</td></tr>
+                        <tr><td><code>SELECT</code></td><td>Ma'lumotlarni o'qish / ko'rish</td></tr>
+                        <tr><td><code>UPDATE</code></td><td>Mavjud ma'lumotni o'zgartirish</td></tr>
+                        <tr><td><code>DELETE</code></td><td>Ma'lumotni o'chirish</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>SQL deyarli barcha databaselar uchun bir xil. Bir marta o'rgansangiz, ko'p joyda ishlatasiz.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>SQLite — Eng Oddiy Database</h2>
+                <div class="description">
+                    <strong>SQLite</strong> — boshlovchilar uchun eng yaxshi database. Sababi:
+                </div>
+                <div class="info-box">
+                    <strong>Nega SQLite?</strong>
+                    <p>
+                        • U <strong>bitta fayl</strong> (masalan <span class="highlight-var">baza.db</span>) — server o'rnatish shart emas<br>
+                        • Python ichida <strong>tayyor keladi</strong> — <span class="highlight-var">sqlite3</span> moduli o'rnatilgan<br>
+                        • Tez, yengil va o'rganishga oson<br>
+                        • Mobil ilovalar va kichik loyihalarda keng ishlatiladi
+                    </p>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> sqlite3
+                    </div>
+                    <div class="comment-part">
+                        # Modulni chaqirdik — o'rnatish shart emas, Python ichida bor
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Ulanish: connect va cursor</h2>
+                <div class="description">
+                    Database bilan ishlash uchun avval unga <strong>ulanamiz</strong>
+                    (<span class="highlight-var">connect</span>), so'ng buyruq berish uchun
+                    <strong>kursor</strong> (<span class="highlight-var">cursor</span>) olamiz.
+                    Kursorni database ichida buyruqlarni bajaradigan "qo'l" deb tasavvur qiling.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> sqlite3<br><br>
+                        <span class="comment"># 1. Bazaga ulanamiz (fayl yo'q bo'lsa, yaratiladi)</span><br>
+                        ulanish = sqlite3.<span class="function">connect</span>(<span class="string">"baza.db"</span>)<br><br>
+                        <span class="comment"># 2. Buyruq beruvchi kursor olamiz</span><br>
+                        kursor = ulanish.<span class="function">cursor</span>()<br><br>
+                        <span class="comment"># 3. Ishimiz tugagach, ulanishni yopamiz</span><br>
+                        ulanish.<span class="function">close</span>()
+                    </div>
+                    <div class="comment-part">
+                        # connect — bazaga ulanadi, cursor — buyruq beradi, close — yopadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>commit() haqida</strong>
+                    <p>
+                        Ma'lumot qo'shsangiz yoki o'zgartirsangiz, uni saqlash uchun
+                        <span class="highlight-var">ulanish.commit()</span> yozish kerak.
+                        Aks holda o'zgarishlar bazaga yozilmaydi. Bu darslarda buni keyinroq batafsil ko'ramiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Jadval Tuzilmasi Vizualizatori</h2>
+                <div class="description">
+                    Tugmalarni bosing — ustun yoki qatorni ajratib ko'rsatadi. Database qanday tuzilganini his qiling.
+                </div>
+                <div class="interactive-demo">
+                    <table class="db-table" id="vizTable">
+                        <thead>
+                            <tr><th data-col="0">id</th><th data-col="1">ism</th><th data-col="2">yosh</th><th data-col="3">shahar</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td data-col="0">1</td><td data-col="1">Ali</td><td data-col="2">25</td><td data-col="3">Toshkent</td></tr>
+                            <tr><td data-col="0">2</td><td data-col="1">Vali</td><td data-col="2">30</td><td data-col="3">Samarqand</td></tr>
+                            <tr><td data-col="0">3</td><td data-col="1">Guli</td><td data-col="2">22</td><td data-col="3">Buxoro</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="btn-row">
+                        <button onclick="showCol(1)">Ustun: ism</button>
+                        <button onclick="showCol(2)">Ustun: yosh</button>
+                        <button onclick="showRow(0)">Qator: Ali</button>
+                        <button onclick="clearViz()">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultViz"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Database vs Oddiy Fayl</h2>
+                <div class="description">
+                    Ma'lumotni oddiy matnli faylga ham yozish mumkin. Lekin database nima uchun yaxshiroq?
+                    Tugmani bosib taqqoslang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="vs-grid">
+                        <div class="vs-card file">
+                            <h4>📄 Oddiy fayl (.txt)</h4>
+                            <ul>
+                                <li>Ma'lumot tartibsiz matn ko'rinishida</li>
+                                <li>Qidirish sekin va qiyin</li>
+                                <li>Ko'p odam birga ishlasa, chalkashadi</li>
+                                <li>Xato yozuvdan himoya yo'q</li>
+                            </ul>
+                        </div>
+                        <div class="vs-card db">
+                            <h4>🗄️ Database</h4>
+                            <ul>
+                                <li>Ma'lumot jadval ko'rinishida tartibli</li>
+                                <li>Qidirish juda tez (SELECT bilan)</li>
+                                <li>Ko'p foydalanuvchi xavfsiz ishlaydi</li>
+                                <li>Qoidalar buzilsa, xatoni qaytaradi</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="demo-input">
+                        <input type="text" id="searchName" placeholder="Ism yozing" value="Vali">
+                        <button onclick="compareSearch()">Qidirib taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: sqlite3 Ulanish Oqimi</h2>
+                <div class="description">
+                    Database bilan ishlash bosqichlari har doim bir xil tartibda boradi.
+                    Tugmani bosib, har bir qadamni ketma-ket ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-steps" id="flowBox">
+                        <div class="flow-step" id="fs-0">
+                            <div class="flow-num">1</div>
+                            <div class="flow-text"><code>import sqlite3</code> — modulni chaqirish</div>
+                        </div>
+                        <div class="flow-step" id="fs-1">
+                            <div class="flow-num">2</div>
+                            <div class="flow-text"><code>connect("baza.db")</code> — bazaga ulanish</div>
+                        </div>
+                        <div class="flow-step" id="fs-2">
+                            <div class="flow-num">3</div>
+                            <div class="flow-text"><code>cursor()</code> — buyruq beruvchi kursor olish</div>
+                        </div>
+                        <div class="flow-step" id="fs-3">
+                            <div class="flow-num">4</div>
+                            <div class="flow-text"><code>execute("SQL...")</code> — SQL buyrug'ini bajarish</div>
+                        </div>
+                        <div class="flow-step" id="fs-4">
+                            <div class="flow-num">5</div>
+                            <div class="flow-text"><code>commit()</code> — o'zgarishlarni saqlash</div>
+                        </div>
+                        <div class="flow-step" id="fs-5">
+                            <div class="flow-num">6</div>
+                            <div class="flow-text"><code>close()</code> — ulanishni yopish</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="nextFlow()">Keyingi qadam →</button>
+                        <button onclick="resetFlow()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Database</span> — tartibli ma'lumotlar ombori<br>
+                    • <span class="highlight-var">SQL</span> — database bilan gaplashish tili<br>
+                    • <span class="highlight-var">SQLite</span> — bitta faylli, Python ichidagi oddiy database<br>
+                    • <span class="highlight-var">table / row / column</span> — jadval / qator / ustun<br>
+                    • Ulanish: <span class="highlight-var">connect()</span> → <span class="highlight-var">cursor()</span> → ish → <span class="highlight-var">close()</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Modulni chaqiring</strong>
+                            <p>Faylning boshida import sqlite3 yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Bazaga ulaning</strong>
+                            <p>sqlite3.connect("mening_baza.db") bilan ulanish yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Kursor oling</strong>
+                            <p>ulanish.cursor() chaqirib, buyruq beruvchi kursor yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Ulanishni yoping</strong>
+                            <p>Ish tugagach ulanish.close() yozing va dasturni ishga tushiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 91: CREATE TABLE va INSERT</p>
+                    <p style="opacity: 0.9;">
+                        Database, jadval va ulanish bilan tanishdingiz!<br>
+                        Endi haqiqiy jadval yaratib, unga ma'lumot qo'shamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MISOL 1: Jadval tuzilmasi vizualizatori
+        function clearAllHits() {
+            document.querySelectorAll('#vizTable .col-hit').forEach(el => el.classList.remove('col-hit'));
+            document.querySelectorAll('#vizTable .row-hit').forEach(el => el.classList.remove('row-hit'));
+        }
+        function showCol(col) {
+            clearAllHits();
+            const names = ['id', 'ism', 'yosh', 'shahar'];
+            document.querySelectorAll('#vizTable [data-col="' + col + '"]').forEach(el => el.classList.add('col-hit'));
+            const result = document.getElementById('resultViz');
+            result.classList.add('show');
+            result.innerHTML = '>>> Ustun (column): "' + names[col] + '"<br>>>> Bu ustun barcha qatorlardagi bir xil turdagi ma\'lumot';
+        }
+        function showRow(idx) {
+            clearAllHits();
+            const rows = document.querySelectorAll('#vizTable tbody tr');
+            if (rows[idx]) rows[idx].classList.add('row-hit');
+            const result = document.getElementById('resultViz');
+            result.classList.add('show');
+            result.innerHTML = '>>> Qator (row): ' + (idx + 1) + '-yozuv<br>>>> Bu bitta odam haqidagi to\'liq ma\'lumot';
+        }
+        function clearViz() {
+            clearAllHits();
+            const result = document.getElementById('resultViz');
+            result.classList.remove('show');
+        }
+
+        // MISOL 2: Database vs oddiy fayl
+        function compareSearch() {
+            const data = [
+                { id: 1, ism: 'Ali', yosh: 25 },
+                { id: 2, ism: 'Vali', yosh: 30 },
+                { id: 3, ism: 'Guli', yosh: 22 }
+            ];
+            const name = document.getElementById('searchName').value.trim();
+            const found = data.find(p => p.ism.toLowerCase() === name.toLowerCase());
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            let out = '';
+            out += '# Oddiy fayl: butun matnni qo\'lda o\'qib chiqish kerak...<br>';
+            if (found) {
+                out += '# Database: bir buyruq bilan tez topdi!<br><br>';
+                out += '>>> SELECT * FROM foydalanuvchilar WHERE ism = "' + name + '"<br>';
+                out += '>>> (' + found.id + ', "' + found.ism + '", ' + found.yosh + ')';
+            } else {
+                out += '<br>>>> SELECT * FROM foydalanuvchilar WHERE ism = "' + name + '"<br>';
+                out += '>>> Bunday ism topilmadi (jadvalda: Ali, Vali, Guli)';
+            }
+            result.innerHTML = out;
+        }
+
+        // MISOL 3: Ulanish oqimi
+        let flowStep = -1;
+        const flowMsgs = [
+            '>>> import sqlite3  # sqlite3 moduli tayyor',
+            '>>> ulanish = sqlite3.connect("baza.db")  # bazaga ulandik',
+            '>>> kursor = ulanish.cursor()  # kursor tayyor',
+            '>>> kursor.execute("...")  # SQL buyrug\'i bajarildi',
+            '>>> ulanish.commit()  # o\'zgarishlar saqlandi',
+            '>>> ulanish.close()  # ulanish yopildi. Tayyor!'
+        ];
+        function renderFlow() {
+            for (let i = 0; i < 6; i++) {
+                const el = document.getElementById('fs-' + i);
+                el.classList.toggle('active', i <= flowStep);
+            }
+            const result = document.getElementById('resultFlow');
+            if (flowStep >= 0) {
+                result.classList.add('show');
+                result.innerHTML = flowMsgs[flowStep];
+            } else {
+                result.classList.remove('show');
+            }
+        }
+        function nextFlow() {
+            if (flowStep < 5) flowStep++;
+            renderFlow();
+        }
+        function resetFlow() {
+            flowStep = -1;
+            renderFlow();
+        }
+
+        // dastlabki ko'rinish
+        resetFlow();
+    </script>
+</body>
+</html>

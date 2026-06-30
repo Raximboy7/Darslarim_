@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 9: Taqqoslash Operatorlari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus, select:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); color: var(--dark); cursor: pointer; font-weight: bold; min-width: 90px; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 110px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOOLEAN NATIJA "CHIP" */
+        .bool-chip {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .bool-chip.t { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .bool-chip.f { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+
+        /* OPERATORLAR JADVALI (demo) */
+        .ops-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            background: #1f2937;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .ops-grid th { background: #111827; color: #d4d4d4; padding: 8px 10px; text-align: left; }
+        .ops-grid td { padding: 8px 10px; border-top: 1px solid #374151; color: #d4d4d4; }
+        .ops-grid td.res-t { color: #34d399; font-weight: bold; }
+        .ops-grid td.res-f { color: #f87171; font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 3 — Shartlar va sikllar · Dars 9 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Taqqoslash Operatorlari</h1>
+                <p>Modul 3 — Shartlar va sikllar | Dars 9</p>
+            </header>
+
+            <div class="section">
+                <h2>Taqqoslash Nima?</h2>
+                <div class="description">
+                    <strong>Taqqoslash operatorlari</strong> ikki qiymatni o'zaro solishtiradi.
+                    Solishtirish natijasi <strong>HAR DOIM</strong> Boolean qiymat bo'ladi:
+                    <span class="highlight-var">True</span> (rost) yoki
+                    <span class="highlight-var">False</span> (yolg'on). Bu operatorlar shartlarni
+                    tekshirishda — masalan, "agar yosh 18 dan katta bo'lsa" — asos bo'lib xizmat qiladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="number">5</span> <span class="operator">==</span> <span class="number">5</span>)<br>
+                        <span class="function">print</span>(<span class="number">5</span> <span class="operator">&gt;</span> <span class="number">3</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Natija har doim True yoki False
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> <span style="color:#f472b6;">True</span><br>
+                    >>> <span style="color:#f472b6;">True</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Oltita Asosiy Operator</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Operator</th><th>Ma'nosi</th><th>Misol → Natija</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>==</code></td><td>Teng</td><td>5 == 5 → True</td></tr>
+                        <tr><td><code>!=</code></td><td>Teng emas</td><td>5 != 3 → True</td></tr>
+                        <tr><td><code>&gt;</code></td><td>Katta</td><td>5 &gt; 3 → True</td></tr>
+                        <tr><td><code>&lt;</code></td><td>Kichik</td><td>5 &lt; 3 → False</td></tr>
+                        <tr><td><code>&gt;=</code></td><td>Katta yoki teng</td><td>5 &gt;= 5 → True</td></tr>
+                        <tr><td><code>&lt;=</code></td><td>Kichik yoki teng</td><td>3 &lt;= 5 → True</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Sonlarni Solishtirish</h2>
+                <div class="description">
+                    Sonlar matematikadagidek solishtiriladi. Natijani <span class="highlight-var">print()</span>
+                    bilan chiqarib ko'rishingiz mumkin.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        yosh = <span class="number">20</span><br>
+                        <span class="function">print</span>(yosh <span class="operator">&gt;=</span> <span class="number">18</span>)
+                    </div>
+                    <div class="comment-part">
+                        # 20 katta yoki teng 18 mi?
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> <span style="color:#f472b6;">True</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Matnlarni Solishtirish</h2>
+                <div class="description">
+                    Stringlarni ham solishtirish mumkin. Eng ko'p ishlatiladigani —
+                    <span class="highlight-var">==</span> bilan ikki matn bir xilmi yoki yo'qligini tekshirish.
+                    E'tibor bering: solishtirish <strong>katta-kichik harfga sezgir</strong> —
+                    <span class="highlight-var">"Ali"</span> va <span class="highlight-var">"ali"</span> bir xil emas.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"ali"</span> <span class="operator">==</span> <span class="string">"ali"</span>)<br>
+                        <span class="function">print</span>(<span class="string">"ali"</span> <span class="operator">!=</span> <span class="string">"bobur"</span>)<br>
+                        <span class="function">print</span>(<span class="string">"Ali"</span> <span class="operator">==</span> <span class="string">"ali"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Bir xilmi?<br>
+                        # Boshqami?<br>
+                        # Katta harf farq qiladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> <span style="color:#f472b6;">True</span><br>
+                    >>> <span style="color:#f472b6;">True</span><br>
+                    >>> <span style="color:#f472b6;">False</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Eng Muhim Farq: == va =</h2>
+                <div class="warning-box">
+                    <strong>⚠️ == (taqqoslash) va = (qiymat berish) — ikki boshqa narsa!</strong>
+                    <p>
+                        <span class="highlight-var">=</span> belgisi qiymat <strong>beradi</strong> (saqlaydi).<br>
+                        <span class="highlight-var">==</span> belgisi ikki qiymatni <strong>solishtiradi</strong> va True/False qaytaradi.
+                    </p>
+                </div>
+
+                <div class="concept-card">
+                    <strong>= bitta tenglik — qiymat berish</strong>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            yosh <span class="operator">=</span> <span class="number">18</span>
+                        </div>
+                    </div>
+                    <p>"yosh o'zgaruvchisiga 18 ni saqla" degani.</p>
+                </div>
+
+                <div class="concept-card">
+                    <strong>== ikkita tenglik — solishtirish</strong>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(yosh <span class="operator">==</span> <span class="number">18</span>)
+                        </div>
+                    </div>
+                    <p>"yosh 18 ga tengmi?" degani — natija True yoki False.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: solishtirishda = ishlatish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(yosh <span class="operator">=</span> <span class="number">18</span>)  <span style="color:#f87171;"># SyntaxError!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Solishtirmoqchi bo'lsangiz <span class="highlight-var">=</span> emas,
+                        ikkita teng belgisi kerak.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: solishtirishda == ishlatish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(yosh <span class="operator">==</span> <span class="number">18</span>)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> <span style="color:#f472b6;">True</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Taqqoslash natijasi <span class="highlight-var">True</span> yoki <span class="highlight-var">False</span><br>
+                    • Operatorlar: <span class="highlight-var">==  !=  &gt;  &lt;  &gt;=  &lt;=</span><br>
+                    • <span class="highlight-var">=</span> qiymat beradi, <span class="highlight-var">==</span> solishtiradi<br>
+                    • Matn solishtirish katta-kichik harfga sezgir: "Ali" ≠ "ali"
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Ikki Sonni Solishtirish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="cmpA" placeholder="Son 1" value="5" style="min-width:90px;">
+                        <select id="cmpOp">
+                            <option value="==">==</option>
+                            <option value="!=">!=</option>
+                            <option value="&gt;">&gt;</option>
+                            <option value="&lt;">&lt;</option>
+                            <option value="&gt;=">&gt;=</option>
+                            <option value="&lt;=">&lt;=</option>
+                        </select>
+                        <input type="number" id="cmpB" placeholder="Son 2" value="3" style="min-width:90px;">
+                        <button onclick="demoCompare()">Solishtir</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Operatorni tanlang — Python natijasini ko'ring.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Matn Tenglik Tekshirgichi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="txtA" placeholder="Matn 1" value="ali">
+                        <input type="text" id="txtB" placeholder="Matn 2" value="ali">
+                        <button onclick="demoTextCompare()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultText"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">matn1 == matn2</span> va <span class="highlight-var">matn1 != matn2</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Operatorlar Jadvali</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="allA" placeholder="a" value="7" style="min-width:90px;">
+                        <input type="number" id="allB" placeholder="b" value="4" style="min-width:90px;">
+                        <button onclick="demoAllOps()">Hammasini ko'rsat</button>
+                    </div>
+                    <div class="demo-result" id="resultAll"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Ikki son uchun oltita operatorning natijasi birdaniga.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: == va = Farqi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="eqVal" placeholder="yosh qiymati" value="18" style="min-width:120px;">
+                        <input type="number" id="eqCheck" placeholder="solishtir" value="18" style="min-width:120px;">
+                        <button onclick="demoEquals()">Ishga tushir</button>
+                    </div>
+                    <div class="demo-result" id="resultEquals"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Birinchi qiymat <span class="highlight-var">=</span> bilan saqlanadi, keyin <span class="highlight-var">==</span> bilan solishtiriladi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>To'liq Misol</h2>
+                <div class="example-box">
+                    <div class="example-title">📄 tekshir.py</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            yosh = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Yoshingiz: "</span>))<br>
+                            <span class="function">print</span>(<span class="string">"Voyaga yetganmi:"</span>, yosh <span class="operator">&gt;=</span> <span class="number">18</span>)<br>
+                            parol = <span class="function">input</span>(<span class="string">"Parol: "</span>)<br>
+                            <span class="function">print</span>(<span class="string">"To'g'ri:"</span>, parol <span class="operator">==</span> <span class="string">"python"</span>)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        Yoshingiz: 20<br>
+                        >>> Voyaga yetganmi: <span style="color:#f472b6;">True</span><br>
+                        Parol: python<br>
+                        >>> To'g'ri: <span style="color:#f472b6;">True</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Yangi fayl yarating</strong>
+                            <p><span class="highlight-var">taqqoslash.py</span></p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Ikki son so'rang</strong>
+                            <p>int(input()) bilan a va b oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Solishtiring</strong>
+                            <p>a == b, a &gt; b, a &lt; b natijalarini chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Parolni tekshiring</strong>
+                            <p>input() == "kalit" natijasini chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 10: Mantiqiy Operatorlar</p>
+                    <p style="opacity: 0.9;">
+                        Taqqoslashni o'rgandingiz!<br>
+                        Endi and, or, not bilan bir nechta shartni birlashtirishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Belgilarni xavfsiz ko'rsatish uchun
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        function boolChip(v) {
+            return v
+                ? '<span class="bool-chip t">True</span>'
+                : '<span class="bool-chip f">False</span>';
+        }
+        function compute(a, op, b) {
+            switch (op) {
+                case '==': return a === b;
+                case '!=': return a !== b;
+                case '>':  return a > b;
+                case '<':  return a < b;
+                case '>=': return a >= b;
+                case '<=': return a <= b;
+            }
+        }
+
+        function demoCompare() {
+            const a = parseFloat(document.getElementById('cmpA').value) || 0;
+            const b = parseFloat(document.getElementById('cmpB').value) || 0;
+            // select value HTML-encoded keladi (&gt; kabi) — uni dekodlaymiz
+            const raw = document.getElementById('cmpOp').value;
+            const op = raw.replace('&gt;', '>').replace('&lt;', '<');
+            const res = compute(a, op, b);
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + a + ' ' + esc(op) + ' ' + b + '<br>>>> ' + boolChip(res);
+        }
+
+        function demoTextCompare() {
+            const a = document.getElementById('txtA').value;
+            const b = document.getElementById('txtB').value;
+            const eq = a === b;
+            const neq = a !== b;
+            const result = document.getElementById('resultText');
+            result.classList.add('show');
+            result.innerHTML =
+                '>>> "' + esc(a) + '" == "' + esc(b) + '"  ' + boolChip(eq) + '<br>' +
+                '>>> "' + esc(a) + '" != "' + esc(b) + '"  ' + boolChip(neq);
+        }
+
+        function demoAllOps() {
+            const a = parseFloat(document.getElementById('allA').value) || 0;
+            const b = parseFloat(document.getElementById('allB').value) || 0;
+            const ops = ['==', '!=', '>', '<', '>=', '<='];
+            let rows = '';
+            ops.forEach(op => {
+                const r = compute(a, op, b);
+                rows += '<tr><td>' + a + ' ' + esc(op) + ' ' + b + '</td><td class="' +
+                        (r ? 'res-t' : 'res-f') + '">' + (r ? 'True' : 'False') + '</td></tr>';
+            });
+            const result = document.getElementById('resultAll');
+            result.classList.add('show');
+            result.innerHTML =
+                '<table class="ops-grid"><thead><tr><th>Ifoda</th><th>Natija</th></tr></thead><tbody>' +
+                rows + '</tbody></table>';
+        }
+
+        function demoEquals() {
+            const val = parseFloat(document.getElementById('eqVal').value) || 0;
+            const check = parseFloat(document.getElementById('eqCheck').value) || 0;
+            const res = val === check;
+            const result = document.getElementById('resultEquals');
+            result.classList.add('show');
+            result.innerHTML =
+                '>>> yosh = ' + val + '   <span style="color:#9ca3af;"># = qiymat berdi</span><br>' +
+                '>>> yosh == ' + check + '   <span style="color:#9ca3af;"># == solishtirdi</span><br>' +
+                '>>> ' + boolChip(res);
+        }
+
+        // dastlabki ko'rinish
+        demoCompare();
+    </script>
+</body>
+</html>

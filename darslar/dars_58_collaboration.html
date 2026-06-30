@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 58: Hamkorlik (Collaboration)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, textarea {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FLOW STEPS VISUALIZER */
+        .flow-track { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; align-items: stretch; }
+        .flow-step {
+            flex: 1; min-width: 110px;
+            background: #1f2937; color: #9ca3af;
+            border-radius: 8px; padding: 12px 10px;
+            text-align: center; font-size: 0.82em;
+            border: 2px solid transparent;
+            transition: all 0.35s ease;
+        }
+        .flow-step .flow-emoji { font-size: 1.4em; display: block; margin-bottom: 6px; }
+        .flow-step.active { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .flow-step.done { border-color: var(--primary-dark); color: #34d399; }
+
+        /* PR STATUS BADGE */
+        .pr-card {
+            background: var(--white); border-radius: 10px;
+            border: 2px solid #e5e7eb; padding: 16px; margin-top: 12px;
+        }
+        .pr-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .pr-title { font-weight: bold; color: var(--dark); }
+        .pr-badge {
+            display: inline-block; padding: 5px 12px; border-radius: 20px;
+            font-size: 0.8em; font-weight: bold; color: var(--white);
+        }
+        .pr-badge.open { background: #16a34a; }
+        .pr-badge.review { background: #d97706; }
+        .pr-badge.merged { background: #7c3aed; }
+        .pr-meta { color: var(--gray); font-size: 0.85em; }
+
+        /* CODE REVIEW SIM */
+        .review-line {
+            font-family: 'Monaco', monospace; font-size: 0.88em;
+            background: #1f2937; color: #d4d4d4;
+            padding: 10px 14px; border-radius: 8px; margin-top: 10px;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        }
+        .review-comment {
+            background: #fffbeb; border-left: 4px solid #d97706;
+            padding: 12px 14px; border-radius: 8px; margin-top: 8px;
+            color: var(--dark); font-size: 0.9em; line-height: 1.6;
+        }
+        .review-comment .who { font-weight: bold; color: var(--primary-dark); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 10 — Git va Version Control · Dars 58 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Hamkorlik (Collaboration)</h1>
+                <p>Modul 10 — Git va Version Control | Dars 58</p>
+            </header>
+
+            <div class="section">
+                <h2>Jamoa Bo'lib Ishlash Nima?</h2>
+                <div class="description">
+                    Katta loyihalar bitta odam tomonidan emas, balki <strong>jamoa</strong> bo'lib yoziladi.
+                    Git va GitHub yordamida bir nechta dasturchi <strong>bir loyiha</strong> ustida bir vaqtda
+                    ishlay oladi — har kim o'z qismini yozadi, keyin hammasi birlashtiriladi.
+                    Bu darsda boshqaning loyihasiga qanday hissa qo'shishni o'rganamiz.
+                </div>
+                <div class="info-box">
+                    <strong>Hayotiy misol</strong>
+                    <p>
+                        Tasavvur qiling: do'stingiz GitHub'da ochiq loyiha qilgan. Siz unga
+                        yangi imkoniyat qo'shmoqchisiz. Lekin uning loyihasiga to'g'ridan-to'g'ri yoza
+                        olmaysiz. Buning uchun maxsus oqim bor: <strong>fork → branch → pull request</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy Tushunchalar</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tushuncha</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Fork</code></td><td>Nusxa olish — boshqaning repo'sini o'z GitHub hisobingga nusxalash</td></tr>
+                        <tr><td><code>Branch</code></td><td>Tarmoq — o'zgarishlarni alohida joyda yozish</td></tr>
+                        <tr><td><code>Commit</code></td><td>O'zgarishni saqlash (foto olish)</td></tr>
+                        <tr><td><code>Push</code></td><td>O'zgarishni GitHub'ga yuborish</td></tr>
+                        <tr><td><code>Pull Request (PR)</code></td><td>O'zgarishni asosiy loyihaga qo'shishni taklif qilish</td></tr>
+                        <tr><td><code>Code Review</code></td><td>Kodni ko'rib chiqish va izoh berish</td></tr>
+                        <tr><td><code>Merge</code></td><td>Tasdiqlangan o'zgarishni asosiy loyihaga qo'shish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Fork Nima?</h2>
+                <div class="description">
+                    <strong>Fork</strong> — boshqaning loyihasini butunlay o'z hisobingga
+                    <span class="highlight-var">nusxalash</span>. Endi sizda o'sha loyihaning shaxsiy
+                    nusxasi bo'ladi. Unda istagancha o'zgartirish kiritasiz — asl loyihaga zarar yetmaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment-part" style="background:none;color:#6b7280;padding:0;"># GitHub saytida "Fork" tugmasini bosasiz</span><br>
+                        <span class="comment-part" style="background:none;color:#6b7280;padding:0;"># Keyin o'z nusxangizni kompyuterga olasiz:</span><br>
+                        git clone https://github.com/<span class="string">men</span>/loyiha.git
+                    </div>
+                    <div class="comment-part">
+                        # Fork qilingan nusxa endi sizning hisobingizda
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Pull Request (PR) Nima?</h2>
+                <div class="description">
+                    <strong>Pull Request</strong> — "Iltimos, mening o'zgarishlarimni asosiy loyihaga
+                    <span class="highlight-var">qo'shing</span>" degan rasmiy taklif. Siz kodni yozasiz,
+                    push qilasiz, keyin GitHub'da PR ochasiz. Loyiha egasi uni ko'rib chiqadi va
+                    rozi bo'lsa <strong>merge</strong> qiladi.
+                </div>
+                <div class="info-box">
+                    <strong>PR — muloqot joyi</strong>
+                    <p>
+                        Pull Request faqat kod emas — bu suhbat ham. Loyiha egasi savol berishi,
+                        tuzatish so'rashi yoki maqtashi mumkin. Bu jarayon <strong>Code Review</strong> deyiladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Hamkorlik Oqimi (Qadamlar)</h2>
+                <div class="description">
+                    To'liq hamkorlik oqimi 7 qadamdan iborat. Quyida ularning ketma-ketligi:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>#</th><th>Qadam</th><th>Buyruq / Harakat</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Fork</td><td>GitHub'da "Fork" tugmasi</td></tr>
+                        <tr><td>2</td><td>Branch</td><td><code>git checkout -b yangi-imkoniyat</code></td></tr>
+                        <tr><td>3</td><td>Commit</td><td><code>git commit -m "Yangi tugma"</code></td></tr>
+                        <tr><td>4</td><td>Push</td><td><code>git push origin yangi-imkoniyat</code></td></tr>
+                        <tr><td>5</td><td>Pull Request</td><td>GitHub'da "New Pull Request"</td></tr>
+                        <tr><td>6</td><td>Review</td><td>Egasi kodni ko'rib chiqadi</td></tr>
+                        <tr><td>7</td><td>Merge</td><td>Egasi "Merge" tugmasini bosadi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Fork</span> — boshqaning repo'sini o'zingga nusxalash<br>
+                    • <span class="highlight-var">Pull Request</span> — o'zgarishni qo'shish taklifi<br>
+                    • <span class="highlight-var">Code Review</span> — kodni ko'rib chiqish va izoh berish<br>
+                    • Oqim: fork → branch → commit → push → PR → review → merge
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Hamkorlik Oqimi (Qadamma-qadam)</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom:12px;color:var(--dark);">"Keyingi qadam" tugmasini bosib oqimni ko'ring:</p>
+                    <div class="flow-track" id="flowTrack">
+                        <div class="flow-step" data-i="0"><span class="flow-emoji">🍴</span>Fork</div>
+                        <div class="flow-step" data-i="1"><span class="flow-emoji">🌿</span>Branch</div>
+                        <div class="flow-step" data-i="2"><span class="flow-emoji">💾</span>Commit</div>
+                        <div class="flow-step" data-i="3"><span class="flow-emoji">⬆️</span>Push</div>
+                        <div class="flow-step" data-i="4"><span class="flow-emoji">📩</span>Pull Request</div>
+                        <div class="flow-step" data-i="5"><span class="flow-emoji">👀</span>Review</div>
+                        <div class="flow-step" data-i="6"><span class="flow-emoji">✅</span>Merge</div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="flowNext()">Keyingi qadam →</button>
+                        <button onclick="flowReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Pull Request Holatlari</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom:12px;color:var(--dark);">PR turli holatda bo'ladi. Tugmani bosib ko'ring:</p>
+                    <div class="btn-row">
+                        <button onclick="setPr('open')">Ochiq</button>
+                        <button onclick="setPr('review')">Ko'rilmoqda</button>
+                        <button onclick="setPr('merged')">Merge qilingan</button>
+                    </div>
+                    <div class="pr-card">
+                        <div class="pr-head">
+                            <span class="pr-title">#42: Yangi tugma qo'shildi</span>
+                            <span class="pr-badge open" id="prBadge">Ochiq</span>
+                        </div>
+                        <div class="pr-meta" id="prMeta">men loyiha'ga o'zgarish taklif qildi · 3 ta commit</div>
+                    </div>
+                    <div class="demo-result" id="resultPr"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Code Review (Izoh Berish)</h2>
+                <div class="interactive-demo">
+                    <div class="review-line">
+                        <span><span class="function">print</span>(<span class="string">"salom"</span>)</span>
+                        <span style="color:#6b7280;">12-qator</span>
+                    </div>
+                    <div class="demo-input" style="margin-top:12px;">
+                        <input type="text" id="reviewWho" placeholder="Ismingiz" value="Ali" style="min-width:90px;">
+                        <input type="text" id="reviewText" placeholder="Izohingiz" value="Bu yerga izoh qo'shsang yaxshi bo'lardi">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="addReview()">Izoh qoldirish</button>
+                        <button onclick="approveReview()">Tasdiqlash ✓</button>
+                        <button onclick="clearReview()">Tozalash</button>
+                    </div>
+                    <div id="reviewBox"></div>
+                    <div class="demo-result" id="resultReview"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Loyihani fork qiling</strong>
+                            <p>GitHub'da yoqqan ochiq loyihaning "Fork" tugmasini bosing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Yangi branch oching</strong>
+                            <p>git checkout -b mening-ozgarishim buyrug'ini yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Commit va push qiling</strong>
+                            <p>O'zgarishni saqlang va GitHub'ga yuboring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Pull Request oching</strong>
+                            <p>GitHub'da "New Pull Request" tugmasini bosing va taklifingizni yuboring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 59: Git Ilg'or Imkoniyatlari</p>
+                    <p style="opacity: 0.9;">
+                        Jamoa bo'lib ishlashni o'rgandingiz!<br>
+                        Endi Git'ning kuchli buyruqlarini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: oqim vizualizatori
+        const flowNames = ['Fork', 'Branch', 'Commit', 'Push', 'Pull Request', 'Review', 'Merge'];
+        const flowDesc = [
+            'Loyihani o\'z hisobingizga nusxaladingiz',
+            'O\'zgarish uchun yangi tarmoq ochdingiz',
+            'O\'zgarishni saqladingiz (commit)',
+            'O\'zgarishni GitHub\'ga yubordingiz (push)',
+            'Asosiy loyihaga qo\'shish taklifini yubordingiz',
+            'Loyiha egasi kodingizni ko\'rib chiqmoqda',
+            'Tabriklaymiz! O\'zgarishingiz loyihaga qo\'shildi'
+        ];
+        let flowStep = -1;
+
+        function paintFlow() {
+            const steps = document.querySelectorAll('#flowTrack .flow-step');
+            steps.forEach((s, i) => {
+                s.classList.remove('active', 'done');
+                if (i < flowStep) s.classList.add('done');
+                else if (i === flowStep) s.classList.add('active');
+            });
+        }
+
+        function flowNext() {
+            if (flowStep < flowNames.length - 1) flowStep++;
+            paintFlow();
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = `>>> Qadam ${flowStep + 1}/7: ${flowNames[flowStep]}<br>>>> ${flowDesc[flowStep]}`;
+        }
+
+        function flowReset() {
+            flowStep = -1;
+            paintFlow();
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = '>>> Oqim boshidan. "Keyingi qadam" ni bosing.';
+        }
+
+        // Misol 2: PR holati
+        function setPr(state) {
+            const badge = document.getElementById('prBadge');
+            const meta = document.getElementById('prMeta');
+            const result = document.getElementById('resultPr');
+            badge.className = 'pr-badge ' + state;
+            let text = '', desc = '';
+            if (state === 'open') {
+                text = 'Ochiq';
+                desc = 'PR ochildi — egasi hali ko\'rmadi';
+                meta.innerHTML = 'men loyiha\'ga o\'zgarish taklif qildi · 3 ta commit';
+            } else if (state === 'review') {
+                text = 'Ko\'rilmoqda';
+                desc = 'Loyiha egasi kodni ko\'rib chiqmoqda va izoh qoldirmoqda';
+                meta.innerHTML = 'Code review davom etmoqda · 2 ta izoh';
+            } else if (state === 'merged') {
+                text = 'Merge qilingan';
+                desc = 'O\'zgarish asosiy loyihaga qo\'shildi. Tabriklaymiz!';
+                meta.innerHTML = 'Egasi merge qildi · loyihaga qo\'shildi ✓';
+            }
+            badge.textContent = text;
+            result.classList.add('show');
+            result.innerHTML = `>>> PR holati: ${text}<br>>>> ${desc}`;
+        }
+
+        // Misol 3: code review simulyatsiyasi
+        function addReview() {
+            const who = document.getElementById('reviewWho').value || 'Reviewer';
+            const text = document.getElementById('reviewText').value || 'Izoh yo\'q';
+            const box = document.getElementById('reviewBox');
+            const div = document.createElement('div');
+            div.className = 'review-comment';
+            div.innerHTML = `<span class="who">${who}:</span> ${text}`;
+            box.appendChild(div);
+            const result = document.getElementById('resultReview');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${who} izoh qoldirdi<br>>>> PR holati: Ko'rilmoqda`;
+        }
+
+        function approveReview() {
+            const who = document.getElementById('reviewWho').value || 'Reviewer';
+            const box = document.getElementById('reviewBox');
+            const div = document.createElement('div');
+            div.className = 'review-comment';
+            div.style.borderLeftColor = '#16a34a';
+            div.style.background = '#f0fdf4';
+            div.innerHTML = `<span class="who">${who}:</span> Tasdiqlandi ✓ — kod yaxshi, merge qilsa bo'ladi!`;
+            box.appendChild(div);
+            const result = document.getElementById('resultReview');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${who} PR'ni tasdiqladi<br>>>> Endi merge qilish mumkin`;
+        }
+
+        function clearReview() {
+            document.getElementById('reviewBox').innerHTML = '';
+            const result = document.getElementById('resultReview');
+            result.classList.add('show');
+            result.innerHTML = '>>> Barcha izohlar tozalandi';
+        }
+
+        // dastlabki ko'rinish
+        paintFlow();
+    </script>
+</body>
+</html>

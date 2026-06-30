@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 173: Capstone 3 — Web Ilova</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* BROWSER MOCK */
+        .browser-mock {
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            margin: 15px 0;
+        }
+        .browser-bar {
+            background: #e5e7eb;
+            display: flex; align-items: center; gap: 8px;
+            padding: 9px 12px;
+        }
+        .browser-dot { width: 11px; height: 11px; border-radius: 50%; }
+        .dot-r { background: #ef4444; }
+        .dot-y { background: #f59e0b; }
+        .dot-g { background: #22c55e; }
+        .browser-url {
+            flex: 1; background: var(--white); border-radius: 6px;
+            padding: 5px 12px; font-family: monospace; font-size: 0.82em; color: var(--gray);
+            margin-left: 8px;
+        }
+        .browser-body { padding: 18px; min-height: 150px; background: #fafafa; }
+        .mock-topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 12px; border-bottom: 2px solid var(--primary); margin-bottom: 14px;
+        }
+        .mock-logo { font-weight: bold; color: var(--primary-dark); font-size: 1.05em; }
+        .mock-user { font-size: 0.82em; color: var(--gray); }
+        .mock-card {
+            background: var(--white); border-radius: 8px; padding: 12px 14px;
+            margin-bottom: 10px; border-left: 3px solid var(--primary);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mock-card .post-title { font-weight: bold; color: var(--dark); }
+        .mock-card .post-meta { font-size: 0.78em; color: var(--gray); }
+        .mock-actions { display: flex; gap: 6px; }
+        .mini-btn {
+            font-size: 0.74em; padding: 4px 9px; border-radius: 5px; border: none;
+            cursor: pointer; font-weight: bold; min-width: auto;
+        }
+        .mini-edit { background: var(--secondary); color: var(--white); }
+        .mini-del { background: #ef4444; color: var(--white); }
+        .mock-login { max-width: 260px; margin: 10px auto; text-align: center; }
+        .mock-login input { width: 100%; margin-bottom: 8px; display: block; }
+        .mock-login button { width: 100%; }
+
+        /* FLOW DIAGRAM */
+        .flow-row { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 15px 0; }
+        .flow-node {
+            flex: 1; min-width: 110px;
+            background: var(--white); border: 2px solid var(--primary);
+            border-radius: 10px; padding: 12px 10px; text-align: center;
+            transition: all 0.3s ease;
+        }
+        .flow-node.active { background: var(--primary); color: var(--white); transform: translateY(-5px); box-shadow: 0 8px 18px rgba(16,185,129,0.35); }
+        .flow-node .fn-title { font-weight: bold; font-size: 0.9em; }
+        .flow-node .fn-sub { font-size: 0.75em; color: var(--gray); margin-top: 4px; }
+        .flow-node.active .fn-sub { color: var(--primary-light); }
+        .flow-arrow { display: flex; align-items: center; color: var(--primary-dark); font-weight: bold; font-size: 1.3em; }
+
+        /* PARTS GRID */
+        .parts-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .part-chip {
+            padding: 9px 14px; border-radius: 8px; border: 2px solid var(--primary);
+            background: var(--white); color: var(--primary-dark); font-weight: bold;
+            cursor: pointer; font-size: 0.85em; transition: all 0.25s ease;
+        }
+        .part-chip:hover { background: var(--primary-light); }
+        .part-chip.active { background: var(--primary); color: var(--white); }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #9ca3af; cursor: not-allowed; pointer-events: none; opacity: 0.7; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 23 — Pro daraja va Capstone · Dars 173 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Capstone 3 — Web Ilova</h1>
+                <p>Modul 23 — Pro daraja va Capstone | Dars 173</p>
+            </header>
+
+            <div class="section">
+                <h2>Loyihamiz: To'liq Web Ilova</h2>
+                <div class="description">
+                    Bu capstone darsida biz <strong>to'liq web ilova</strong> quramiz. Misol uchun
+                    oddiy <strong>blog</strong> (yoki onlayn do'kon). Ilovamizda foydalanuvchi
+                    ro'yxatdan o'tadi (auth), ma'lumotlar bazasiga yozish/o'qish bo'ladi (model),
+                    postlarni qo'shish-tahrirlash-o'chirish (CRUD), chiroyli sahifalar (template)
+                    va forma orqali ma'lumot kiritish bo'ladi. Oxirida ilovani internetga
+                    <strong>joylashtiramiz (deploy)</strong>.
+                </div>
+                <div class="description">
+                    Bu yerda biz hamma web ko'nikmalarini birlashtiramiz:
+                    <strong>frontend</strong> (foydalanuvchi ko'radigan sahifa) va
+                    <strong>backend</strong> (server, ma'lumotlar bazasi) birga ishlaydi.
+                    Biz <strong>Flask</strong> freymvorkidan foydalanamiz, chunki u sodda va
+                    boshlovchilar uchun qulay (Django ham mumkin).
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Web Ilova Qanday Ishlaydi?</h2>
+                <div class="description">
+                    Web ilova <strong>so'rov-javob</strong> (request-response) tamoyiliga asoslanadi.
+                    Foydalanuvchi brauzerda manzilga kiradi → brauzer serverga so'rov yuboradi →
+                    server kodni ishga tushiradi, kerak bo'lsa bazadan o'qiydi → tayyor sahifani
+                    (HTML) qaytaradi → brauzer uni ko'rsatadi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qism</th><th>Vazifasi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Frontend</code></td><td>Foydalanuvchi ko'radigan sahifa</td><td>HTML, CSS, tugmalar</td></tr>
+                        <tr><td><code>Backend</code></td><td>Mantiq va server kodi</td><td>Flask, view funksiyalar</td></tr>
+                        <tr><td><code>Model</code></td><td>Ma'lumotlar bazasi tuzilishi</td><td>Post, Foydalanuvchi</td></tr>
+                        <tr><td><code>Template</code></td><td>HTML shabloni</td><td>index.html, post.html</td></tr>
+                        <tr><td><code>Auth</code></td><td>Kirish va ro'yxatdan o'tish</td><td>login, logout</td></tr>
+                        <tr><td><code>Route</code></td><td>Manzil → funksiya bog'lash</td><td>/, /post/1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>1-bosqich: Loyiha Tuzilishi</h2>
+                <div class="description">
+                    Avval fayllar tuzilishini tayyorlaymiz. Har bir fayl o'z vazifasiga ega.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        blog_ilova/<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;app.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># asosiy server kodi</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;models.py&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># baza modellari</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;templates/&nbsp;&nbsp;&nbsp;<span class="comment"># HTML shablonlar</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;base.html<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.html<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;login.html<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;static/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># CSS, rasm fayllar</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;requirements.txt&nbsp;&nbsp;<span class="comment"># kerakli kutubxonalar</span>
+                    </div>
+                    <div class="comment-part">
+                        # Har bir narsa o'z joyida — kod tartibli va o'qishga oson bo'ladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-bosqich: Model (Ma'lumotlar Bazasi)</h2>
+                <div class="description">
+                    <strong>Model</strong> — bazadagi jadval tuzilishini Python klassi bilan
+                    ifodalaydi. Biz Flask-SQLAlchemy ishlatamiz. Har bir klass = bitta jadval,
+                    har bir maydon (Column) = jadval ustuni.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> flask_sqlalchemy <span class="keyword">import</span> SQLAlchemy<br>
+                        db <span class="operator">=</span> <span class="function">SQLAlchemy</span>()<br>
+                        <br>
+                        <span class="keyword">class</span> <span class="function">Foydalanuvchi</span>(db.Model):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;id <span class="operator">=</span> db.<span class="function">Column</span>(db.Integer, primary_key<span class="operator">=</span><span class="boolean">True</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;login <span class="operator">=</span> db.<span class="function">Column</span>(db.String(<span class="number">50</span>), unique<span class="operator">=</span><span class="boolean">True</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;parol <span class="operator">=</span> db.<span class="function">Column</span>(db.String(<span class="number">200</span>))<br>
+                        <br>
+                        <span class="keyword">class</span> <span class="function">Post</span>(db.Model):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;id <span class="operator">=</span> db.<span class="function">Column</span>(db.Integer, primary_key<span class="operator">=</span><span class="boolean">True</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sarlavha <span class="operator">=</span> db.<span class="function">Column</span>(db.String(<span class="number">120</span>))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;matn <span class="operator">=</span> db.<span class="function">Column</span>(db.Text)
+                    </div>
+                    <div class="comment-part">
+                        # Foydalanuvchi va Post — bazadagi ikki jadval. id avtomatik tartib raqami.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3-bosqich: Server va Route'lar (View)</h2>
+                <div class="description">
+                    <strong>View</strong> (yoki route) — bu manzil bilan funksiyani bog'laydi.
+                    Foydalanuvchi <span class="highlight-var">/</span> manziliga kirsa, bosh sahifa
+                    funksiyasi ishlaydi va shablonni qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template, request, redirect<br>
+                        <span class="keyword">from</span> models <span class="keyword">import</span> db, Post<br>
+                        <br>
+                        app <span class="operator">=</span> <span class="function">Flask</span>(__name__)<br>
+                        app.config[<span class="string">"SQLALCHEMY_DATABASE_URI"</span>] <span class="operator">=</span> <span class="string">"sqlite:///blog.db"</span><br>
+                        db.<span class="function">init_app</span>(app)<br>
+                        <br>
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/"</span>)<br>
+                        <span class="keyword">def</span> <span class="function">bosh_sahifa</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;postlar <span class="operator">=</span> Post.query.<span class="function">all</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">render_template</span>(<span class="string">"index.html"</span>, postlar<span class="operator">=</span>postlar)
+                    </div>
+                    <div class="comment-part">
+                        # @app.route("/") — "/" manziliga kirilganda bu funksiya ishlaydi.
+                        # Bazadan barcha postlarni olib, index.html shabloniga uzatamiz.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4-bosqich: CRUD — Qo'shish, O'qish, Tahrirlash, O'chirish</h2>
+                <div class="description">
+                    <strong>CRUD</strong> = Create (qo'shish), Read (o'qish), Update (tahrirlash),
+                    Delete (o'chirish). Bu har qanday ilovaning yuragi. Mana yangi post qo'shish:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/qoshish"</span>, methods<span class="operator">=</span>[<span class="string">"POST"</span>])<br>
+                        <span class="keyword">def</span> <span class="function">post_qoshish</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sarlavha <span class="operator">=</span> request.form[<span class="string">"sarlavha"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;matn <span class="operator">=</span> request.form[<span class="string">"matn"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;yangi <span class="operator">=</span> <span class="function">Post</span>(sarlavha<span class="operator">=</span>sarlavha, matn<span class="operator">=</span>matn)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;db.session.<span class="function">add</span>(yangi)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;db.session.<span class="function">commit</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"/"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Formadan ma'lumot olamiz → yangi Post yaratamiz → bazaga saqlaymiz
+                        # (add + commit) → bosh sahifaga qaytaramiz (redirect).
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/ochirish/&lt;int:id&gt;"</span>)<br>
+                        <span class="keyword">def</span> <span class="function">post_ochirish</span>(id):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;post <span class="operator">=</span> Post.query.<span class="function">get</span>(id)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;db.session.<span class="function">delete</span>(post)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;db.session.<span class="function">commit</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"/"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # &lt;int:id&gt; — manzildan post raqamini olamiz va o'sha postni o'chiramiz.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5-bosqich: Template (HTML Shablon)</h2>
+                <div class="description">
+                    <strong>Template</strong> — bu HTML fayl, lekin ichida Python ma'lumotlarini
+                    ko'rsatish mumkin. <span class="highlight-var">{{ }}</span> ichida o'zgaruvchi,
+                    <span class="highlight-var">{% %}</span> ichida sikl yoki shart yoziladi (Jinja2).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        &lt;h1&gt;Blogim&lt;/h1&gt;<br>
+                        {<span class="operator">%</span> <span class="keyword">for</span> post <span class="keyword">in</span> postlar <span class="operator">%</span>}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=<span class="string">"card"</span>&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt;{{ post.sarlavha }}&lt;/h2&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;{{ post.matn }}&lt;/p&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>
+                        {<span class="operator">%</span> <span class="keyword">endfor</span> <span class="operator">%</span>}
+                    </div>
+                    <div class="comment-part">
+                        # Server postlar ro'yxatini uzatadi, shablon ularni sikl bilan chiqaradi.
+                        # {{ post.sarlavha }} — har post sarlavhasi ekranga chiqadi.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>6-bosqich: Forma (Foydalanuvchidan Ma'lumot)</h2>
+                <div class="description">
+                    Yangi post qo'shish uchun <strong>forma</strong> kerak. Forma yuborilganda
+                    ma'lumot serverga (yuqoridagi <span class="highlight-var">/qoshish</span>) boradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        &lt;form action=<span class="string">"/qoshish"</span> method=<span class="string">"POST"</span>&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;input name=<span class="string">"sarlavha"</span> placeholder=<span class="string">"Sarlavha"</span>&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;textarea name=<span class="string">"matn"</span>&gt;&lt;/textarea&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;button&gt;Saqlash&lt;/button&gt;<br>
+                        &lt;/form&gt;
+                    </div>
+                    <div class="comment-part">
+                        # method="POST" — ma'lumot xavfsiz yuboriladi.
+                        # name="sarlavha" — server request.form["sarlavha"] orqali oladi.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>7-bosqich: Auth (Ro'yxatdan O'tish va Kirish)</h2>
+                <div class="description">
+                    <strong>Auth</strong> — foydalanuvchini tanish. Parolni hech qachon ochiq
+                    saqlamaymiz — uni <strong>hash</strong> qilamiz. Kirgan foydalanuvchini
+                    <strong>session</strong>da eslab qolamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> werkzeug.security <span class="keyword">import</span> generate_password_hash, check_password_hash<br>
+                        <span class="keyword">from</span> flask <span class="keyword">import</span> session<br>
+                        <br>
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/kirish"</span>, methods<span class="operator">=</span>[<span class="string">"POST"</span>])<br>
+                        <span class="keyword">def</span> <span class="function">kirish</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;u <span class="operator">=</span> Foydalanuvchi.query.<span class="function">filter_by</span>(login<span class="operator">=</span>request.form[<span class="string">"login"</span>]).<span class="function">first</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> u <span class="keyword">and</span> <span class="function">check_password_hash</span>(u.parol, request.form[<span class="string">"parol"</span>]):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;session[<span class="string">"user_id"</span>] <span class="operator">=</span> u.id<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"/"</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Login yoki parol xato"</span>
+                    </div>
+                    <div class="comment-part">
+                        # Bazadan foydalanuvchini topamiz, parolni tekshiramiz.
+                        # To'g'ri bo'lsa, session ichiga uning id sini yozamiz (eslab qolamiz).
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>8-bosqich: Deploy (Internetga Joylash)</h2>
+                <div class="description">
+                    Ilova tayyor bo'lgach, uni boshqalar ham ko'rishi uchun
+                    <strong>deploy</strong> qilamiz. Bunga oddiy platformalar: Render,
+                    Railway, PythonAnywhere. Avval kerakli kutubxonalarni ro'yxatlaymiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># requirements.txt</span><br>
+                        Flask<br>
+                        Flask-SQLAlchemy<br>
+                        gunicorn<br>
+                        <br>
+                        <span class="comment"># terminalda ishga tushirish (mahalliy)</span><br>
+                        python app.py<br>
+                        <span class="comment"># serverda (deploy)</span><br>
+                        gunicorn app:app
+                    </div>
+                    <div class="comment-part">
+                        # requirements.txt — platforma qaysi kutubxonalar kerakligini biladi.
+                        # gunicorn — haqiqiy serverda Flask'ni ishga tushiradigan dastur.
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Deploy qadamlari</strong>
+                    <p>
+                        1. Kodni GitHub'ga yuklang<br>
+                        2. Render/Railway'da yangi loyiha oching va GitHub'ga ulang<br>
+                        3. Ishga tushirish buyrug'i: <span class="highlight-var">gunicorn app:app</span><br>
+                        4. Platforma sizga manzil beradi — tayyor!
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Model</span> = baza jadvali, <span class="highlight-var">View</span> = mantiq, <span class="highlight-var">Template</span> = ko'rinish<br>
+                    • CRUD: <span class="highlight-var">add/commit</span> qo'shadi, <span class="highlight-var">delete</span> o'chiradi<br>
+                    • Parolni har doim <span class="highlight-var">hash</span> qiling — ochiq saqlamang<br>
+                    • Forma <span class="highlight-var">POST</span> bilan ma'lumotni serverga yuboradi<br>
+                    • Deploy uchun <span class="highlight-var">requirements.txt</span> va <span class="highlight-var">gunicorn</span> kerak
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Web Ilova Mock Ko'rinishi</h2>
+                <div class="description">
+                    Quyida ilovamizning haqiqiy brauzerdagi ko'rinishini simulyatsiya qilamiz.
+                    Login qiling, postlarni qo'shing va o'chiring (CRUD).
+                </div>
+                <div class="interactive-demo">
+                    <div class="browser-mock">
+                        <div class="browser-bar">
+                            <span class="browser-dot dot-r"></span>
+                            <span class="browser-dot dot-y"></span>
+                            <span class="browser-dot dot-g"></span>
+                            <span class="browser-url" id="mockUrl">https://mening-blogim.onrender.com/kirish</span>
+                        </div>
+                        <div class="browser-body" id="mockBody"></div>
+                    </div>
+                    <div class="demo-input" id="postAdder" style="display:none;">
+                        <input type="text" id="newPost" placeholder="Yangi post sarlavhasi" value="Salom dunyo!">
+                        <button onclick="addPost()">+ Qo'shish</button>
+                    </div>
+                    <div class="demo-result" id="resultMock"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Frontend ↔ Backend Oqimi</h2>
+                <div class="description">
+                    Foydalanuvchi tugmani bosganda nima sodir bo'ladi? So'rov frontend'dan
+                    backend'ga, undan bazaga boradi va javob qaytadi. Tugmani bosing va
+                    bosqichlarni kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-row">
+                        <div class="flow-node" id="fn-0"><div class="fn-title">Brauzer</div><div class="fn-sub">Frontend</div></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node" id="fn-1"><div class="fn-title">Server</div><div class="fn-sub">Flask route</div></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node" id="fn-2"><div class="fn-title">Baza</div><div class="fn-sub">Model</div></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node" id="fn-3"><div class="fn-title">Javob</div><div class="fn-sub">Template</div></div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="runFlow()">So'rovni yuborish</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Ilova Qismlari</h2>
+                <div class="description">
+                    Ilova qismini bosing — uning vazifasi va kod misolini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="parts-grid">
+                        <button class="part-chip" onclick="showPart('model')">Model</button>
+                        <button class="part-chip" onclick="showPart('view')">View</button>
+                        <button class="part-chip" onclick="showPart('template')">Template</button>
+                        <button class="part-chip" onclick="showPart('auth')">Auth</button>
+                    </div>
+                    <div class="demo-result" id="resultPart"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: CRUD Hisoblagich</h2>
+                <div class="description">
+                    Har bir CRUD amalini bosing — ilova bazada nima bo'layotganini ko'rsatadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="crud('create')">Create</button>
+                        <button onclick="crud('read')">Read</button>
+                        <button onclick="crud('update')">Update</button>
+                        <button onclick="crud('delete')">Delete</button>
+                    </div>
+                    <div class="demo-result" id="resultCrud"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Loyihani rejalashtiring</strong>
+                            <p>Blog yoki onlayn do'kon tanlang. Qanday modellar kerak? (Post, Foydalanuvchi, Mahsulot...)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Model va CRUD yozing</strong>
+                            <p>models.py da jadvallarni, app.py da qo'shish/o'qish/tahrir/o'chirish route'larini yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Template va auth qo'shing</strong>
+                            <p>index.html, login.html shablonlarini yozing. Ro'yxatdan o'tish va kirishni qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Deploy qiling</strong>
+                            <p>requirements.txt yarating, GitHub'ga yuklang va Render/Railway'da joylashtiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 174: Capstone 4 — Avtomatlashtirish</p>
+                    <p style="opacity: 0.9;">
+                        To'liq web ilova qurdingiz — frontend, backend, baza va deploy!<br>
+                        Endi avtomatlashtirish loyihasini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Misol 1: Web ilova mock ===
+        let loggedIn = false;
+        let posts = [
+            { id: 1, title: "Birinchi postim", meta: "Ali · bugun" },
+            { id: 2, title: "Python o'rganyapman", meta: "Ali · kecha" }
+        ];
+        let nextId = 3;
+
+        function renderLogin() {
+            document.getElementById('mockUrl').textContent = "https://mening-blogim.onrender.com/kirish";
+            document.getElementById('postAdder').style.display = 'none';
+            document.getElementById('mockBody').innerHTML = `
+                <div class="mock-login">
+                    <div class="mock-logo" style="margin-bottom:10px;">Blogim</div>
+                    <input type="text" value="ali" readonly>
+                    <input type="password" value="••••••" readonly>
+                    <button onclick="doLogin()">Kirish</button>
+                </div>`;
+        }
+
+        function renderBlog() {
+            document.getElementById('mockUrl').textContent = "https://mening-blogim.onrender.com/";
+            document.getElementById('postAdder').style.display = 'flex';
+            let cards = posts.map(p => `
+                <div class="mock-card">
+                    <div>
+                        <div class="post-title">${p.title}</div>
+                        <div class="post-meta">${p.meta}</div>
+                    </div>
+                    <div class="mock-actions">
+                        <button class="mini-btn mini-edit" onclick="editPost(${p.id})">Tahrir</button>
+                        <button class="mini-btn mini-del" onclick="delPost(${p.id})">O'chir</button>
+                    </div>
+                </div>`).join('');
+            if (posts.length === 0) cards = '<p style="color:#6b7280;text-align:center;">Hali post yo\'q. Qo\'shing!</p>';
+            document.getElementById('mockBody').innerHTML = `
+                <div class="mock-topbar">
+                    <div class="mock-logo">Blogim</div>
+                    <div class="mock-user">ali · <a href="#" onclick="doLogout();return false;" style="color:#0891b2;">chiqish</a></div>
+                </div>
+                ${cards}`;
+        }
+
+        function doLogin() {
+            loggedIn = true;
+            renderBlog();
+            const r = document.getElementById('resultMock');
+            r.classList.add('show');
+            r.innerHTML = ">>> session['user_id'] = 1<br>>>> Muvaffaqiyatli kirdingiz (auth ishladi)";
+        }
+
+        function doLogout() {
+            loggedIn = false;
+            renderLogin();
+            const r = document.getElementById('resultMock');
+            r.classList.add('show');
+            r.innerHTML = ">>> session.clear()<br>>>> Chiqdingiz";
+        }
+
+        function addPost() {
+            const title = document.getElementById('newPost').value || "Nomsiz post";
+            posts.unshift({ id: nextId++, title: title, meta: "ali · hozir" });
+            renderBlog();
+            const r = document.getElementById('resultMock');
+            r.classList.add('show');
+            r.innerHTML = `>>> db.session.add(Post(sarlavha="${title}"))<br>>>> db.session.commit()  # CREATE bajarildi`;
+        }
+
+        function editPost(id) {
+            const p = posts.find(x => x.id === id);
+            if (p) p.title = p.title + " (tahrirlangan)";
+            renderBlog();
+            const r = document.getElementById('resultMock');
+            r.classList.add('show');
+            r.innerHTML = `>>> post.sarlavha = yangi_qiymat<br>>>> db.session.commit()  # UPDATE bajarildi (id=${id})`;
+        }
+
+        function delPost(id) {
+            posts = posts.filter(x => x.id !== id);
+            renderBlog();
+            const r = document.getElementById('resultMock');
+            r.classList.add('show');
+            r.innerHTML = `>>> db.session.delete(Post.query.get(${id}))<br>>>> db.session.commit()  # DELETE bajarildi`;
+        }
+
+        // === Misol 2: Frontend-Backend oqimi ===
+        function runFlow() {
+            const steps = [
+                ">>> Brauzer: foydalanuvchi tugmani bosdi (GET /)",
+                ">>> Server: @app.route('/') funksiyasi ishladi",
+                ">>> Baza: Post.query.all() — ma'lumot olindi",
+                ">>> Javob: render_template('index.html') — sahifa qaytdi"
+            ];
+            for (let i = 0; i < 4; i++) document.getElementById('fn-' + i).classList.remove('active');
+            const r = document.getElementById('resultFlow');
+            r.classList.add('show');
+            r.innerHTML = '';
+            let i = 0;
+            function tick() {
+                if (i > 0) document.getElementById('fn-' + (i - 1)).classList.remove('active');
+                if (i < 4) {
+                    document.getElementById('fn-' + i).classList.add('active');
+                    r.innerHTML += steps[i] + "<br>";
+                    i++;
+                    setTimeout(tick, 700);
+                } else {
+                    r.innerHTML += ">>> Tayyor! Sahifa brauzerda ko'rindi.";
+                }
+            }
+            tick();
+        }
+
+        // === Misol 3: Ilova qismlari ===
+        function showPart(kind) {
+            document.querySelectorAll('.part-chip').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            const data = {
+                model: "Model — baza jadvali (Python klassi)<br>>>> class Post(db.Model):<br>>>>     sarlavha = db.Column(db.String)",
+                view: "View — manzilni funksiyaga bog'laydi<br>>>> @app.route('/')<br>>>> def bosh_sahifa(): return render_template(...)",
+                template: "Template — HTML shablon (Jinja2)<br>>>> {% for post in postlar %}<br>>>>   {{ post.sarlavha }}<br>>>> {% endfor %}",
+                auth: "Auth — kirish va parol tekshirish<br>>>> if check_password_hash(u.parol, parol):<br>>>>     session['user_id'] = u.id"
+            };
+            const r = document.getElementById('resultPart');
+            r.classList.add('show');
+            r.innerHTML = ">>> " + data[kind];
+        }
+
+        // === Misol 4: CRUD hisoblagich ===
+        let dbCount = 2;
+        function crud(op) {
+            const r = document.getElementById('resultCrud');
+            r.classList.add('show');
+            let msg = "";
+            if (op === 'create') { dbCount++; msg = "CREATE: db.session.add() + commit()"; }
+            else if (op === 'read') { msg = "READ: Post.query.all() — o'qildi"; }
+            else if (op === 'update') { msg = "UPDATE: post.matn = yangi; commit()"; }
+            else if (op === 'delete') { if (dbCount > 0) dbCount--; msg = "DELETE: db.session.delete() + commit()"; }
+            r.innerHTML = `>>> ${msg}<br>>>> Bazadagi postlar soni: ${dbCount}`;
+        }
+
+        // dastlabki ko'rinish
+        renderLogin();
+    </script>
+</body>
+</html>

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 34: Klasslar va Obyektlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* OBYEKT KARTOCHKALARI */
+        .obj-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 15px 0; }
+        .obj-card {
+            flex: 1; min-width: 150px;
+            background: #1f2937; color: #d4d4d4;
+            border-radius: 10px; padding: 14px 16px;
+            border: 2px solid var(--primary);
+            font-family: 'Monaco', monospace; font-size: 0.85em; line-height: 1.7;
+            animation: slideUp 0.4s ease-out;
+        }
+        .obj-card .obj-name { color: #a78bfa; font-weight: bold; font-size: 1em; margin-bottom: 6px; display: block; }
+        .obj-card .obj-attr { color: #34d399; }
+        .obj-card .obj-key { color: #60a5fa; }
+
+        /* QADAM QADAM __init__ */
+        .init-step {
+            background: var(--white);
+            border-left: 4px solid var(--gray);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            opacity: 0.45;
+            transition: all 0.4s ease;
+            font-family: 'Monaco', monospace; font-size: 0.88em;
+            color: var(--dark);
+        }
+        .init-step.active { opacity: 1; border-left-color: var(--primary); background: var(--primary-light); transform: translateX(6px); }
+        .init-step .lbl { font-family: 'Segoe UI', sans-serif; color: var(--gray); display: block; margin-bottom: 3px; font-size: 0.92em; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: var(--gray); opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 7 — OOP (Obyektga asoslangan dasturlash) · Dars 34 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Klasslar va Obyektlar</h1>
+                <p>Modul 7 — OOP (Obyektga asoslangan dasturlash) | Dars 34</p>
+            </header>
+
+            <div class="section">
+                <h2>Klass Nima?</h2>
+                <div class="description">
+                    <strong>Klass (class)</strong> — bu <strong>qolip</strong> yoki <strong>shablon</strong>. U
+                    biror narsani qanday bo'lishini tasvirlaydi, lekin o'zi hali tayyor narsa emas.
+                    Klassdan biz haqiqiy narsalarni — <strong>obyektlarni</strong> yasaymiz.
+                </div>
+
+                <div class="info-box">
+                    <strong>Hayotiy analogiya 🍪</strong>
+                    <p>
+                        Klass — bu pechenye uchun <strong>qolip (forma)</strong>. Qolipning o'zi pechenye emas!
+                        Lekin undan istagancha pechenye yasash mumkin. Har bir yasalgan pechenye —
+                        bu <strong>obyekt</strong>. Ular bir qolipdan chiqsa ham, har biri alohida narsa.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Klass va Obyekt — Farqi</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tushuncha</th><th>Nima?</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Klass</code></td><td>Qolip / shablon / chizma</td><td>"Odam" tushunchasi</td></tr>
+                        <tr><td><code>Obyekt</code></td><td>Qolipdan yasalgan haqiqiy narsa</td><td>Ali, Vali, Guli</td></tr>
+                        <tr><td><code>Xususiyat</code></td><td>Obyektning ma'lumoti</td><td>ism, yosh, bo'y</td></tr>
+                        <tr><td><code>Metod</code></td><td>Obyektning harakati (funksiyasi)</td><td>yurish(), gapirish()</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Boshqa misollar</strong>
+                    <p>
+                        • Klass <span class="highlight-var">Mashina</span> → obyektlar: sizning mashinangiz, qo'shningiznikisi<br>
+                        • Klass <span class="highlight-var">Telefon</span> → obyektlar: har bir alohida telefon<br>
+                        • Klass <span class="highlight-var">Talaba</span> → obyektlar: guruhdagi har bir talaba
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Eng Oddiy Klass Yaratish</h2>
+                <div class="description">
+                    Klass <span class="highlight-var">class</span> kalit so'zi bilan yaratiladi.
+                    Klass nomi odatda <strong>katta harf</strong> bilan boshlanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Kishi</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">pass</span>
+                    </div>
+                    <div class="comment-part">
+                        # Bo'sh klass (qolip). pass — "hozircha hech narsa yo'q" degani
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Obyekt Yaratish (Instance)</h2>
+                <div class="description">
+                    Klassdan obyekt yasash uchun klass nomini <strong>qavs bilan</strong> chaqiramiz.
+                    Hosil bo'lgan obyektga <strong>instance</strong> ham deyiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Kishi</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">pass</span><br>
+                        <br>
+                        ali <span class="operator">=</span> <span class="function">Kishi</span>()<br>
+                        vali <span class="operator">=</span> <span class="function">Kishi</span>()
+                    </div>
+                    <div class="comment-part">
+                        # ali va vali — bitta qolipdan yasalgan ikki alohida obyekt
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__init__ — Konstruktor</h2>
+                <div class="description">
+                    <span class="highlight-var">__init__</span> — bu maxsus metod. Obyekt yaratilgan paytda
+                    <strong>avtomatik ishlaydi</strong> va obyektga boshlang'ich ma'lumotlarni beradi.
+                    Uni <strong>konstruktor</strong> deb ataymiz ("quruvchi" degani).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Kishi</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism, yosh):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.yosh <span class="operator">=</span> yosh<br>
+                        <br>
+                        ali <span class="operator">=</span> <span class="function">Kishi</span>(<span class="string">"Ali"</span>, <span class="number">20</span>)<br>
+                        <span class="function">print</span>(ali.ism, ali.yosh)
+                    </div>
+                    <div class="comment-part">
+                        # Kishi("Ali", 20) chaqirilganda __init__ ishlaydi.<br>
+                        # self.ism = ism → obyektga "Ali" ni yozadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali 20
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>self Nima va Nega Kerak?</h2>
+                <div class="description">
+                    <span class="highlight-var">self</span> — bu <strong>"ayni shu obyekt"</strong> degani.
+                    Har bir metodda birinchi parametr sifatida yoziladi. U orqali obyekt
+                    <strong>o'zining</strong> ma'lumotlariga murojaat qiladi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy tushuntirish</strong>
+                    <p>
+                        <span class="highlight-var">self.ism</span> degani — "shu obyektning ismi".
+                        Ali uchun self = ali, Vali uchun self = vali. Shuning uchun
+                        <span class="highlight-var">ali.ism</span> = "Ali", <span class="highlight-var">vali.ism</span> = "Vali"
+                        bo'ladi. Agar self bo'lmasa, Python qaysi obyekt haqida gapirayotganimizni bilmaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xususiyat (Attribute) vs Metod (Method)</h2>
+                <div class="description">
+                    <strong>Xususiyat</strong> — bu obyektning <strong>ma'lumoti</strong> (ism, yosh).
+                    <strong>Metod</strong> — bu obyektning ichidagi <strong>funksiya</strong> (harakat qiladi).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Kishi</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">salomlash</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Salom, men "</span> <span class="operator">+</span> self.ism<br>
+                        <br>
+                        ali <span class="operator">=</span> <span class="function">Kishi</span>(<span class="string">"Ali"</span>)<br>
+                        <span class="function">print</span>(ali.ism)<br>
+                        <span class="function">print</span>(ali.<span class="function">salomlash</span>())
+                    </div>
+                    <div class="comment-part">
+                        # ali.ism → xususiyat (qavssiz)<br>
+                        # ali.salomlash() → metod (qavs bilan chaqiriladi)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali<br>
+                    >>> Salom, men Ali
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tur</th><th>Nima?</th><th>Chaqirilishi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Xususiyat</code></td><td>Ma'lumot</td><td>ali.ism (qavssiz)</td></tr>
+                        <tr><td><code>Metod</code></td><td>Harakat / funksiya</td><td>ali.salomlash() (qavs bilan)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">class</span> — qolip yaratadi, obyekt — undan yasalgan narsa<br>
+                    • <span class="highlight-var">__init__</span> obyekt yaratilganda avtomatik ishlaydi<br>
+                    • <span class="highlight-var">self</span> — "ayni shu obyekt" degani<br>
+                    • Xususiyat — ma'lumot (qavssiz), metod — harakat (qavs bilan)
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Obyekt Yaratuvchi</h2>
+                <div class="description">
+                    Ism va yoshni kiriting, tugmani bosing — <span class="highlight-var">Kishi</span> obyekti
+                    yaratiladi va uning xususiyatlari ko'rsatiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="objIsm" placeholder="Ism" value="Ali">
+                        <input type="number" id="objYosh" placeholder="Yosh" value="20" style="min-width:80px;">
+                        <button onclick="demoYarat()">Obyekt yarat</button>
+                    </div>
+                    <div class="demo-result" id="resultYarat"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: __init__ Qadamma-Qadam</h2>
+                <div class="description">
+                    <span class="highlight-var">Kishi("Guli", 18)</span> chaqirilganda __init__ ichida nima
+                    sodir bo'lishini qadam-qadam kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div id="initSteps">
+                        <div class="init-step" id="is0"><span class="lbl">1-qadam — obyekt yaratish</span>guli = Kishi("Guli", 18)</div>
+                        <div class="init-step" id="is1"><span class="lbl">2-qadam — __init__ chaqiriladi</span>def __init__(self, ism, yosh)</div>
+                        <div class="init-step" id="is2"><span class="lbl">3-qadam — self = guli obyekti</span>self → guli</div>
+                        <div class="init-step" id="is3"><span class="lbl">4-qadam — ism yoziladi</span>self.ism = "Guli"</div>
+                        <div class="init-step" id="is4"><span class="lbl">5-qadam — yosh yoziladi</span>self.yosh = 18</div>
+                        <div class="init-step" id="is5"><span class="lbl">Tayyor! obyekt qaytariladi</span>guli.ism = "Guli", guli.yosh = 18</div>
+                    </div>
+                    <div class="btn-row" style="margin-top:14px;">
+                        <button onclick="initKeyingi()">Keyingi qadam →</button>
+                        <button onclick="initReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultInit"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Bir Nechta Obyekt</h2>
+                <div class="description">
+                    Bitta qolipdan ko'p obyekt yasaymiz. Har biri <strong>o'z xususiyatiga</strong> ega
+                    ekanini ko'ring — ular bir-biriga ta'sir qilmaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="multiIsm" placeholder="Ism" value="">
+                        <input type="number" id="multiYosh" placeholder="Yosh" value="" style="min-width:80px;">
+                        <button onclick="demoQoshish()">Qo'shish</button>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoTozalash()">Hammasini tozalash</button>
+                    </div>
+                    <div class="obj-grid" id="objGrid"></div>
+                    <div class="demo-result" id="resultMulti"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Klass yarating</strong>
+                            <p>class Talaba: deb qolip yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>__init__ qo'shing</strong>
+                            <p>def __init__(self, ism, fan): bilan ism va fan xususiyatlarini bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Ikki obyekt yarating</strong>
+                            <p>t1 = Talaba("Ali", "Python"), t2 = Talaba("Vali", "Matematika")</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Xususiyatlarni chiqaring</strong>
+                            <p>print(t1.ism, t1.fan) va print(t2.ism, t2.fan)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 35: Metodlar</p>
+                    <p style="opacity: 0.9;">
+                        Klass va obyektlarni o'rgandingiz!<br>
+                        Endi obyektlarga harakat beradigan metodlarni chuqurroq ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: Obyekt yaratuvchi
+        function demoYarat() {
+            const ism = document.getElementById('objIsm').value || "Ismsiz";
+            const yosh = document.getElementById('objYosh').value || "0";
+            const result = document.getElementById('resultYarat');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> kishi = Kishi("${ism}", ${yosh})<br>` +
+                `>>> kishi.ism  →  "${ism}"<br>` +
+                `>>> kishi.yosh  →  ${yosh}<br>` +
+                `<br>Obyekt tayyor! Bitta qolipdan haqiqiy "${ism}" yasaldi.`;
+        }
+
+        // Misol 2: __init__ qadamma-qadam
+        let initIndex = -1;
+        const initTotal = 6;
+        function initKeyingi() {
+            if (initIndex < initTotal - 1) initIndex++;
+            for (let i = 0; i < initTotal; i++) {
+                const el = document.getElementById('is' + i);
+                if (el) el.classList.toggle('active', i <= initIndex);
+            }
+            const result = document.getElementById('resultInit');
+            result.classList.add('show');
+            if (initIndex < initTotal - 1) {
+                result.innerHTML = `>>> ${initIndex + 1}-qadam bajarildi. "Keyingi qadam" ni bosing.`;
+            } else {
+                result.innerHTML = `>>> Tayyor! guli.ism = "Guli", guli.yosh = 18`;
+            }
+        }
+        function initReset() {
+            initIndex = -1;
+            for (let i = 0; i < initTotal; i++) {
+                const el = document.getElementById('is' + i);
+                if (el) el.classList.remove('active');
+            }
+            const result = document.getElementById('resultInit');
+            result.classList.remove('show');
+            result.innerHTML = '';
+        }
+
+        // Misol 3: Bir nechta obyekt
+        let obyektlar = [];
+        function demoQoshish() {
+            const ism = document.getElementById('multiIsm').value.trim();
+            const yosh = document.getElementById('multiYosh').value.trim();
+            if (!ism) {
+                const result = document.getElementById('resultMulti');
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, avval ism kiriting.';
+                return;
+            }
+            obyektlar.push({ ism: ism, yosh: yosh || "0" });
+            document.getElementById('multiIsm').value = '';
+            document.getElementById('multiYosh').value = '';
+            renderObyektlar();
+        }
+        function demoTozalash() {
+            obyektlar = [];
+            renderObyektlar();
+        }
+        function renderObyektlar() {
+            const grid = document.getElementById('objGrid');
+            grid.innerHTML = '';
+            obyektlar.forEach((o, i) => {
+                const card = document.createElement('div');
+                card.className = 'obj-card';
+                card.innerHTML =
+                    `<span class="obj-name">obyekt ${i + 1}</span>` +
+                    `<span class="obj-key">.ism</span> = <span class="obj-attr">"${o.ism}"</span><br>` +
+                    `<span class="obj-key">.yosh</span> = <span class="obj-attr">${o.yosh}</span>`;
+                grid.appendChild(card);
+            });
+            const result = document.getElementById('resultMulti');
+            result.classList.add('show');
+            if (obyektlar.length === 0) {
+                result.innerHTML = '>>> Hozircha obyekt yo\'q. Ism va yosh qo\'shing.';
+            } else {
+                result.innerHTML =
+                    `>>> Jami ${obyektlar.length} ta obyekt yaratildi.<br>` +
+                    `>>> Har biri o'z xususiyatiga ega — bir-biriga ta'sir qilmaydi!`;
+            }
+        }
+
+        // Dastlabki ko'rinish
+        renderObyektlar();
+    </script>
+</body>
+</html>

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 118: Layout (pack, grid, place)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b91c1c; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); color: var(--dark); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TKINTER OYNA SIMULYATSIYASI */
+        .tk-window {
+            background: #e5e7eb;
+            border: 2px solid #9ca3af;
+            border-radius: 8px;
+            margin: 14px 0;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .tk-titlebar {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            color: var(--white);
+            font-size: 0.82em;
+            padding: 7px 12px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'Monaco', monospace;
+        }
+        .tk-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+        .tk-dot.r { background: #ef4444; }
+        .tk-dot.y { background: #f59e0b; }
+        .tk-dot.g { background: #22c55e; }
+        .tk-body {
+            min-height: 170px;
+            padding: 12px;
+            background: #d1d5db;
+        }
+        .tk-widget {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            font-family: 'Monaco', monospace;
+            font-size: 0.85em;
+            font-weight: bold;
+            padding: 12px 16px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .tk-widget.c2 { background: linear-gradient(135deg, var(--secondary) 0%, #0e7490 100%); }
+        .tk-widget.c3 { background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); }
+        /* pack body */
+        .tk-pack { display: flex; gap: 8px; }
+        .tk-pack.top { flex-direction: column; align-items: stretch; }
+        .tk-pack.bottom { flex-direction: column-reverse; align-items: stretch; }
+        .tk-pack.left { flex-direction: row; align-items: flex-start; }
+        .tk-pack.right { flex-direction: row-reverse; align-items: flex-start; }
+        /* grid body */
+        .tk-grid { display: grid; gap: 8px; }
+        /* place body */
+        .tk-place { position: relative; }
+        .tk-place .tk-widget { position: absolute; }
+
+        .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.82em; color: var(--dark); margin-top: 10px; }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #9ca3af; cursor: not-allowed; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 18 — GUI (tkinter) · Dars 118 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Layout (pack, grid, place)</h1>
+                <p>Modul 18 — GUI (tkinter) | Dars 118</p>
+            </header>
+
+            <div class="section">
+                <h2>Layout Menejeri Nima?</h2>
+                <div class="description">
+                    O'tgan darsda widgetlar (tugma, yorliq, maydon) yaratdik. Lekin ularni
+                    yaratishning o'zi yetarli emas — ularni oynaning qayerga
+                    <strong>joylashtirish</strong> kerakligini ham aytishimiz lozim.
+                    Aynan shu ishni <span class="highlight-var">Layout menejeri</span> bajaradi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy qilib aytganda</strong>
+                    <p>
+                        Layout menejeri — bu widgetlarni oynaga "joylashtiruvchi" yordamchi.
+                        Tkinterda 3 ta layout menejeri bor:
+                        <span class="highlight-var">pack()</span>,
+                        <span class="highlight-var">grid()</span> va
+                        <span class="highlight-var">place()</span>.
+                    </p>
+                </div>
+                <div class="warning-box">
+                    <strong>Muhim eslatma</strong>
+                    <p>
+                        Agar widget yaratib, lekin biron layout menejerini chaqirmasangiz,
+                        widget oynada umuman <strong>ko'rinmaydi</strong>. Joylashtirish majburiy!
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. pack() — Ketma-ket Joylashtirish</h2>
+                <div class="description">
+                    <span class="highlight-var">pack()</span> widgetlarni bir-birining ketidan
+                    "taxlab" qo'yadi. <span class="highlight-var">side</span> parametri yo'nalishni
+                    belgilaydi: <strong>top</strong> (yuqoridan), <strong>bottom</strong> (pastdan),
+                    <strong>left</strong> (chapdan), <strong>right</strong> (o'ngdan).
+                    Standart holatda <span class="highlight-var">side="top"</span>.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> tkinter <span class="keyword">as</span> tk<br><br>
+                        oyna = tk.<span class="function">Tk</span>()<br><br>
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"Birinchi"</span>).<span class="function">pack</span>()<br>
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"Ikkinchi"</span>).<span class="function">pack</span>()<br>
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"Uchinchi"</span>).<span class="function">pack</span>()<br><br>
+                        oyna.<span class="function">mainloop</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Uchta tugma yuqoridan pastga ketma-ket joylashadi
+                    </div>
+                </div>
+
+                <h3>side parametri bilan</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"Chap"</span>).<span class="function">pack</span>(side=<span class="string">"left"</span>)<br>
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"O'ng"</span>).<span class="function">pack</span>(side=<span class="string">"right"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Bir tugma chapga, ikkinchisi o'ngga yopishadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Foydali parametrlar</strong>
+                    <p>
+                        • <span class="highlight-var">padx</span>, <span class="highlight-var">pady</span> — chetlardan bo'sh joy qoldiradi<br>
+                        • <span class="highlight-var">fill="x"</span> — widgetni gorizontal bo'yicha cho'zadi<br>
+                        • <span class="highlight-var">expand=True</span> — bo'sh joyni egallaydi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. grid() — Jadval Ko'rinishida</h2>
+                <div class="description">
+                    <span class="highlight-var">grid()</span> oynani <strong>jadval</strong> kabi qatorlar
+                    (row) va ustunlarga (column) bo'ladi. Har bir widget uchun qaysi
+                    <span class="highlight-var">row</span> va <span class="highlight-var">column</span> ga
+                    qo'yilishini aytamiz. Sanash 0 dan boshlanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        tk.<span class="function">Label</span>(oyna, text=<span class="string">"Ism:"</span>).<span class="function">grid</span>(row=<span class="number">0</span>, column=<span class="number">0</span>)<br>
+                        tk.<span class="function">Entry</span>(oyna).<span class="function">grid</span>(row=<span class="number">0</span>, column=<span class="number">1</span>)<br><br>
+                        tk.<span class="function">Label</span>(oyna, text=<span class="string">"Parol:"</span>).<span class="function">grid</span>(row=<span class="number">1</span>, column=<span class="number">0</span>)<br>
+                        tk.<span class="function">Entry</span>(oyna).<span class="function">grid</span>(row=<span class="number">1</span>, column=<span class="number">1</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Ikki qator, ikki ustunlik chiroyli forma hosil bo'ladi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Foydali parametrlar</strong>
+                    <p>
+                        • <span class="highlight-var">columnspan=2</span> — widget 2 ustunni egallaydi<br>
+                        • <span class="highlight-var">rowspan=2</span> — widget 2 qatorni egallaydi<br>
+                        • <span class="highlight-var">padx</span>, <span class="highlight-var">pady</span> — kataklar orasida bo'sh joy<br>
+                        • <span class="highlight-var">sticky="w"</span> — widgetni katak ichida chapga tortadi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. place() — Aniq Koordinata Bo'yicha</h2>
+                <div class="description">
+                    <span class="highlight-var">place()</span> widgetni aniq
+                    <span class="highlight-var">x</span> (chapdan piksel) va
+                    <span class="highlight-var">y</span> (yuqoridan piksel) koordinatasiga qo'yadi.
+                    Bu eng aniq, lekin eng noqulay usul, chunki oyna o'lchami o'zgarsa
+                    widgetlar siljimaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"A"</span>).<span class="function">place</span>(x=<span class="number">10</span>, y=<span class="number">10</span>)<br>
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"B"</span>).<span class="function">place</span>(x=<span class="number">100</span>, y=<span class="number">60</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Har bir tugma aniq piksel joyiga qo'yiladi
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        place() asosan o'yin yoki maxsus dizayn uchun ishlatiladi.
+                        Oddiy ilovalarda pack() yoki grid() afzalroq.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Uchchalasini Taqqoslash</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Menejer</th><th>Qanday ishlaydi</th><th>Qachon ishlatamiz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>pack()</code></td><td>Ketma-ket taxlaydi (top/left...)</td><td>Oddiy, tik yoki yotiq ro'yxatlar</td></tr>
+                        <tr><td><code>grid()</code></td><td>Jadval: qator va ustun</td><td>Formalar, jadvallar, kalkulyator</td></tr>
+                        <tr><td><code>place()</code></td><td>Aniq x, y koordinata</td><td>Aniq dizayn, o'yinlar</td></tr>
+                    </tbody>
+                </table>
+                <div class="warning-box">
+                    <strong>Eng muhim qoida: aralashtirmang!</strong>
+                    <p>
+                        Bitta ona oynada (yoki bir frame ichida) <strong>pack()</strong> va
+                        <strong>grid()</strong> ni birga ishlatmang — dastur "muzlab" qoladi yoki
+                        xato beradi. Bitta oyna uchun <strong>bitta</strong> layout menejerini tanlang.
+                        place() ni esa boshqalar ustiga qo'yish mumkin, lekin ehtiyot bo'ling.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: pack() va side Parametri</h2>
+                <div class="description">
+                    <span class="highlight-var">side</span> ni o'zgartiring va uchta widget
+                    oynada qanday joylashishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <label style="align-self:center; font-weight:bold; color:var(--dark);">side =</label>
+                        <select id="packSide" onchange="renderPack()">
+                            <option value="top">top (yuqoridan)</option>
+                            <option value="bottom">bottom (pastdan)</option>
+                            <option value="left">left (chapdan)</option>
+                            <option value="right">o'ngdan (right)</option>
+                        </select>
+                        <button onclick="renderPack()">Ko'rsat</button>
+                    </div>
+                    <div class="tk-window">
+                        <div class="tk-titlebar">
+                            <span class="tk-dot r"></span><span class="tk-dot y"></span><span class="tk-dot g"></span>
+                            &nbsp;pack() oynasi
+                        </div>
+                        <div class="tk-body tk-pack top" id="packBody"></div>
+                    </div>
+                    <div class="demo-result" id="resultPack"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: grid() row va column</h2>
+                <div class="description">
+                    Widget uchun <span class="highlight-var">row</span> va
+                    <span class="highlight-var">column</span> qiymatini tanlang, so'ng "Joylashtir"
+                    tugmasini bosing. Jadval to'ldirilib boradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <label style="align-self:center; font-weight:bold; color:var(--dark);">row</label>
+                        <select id="gridRow" style="min-width:70px;">
+                            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+                        </select>
+                        <label style="align-self:center; font-weight:bold; color:var(--dark);">column</label>
+                        <select id="gridCol" style="min-width:70px;">
+                            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+                        </select>
+                        <button onclick="addGrid()">Joylashtir</button>
+                        <button onclick="resetGrid()" style="background:linear-gradient(135deg,#6b7280,#374151);">Tozalash</button>
+                    </div>
+                    <div class="tk-window">
+                        <div class="tk-titlebar">
+                            <span class="tk-dot r"></span><span class="tk-dot y"></span><span class="tk-dot g"></span>
+                            &nbsp;grid() oynasi
+                        </div>
+                        <div class="tk-body tk-grid" id="gridBody"></div>
+                    </div>
+                    <div class="demo-result" id="resultGrid"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Uch Layoutning Farqi</h2>
+                <div class="description">
+                    Bir xil uchta widget — <strong>pack</strong>,
+                    <strong>grid</strong> va <strong>place</strong> bilan qanday boshqacha
+                    joylashishini taqqoslang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="showLayout('pack')">pack()</button>
+                        <button onclick="showLayout('grid')">grid()</button>
+                        <button onclick="showLayout('place')">place()</button>
+                    </div>
+                    <div class="tk-window">
+                        <div class="tk-titlebar">
+                            <span class="tk-dot r"></span><span class="tk-dot y"></span><span class="tk-dot g"></span>
+                            &nbsp;<span id="cmpTitle">layout taqqoslash</span>
+                        </div>
+                        <div class="tk-body" id="cmpBody"></div>
+                    </div>
+                    <div class="legend">
+                        <span><i style="background:var(--primary)"></i> Widget A</span>
+                        <span><i style="background:var(--secondary)"></i> Widget B</span>
+                        <span><i style="background:#a855f7"></i> Widget C</span>
+                    </div>
+                    <div class="demo-result" id="resultCmp"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Oyna yarating</strong>
+                            <p>tk.Tk() bilan oyna oching va sarlavha bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Login formasi quring</strong>
+                            <p>grid() bilan "Ism" va "Parol" yorliqlari hamda ularning Entry maydonlarini 2 qator, 2 ustunga joylang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Tugma qo'shing</strong>
+                            <p>"Kirish" tugmasini grid(row=2, column=0, columnspan=2) bilan ikki ustunga yoying</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Bo'sh joy qo'shing</strong>
+                            <p>Har bir widgetga padx=5, pady=5 berib, chiroyli ko'rinish hosil qiling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 119: Hodisalar (Events)</p>
+                    <p style="opacity: 0.9;">
+                        Widgetlarni joylashtirishni o'rgandingiz!<br>
+                        Endi tugma bosilganda nima sodir bo'lishini boshqarishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MISOL 1: pack side
+        function renderPack() {
+            const side = document.getElementById('packSide').value;
+            const body = document.getElementById('packBody');
+            body.className = 'tk-body tk-pack ' + side;
+            body.innerHTML = `
+                <div class="tk-widget">Birinchi</div>
+                <div class="tk-widget c2">Ikkinchi</div>
+                <div class="tk-widget c3">Uchinchi</div>`;
+            const izoh = {
+                top: 'Yuqoridan pastga taxlanadi',
+                bottom: 'Pastdan yuqoriga taxlanadi',
+                left: 'Chapdan o\'ngga taxlanadi',
+                right: 'O\'ngdan chapga taxlanadi'
+            };
+            const result = document.getElementById('resultPack');
+            result.classList.add('show');
+            result.innerHTML = `>>> .pack(side="${side}")<br>>>> ${izoh[side]}`;
+        }
+
+        // MISOL 2: grid
+        let gridCount = 0;
+        const gridLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+        const gridCells = {};
+        function addGrid() {
+            const r = document.getElementById('gridRow').value;
+            const c = document.getElementById('gridCol').value;
+            const body = document.getElementById('gridBody');
+            body.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            const key = r + '-' + c;
+            let cell = gridCells[key];
+            const letter = gridLetters[gridCount % gridLetters.length];
+            if (!cell) {
+                cell = document.createElement('div');
+                cell.className = 'tk-widget' + (gridCount % 3 === 1 ? ' c2' : gridCount % 3 === 2 ? ' c3' : '');
+                cell.style.gridRow = (parseInt(r) + 1);
+                cell.style.gridColumn = (parseInt(c) + 1);
+                gridCells[key] = cell;
+                body.appendChild(cell);
+            }
+            cell.textContent = letter + ' (' + r + ',' + c + ')';
+            gridCount++;
+            const result = document.getElementById('resultGrid');
+            result.classList.add('show');
+            result.innerHTML = `>>> tk.Button(text="${letter}").grid(row=${r}, column=${c})`;
+        }
+        function resetGrid() {
+            gridCount = 0;
+            for (const k in gridCells) delete gridCells[k];
+            document.getElementById('gridBody').innerHTML = '';
+            const result = document.getElementById('resultGrid');
+            result.classList.add('show');
+            result.innerHTML = '>>> Jadval tozalandi';
+        }
+
+        // MISOL 3: layout taqqoslash
+        function showLayout(kind) {
+            const body = document.getElementById('cmpBody');
+            const title = document.getElementById('cmpTitle');
+            const result = document.getElementById('resultCmp');
+            const A = '<div class="tk-widget">A</div>';
+            const B = '<div class="tk-widget c2">B</div>';
+            const C = '<div class="tk-widget c3">C</div>';
+            let code = '';
+            if (kind === 'pack') {
+                body.className = 'tk-body tk-pack top';
+                body.style = '';
+                body.innerHTML = A + B + C;
+                title.textContent = 'pack() oynasi';
+                code = '.pack() — A, B, C yuqoridan pastga taxlanadi';
+            } else if (kind === 'grid') {
+                body.className = 'tk-body tk-grid';
+                body.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                const a = '<div class="tk-widget" style="grid-row:1;grid-column:1;">A</div>';
+                const b = '<div class="tk-widget c2" style="grid-row:1;grid-column:2;">B</div>';
+                const c = '<div class="tk-widget c3" style="grid-row:2;grid-column:1;">C</div>';
+                body.innerHTML = a + b + c;
+                title.textContent = 'grid() oynasi';
+                code = '.grid() — A(0,0), B(0,1), C(1,0) jadval kataklarida';
+            } else {
+                body.className = 'tk-body tk-place';
+                body.style = '';
+                const a = '<div class="tk-widget" style="position:absolute;left:10px;top:10px;">A</div>';
+                const b = '<div class="tk-widget c2" style="position:absolute;left:120px;top:70px;">B</div>';
+                const c = '<div class="tk-widget c3" style="position:absolute;left:50px;top:120px;">C</div>';
+                body.innerHTML = a + b + c;
+                title.textContent = 'place() oynasi';
+                code = '.place() — har biri aniq x, y koordinataga qo\'yilgan';
+            }
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + code;
+        }
+
+        // dastlabki ko'rinish
+        renderPack();
+        showLayout('pack');
+    </script>
+</body>
+</html>

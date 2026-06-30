@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 120: Entry va Forma</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .check-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .check-row label {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--white); padding: 10px 14px; border-radius: 8px;
+            border: 2px solid var(--primary); cursor: pointer; font-weight: bold; color: var(--dark);
+        }
+        .check-row input[type="checkbox"], .check-row input[type="radio"] {
+            width: 18px; height: 18px; min-width: 18px; flex: none; cursor: pointer; accent-color: var(--primary);
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 18 — GUI (tkinter) · Dars 120 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Entry va Forma</h1>
+                <p>Modul 18 — GUI (tkinter) | Dars 120</p>
+            </header>
+
+            <div class="section">
+                <h2>Entry Nima?</h2>
+                <div class="description">
+                    <strong>Entry</strong> — bu foydalanuvchi <strong>bir qatorli matn</strong> yozadigan
+                    maydon. Ism, parol, raqam kabi qisqa ma'lumotlarni kiritish uchun ishlatiladi.
+                    Buni saytlardagi "input" oynachasiga o'xshating.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> tkinter <span class="keyword">as</span> tk<br>
+                        <br>
+                        oyna = tk.<span class="function">Tk</span>()<br>
+                        maydon = tk.<span class="function">Entry</span>(oyna)<br>
+                        maydon.<span class="function">pack</span>()<br>
+                        <br>
+                        oyna.<span class="function">mainloop</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Entry(oyna) — yozish maydonini yaratadi<br>
+                        # pack() — uni oynaga joylaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>.get() — Qiymatni Olish</h2>
+                <div class="description">
+                    Foydalanuvchi maydonga nima yozganini olish uchun
+                    <span class="highlight-var">.get()</span> metodini ishlatamiz. U yozilgan matnni
+                    <strong>string</strong> sifatida qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        maydon = tk.<span class="function">Entry</span>(oyna)<br>
+                        maydon.<span class="function">pack</span>()<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">korsat</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;matn = maydon.<span class="function">get</span>()&nbsp;&nbsp;<span class="comment"># maydondagi yozuvni oladi</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Siz yozdingiz:"</span>, matn)<br>
+                        <br>
+                        tugma = tk.<span class="function">Button</span>(oyna, text=<span class="string">"Ko'rsat"</span>, command=korsat)<br>
+                        tugma.<span class="function">pack</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Tugma bosilganda korsat() ishlaydi<br>
+                        # .get() har doim string qaytaradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    Siz yozdingiz: Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>.insert() va .delete()</h2>
+                <div class="description">
+                    Dastur orqali maydonga matn yozish yoki uni tozalash mumkin.
+                    <span class="highlight-var">.insert()</span> matn qo'shadi,
+                    <span class="highlight-var">.delete()</span> matnni o'chiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        maydon = tk.<span class="function">Entry</span>(oyna)<br>
+                        maydon.<span class="function">pack</span>()<br>
+                        <br>
+                        maydon.<span class="function">insert</span>(<span class="number">0</span>, <span class="string">"Salom"</span>)&nbsp;&nbsp;<span class="comment"># 0-pozitsiyaga yozadi</span><br>
+                        <br>
+                        maydon.<span class="function">delete</span>(<span class="number">0</span>, tk.END)&nbsp;&nbsp;<span class="comment"># boshidan oxirigacha o'chiradi</span>
+                    </div>
+                    <div class="comment-part">
+                        # insert(0, ...) — boshiga yozadi<br>
+                        # delete(0, tk.END) — hammasini tozalaydi
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>.get()</code></td><td>Maydondagi matnni oladi</td></tr>
+                        <tr><td><code>.insert(0, "matn")</code></td><td>Berilgan joyga matn qo'shadi</td></tr>
+                        <tr><td><code>.delete(0, tk.END)</code></td><td>Maydonni butunlay tozalaydi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Text — Ko'p Qatorli Maydon</h2>
+                <div class="description">
+                    <span class="highlight-var">Entry</span> faqat bir qator uchun. Agar uzun matn,
+                    izoh yoki bir nechta qator kerak bo'lsa <strong>Text</strong> widgetidan foydalanamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        matn_maydon = tk.<span class="function">Text</span>(oyna, height=<span class="number">5</span>, width=<span class="number">30</span>)<br>
+                        matn_maydon.<span class="function">pack</span>()<br>
+                        <br>
+                        natija = matn_maydon.<span class="function">get</span>(<span class="string">"1.0"</span>, tk.END)
+                    </div>
+                    <div class="comment-part">
+                        # Text — ko'p qatorli yozish maydoni<br>
+                        # "1.0" — 1-qator, 0-belgi (boshi)
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>StringVar — Qiymatni Bog'lash</h2>
+                <div class="description">
+                    <span class="highlight-var">StringVar</span> — bu maxsus "o'zgaruvchi quti". Uni Entry ga
+                    bog'lasak, maydon o'zgarganda quti ham o'zgaradi. Bu qiymatni boshqarishni osonlashtiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ism = tk.<span class="function">StringVar</span>()<br>
+                        maydon = tk.<span class="function">Entry</span>(oyna, textvariable=ism)<br>
+                        maydon.<span class="function">pack</span>()<br>
+                        <br>
+                        ism.<span class="function">set</span>(<span class="string">"Ali"</span>)&nbsp;&nbsp;<span class="comment"># maydonga "Ali" yozadi</span><br>
+                        <span class="function">print</span>(ism.<span class="function">get</span>())&nbsp;&nbsp;<span class="comment"># maydondagi qiymatni oladi</span>
+                    </div>
+                    <div class="comment-part">
+                        # textvariable=ism — maydonni qutiga bog'laydi<br>
+                        # .set() yozadi, .get() o'qiydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Checkbutton va Radiobutton</h2>
+                <div class="description">
+                    <strong>Checkbutton</strong> — ha/yo'q (bayroqcha) tanlovi: bir nechtasini birga belgilash mumkin.
+                    <strong>Radiobutton</strong> — bir nechta variantdan <strong>faqat bittasini</strong> tanlash.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        roziman = tk.<span class="function">BooleanVar</span>()<br>
+                        tk.<span class="function">Checkbutton</span>(oyna, text=<span class="string">"Roziman"</span>, variable=roziman).<span class="function">pack</span>()<br>
+                        <br>
+                        jins = tk.<span class="function">StringVar</span>()<br>
+                        tk.<span class="function">Radiobutton</span>(oyna, text=<span class="string">"Erkak"</span>, variable=jins, value=<span class="string">"E"</span>).<span class="function">pack</span>()<br>
+                        tk.<span class="function">Radiobutton</span>(oyna, text=<span class="string">"Ayol"</span>, variable=jins, value=<span class="string">"A"</span>).<span class="function">pack</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Checkbutton — belgilash (True/False)<br>
+                        # Radiobutton — bir guruhdan bittasi (value bilan)
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Oddiy Forma Yasash</h2>
+                <div class="description">
+                    Forma — bu <strong>Label + Entry + Button</strong> kombinatsiyasi. Label nima yozish kerakligini
+                    tushuntiradi, Entry ma'lumot oladi, Button esa uni qayta ishlaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> tkinter <span class="keyword">as</span> tk<br>
+                        <br>
+                        oyna = tk.<span class="function">Tk</span>()<br>
+                        <br>
+                        tk.<span class="function">Label</span>(oyna, text=<span class="string">"Ismingiz:"</span>).<span class="function">pack</span>()<br>
+                        ism = tk.<span class="function">Entry</span>(oyna)<br>
+                        ism.<span class="function">pack</span>()<br>
+                        <br>
+                        natija = tk.<span class="function">Label</span>(oyna, text=<span class="string">""</span>)<br>
+                        natija.<span class="function">pack</span>()<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">salomla</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;natija.<span class="function">config</span>(text=<span class="string">"Salom, "</span> <span class="operator">+</span> ism.<span class="function">get</span>())<br>
+                        <br>
+                        tk.<span class="function">Button</span>(oyna, text=<span class="string">"Yubor"</span>, command=salomla).<span class="function">pack</span>()<br>
+                        <br>
+                        oyna.<span class="function">mainloop</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Label — yo'riqnoma matni<br>
+                        # Entry — foydalanuvchi yozadi<br>
+                        # Button bosilganda natija Label ga yoziladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    Salom, Ali
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Entry</span> — bir qatorli, <span class="highlight-var">Text</span> — ko'p qatorli<br>
+                    • <span class="highlight-var">.get()</span> qiymatni oladi (har doim string)<br>
+                    • <span class="highlight-var">.insert()</span> yozadi, <span class="highlight-var">.delete()</span> o'chiradi<br>
+                    • <span class="highlight-var">Checkbutton</span> — bir nechta tanlov, <span class="highlight-var">Radiobutton</span> — faqat bitta<br>
+                    • Forma = Label + Entry + Button
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Ishlaydigan Forma</h2>
+                <div class="description">
+                    Maydonga ismingizni yozing va tugmani bosing — xuddi tkinter da
+                    <span class="highlight-var">.get()</span> ishlaganidek natija chiqadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="formName" placeholder="Ismingizni yozing" value="Ali">
+                        <button onclick="demoForma()">Yubor</button>
+                    </div>
+                    <div class="demo-result" id="resultForma"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: insert va delete</h2>
+                <div class="description">
+                    <span class="highlight-var">insert()</span> maydonga matn qo'shadi,
+                    <span class="highlight-var">delete()</span> esa uni tozalaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="editField" placeholder="Maydon" value="">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoInsert()">insert("Salom")</button>
+                        <button onclick="demoDelete()">delete(0, END)</button>
+                    </div>
+                    <div class="demo-result" id="resultEdit"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Checkbox va Radio Tanlovi</h2>
+                <div class="description">
+                    Bayroqchani belgilang va bittagina variantni tanlang — tugma bosilganda
+                    tanlovlaringiz ko'rsatiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="check-row">
+                        <label><input type="checkbox" id="chkRozi"> Shartlarga roziman</label>
+                        <label><input type="checkbox" id="chkXabar"> Xabarnoma olishni xohlayman</label>
+                    </div>
+                    <div class="check-row">
+                        <label><input type="radio" name="jins" value="Erkak" checked> Erkak</label>
+                        <label><input type="radio" name="jins" value="Ayol"> Ayol</label>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoTanlov()">Tanlovni ko'rsat</button>
+                    </div>
+                    <div class="demo-result" id="resultTanlov"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Oyna va Label yarating</strong>
+                            <p>tk.Tk() oyna oching, "Ismingiz:" Label qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Entry maydon qo'shing</strong>
+                            <p>tk.Entry(oyna) yarating va pack() bilan joylang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Tugma va funksiya yozing</strong>
+                            <p>Button bosilganda .get() bilan ismni oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Natijani Label da ko'rsating</strong>
+                            <p>natija.config(text="Salom, " + ism.get())</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 121: Canvas</p>
+                    <p style="opacity: 0.9;">
+                        Forma yasashni o'rgandingiz!<br>
+                        Endi Canvas bilan chizish va grafika yaratishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoForma() {
+            const t = document.getElementById('formName').value;
+            const result = document.getElementById('resultForma');
+            result.classList.add('show');
+            if (!t) {
+                result.innerHTML = '>>> ism.get() = ""<br>>>> Maydon bo\'sh, iltimos ism yozing';
+            } else {
+                result.innerHTML = '>>> ism.get() = "' + t + '"<br>>>> Salom, ' + t + '!';
+            }
+        }
+
+        function demoInsert() {
+            const field = document.getElementById('editField');
+            field.value = field.value + "Salom";
+            const result = document.getElementById('resultEdit');
+            result.classList.add('show');
+            result.innerHTML = '>>> maydon.insert(0, "Salom")<br>>>> Maydon: "' + field.value + '"';
+        }
+
+        function demoDelete() {
+            const field = document.getElementById('editField');
+            field.value = "";
+            const result = document.getElementById('resultEdit');
+            result.classList.add('show');
+            result.innerHTML = '>>> maydon.delete(0, tk.END)<br>>>> Maydon: "" (tozalandi)';
+        }
+
+        function demoTanlov() {
+            const rozi = document.getElementById('chkRozi').checked;
+            const xabar = document.getElementById('chkXabar').checked;
+            const jins = document.querySelector('input[name="jins"]:checked').value;
+            const result = document.getElementById('resultTanlov');
+            result.classList.add('show');
+            result.innerHTML =
+                '>>> roziman = ' + (rozi ? 'True' : 'False') + '<br>' +
+                '>>> xabarnoma = ' + (xabar ? 'True' : 'False') + '<br>' +
+                '>>> jins = "' + jins + '"';
+        }
+    </script>
+</body>
+</html>

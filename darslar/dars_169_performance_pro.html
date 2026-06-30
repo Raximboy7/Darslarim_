@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 169: Performance — Ilg'or</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* PERFORMANCE BAR */
+        .perf-bar-wrap { margin: 14px 0; }
+        .perf-bar-label { font-size: 0.85em; color: var(--dark); margin-bottom: 5px; font-weight: bold; }
+        .perf-bar-track {
+            background: #e5e7eb;
+            border-radius: 8px;
+            height: 26px;
+            overflow: hidden;
+            position: relative;
+        }
+        .perf-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: var(--white);
+            font-size: 0.8em;
+            font-weight: bold;
+            font-family: monospace;
+            width: 0;
+            transition: width 0.8s ease;
+            white-space: nowrap;
+        }
+        .perf-slow { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); }
+        .perf-fast { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 23 — Pro daraja va Capstone · Dars 169 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Performance — Ilg'or</h1>
+                <p>Modul 23 — Pro daraja va Capstone | Dars 169</p>
+            </header>
+
+            <div class="section">
+                <h2>Performance Nima va Nega Muhim?</h2>
+                <div class="description">
+                    <strong>Performance (unumdorlik)</strong> — bu dasturingiz qanchalik
+                    <strong>tez</strong> ishlashi va qancha <strong>xotira</strong> ishlatishidir.
+                    Kichik dasturda farq sezilmaydi, lekin million elementli ma'lumotda
+                    sekin kod soatlab kutishga, tez kod esa soniyalarga aylanadi.
+                </div>
+                <div class="info-box">
+                    <strong>Eng muhim qoida: Avval o'lcha!</strong>
+                    <p>
+                        Optimizatsiyani <strong>taxmin</strong> bilan boshlamang. Avval
+                        profiling bilan <span class="highlight-var">qaysi joy sekin</span>
+                        ekanini aniqlang. Aks holda muhim bo'lmagan joyni bekorga optimallashtirasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. To'g'ri Data Structure Tanlash</h2>
+                <div class="description">
+                    Eng katta tezlik farqi — to'g'ri ma'lumot tuzilmasini tanlashdan keladi.
+                    <span class="highlight-var">in</span> bilan qidirishda
+                    <strong>list</strong> sekin, <strong>set</strong> va <strong>dict</strong> esa juda tez.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Amal</th><th>list</th><th>set / dict</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>x in ...</code> qidirish</td><td>Sekin O(n)</td><td>Tez O(1)</td></tr>
+                        <tr><td>Tartib saqlanadimi?</td><td>Ha</td><td>set: yo'q</td></tr>
+                        <tr><td>Takror element</td><td>Bo'lishi mumkin</td><td>set: yo'q</td></tr>
+                        <tr><td>Kalit→qiymat</td><td>Yo'q</td><td>dict: ha</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ruxsat = [<span class="string">"ali"</span>, <span class="string">"vali"</span>, <span class="string">"guli"</span>]&nbsp;&nbsp;<span class="comment"># list — sekin qidiruv</span><br>
+                        <span class="keyword">if</span> <span class="string">"ali"</span> <span class="keyword">in</span> ruxsat:&nbsp;&nbsp;<span class="comment"># har elementni tekshiradi</span><br>
+                        <br>
+                        ruxsat = {<span class="string">"ali"</span>, <span class="string">"vali"</span>, <span class="string">"guli"</span>}&nbsp;&nbsp;<span class="comment"># set — tez qidiruv</span><br>
+                        <span class="keyword">if</span> <span class="string">"ali"</span> <span class="keyword">in</span> ruxsat:&nbsp;&nbsp;<span class="comment"># to'g'ridan-to'g'ri topadi</span>
+                    </div>
+                    <div class="comment-part">
+                        # Million elementda set yuzlab marta tezroq
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Generator Bilan Xotira Tejash</h2>
+                <div class="description">
+                    <strong>List</strong> hamma elementni bir vaqtda xotirada saqlaydi.
+                    <strong>Generator</strong> esa elementlarni <span class="highlight-var">bittalab</span>,
+                    kerak bo'lganda yaratadi — shuning uchun deyarli xotira ishlatmaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># List: 10 million son xotirada (sekin, og'ir)</span><br>
+                        sonlar = [x <span class="operator">*</span> <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">10_000_000</span>)]<br>
+                        <br>
+                        <span class="comment"># Generator: bittalab yaratadi (yengil)</span><br>
+                        sonlar = (x <span class="operator">*</span> <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">10_000_000</span>))
+                    </div>
+                    <div class="comment-part">
+                        # () qavs — generator, [] qavs — list
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Qachon generator?</strong>
+                    <p>
+                        Agar siz ma'lumotni faqat <strong>bir marta, ketma-ket</strong> aylanib
+                        chiqsangiz — generator ishlating. Agar bir necha marta kerak bo'lsa yoki
+                        indeks bilan murojaat qilsangiz — list kerak.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Caching — functools.lru_cache</h2>
+                <div class="description">
+                    <strong>Caching (keshlash)</strong> — bir marta hisoblangan natijani
+                    <span class="highlight-var">eslab qolish</span>. Funksiya bir xil argument bilan
+                    yana chaqirilsa, qaytadan hisoblamay, saqlangan javobni qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> functools <span class="keyword">import</span> lru_cache<br>
+                        <br>
+                        <span class="operator">@</span>lru_cache<br>
+                        <span class="keyword">def</span> <span class="function">fib</span>(n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> n <span class="operator">&lt;</span> <span class="number">2</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> n<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">fib</span>(n<span class="operator">-</span><span class="number">1</span>) <span class="operator">+</span> <span class="function">fib</span>(n<span class="operator">-</span><span class="number">2</span>)
+                    </div>
+                    <div class="comment-part">
+                        # @lru_cache javoblarni eslab qoladi — qayta hisoblamaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> fib(35)  # keshsiz: ~3 soniya, kesh bilan: ~0.0001 soniya
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4. List Comprehension vs Oddiy Sikl</h2>
+                <div class="description">
+                    Ro'yxat yaratishda <span class="highlight-var">list comprehension</span>
+                    odatda oddiy <span class="highlight-var">for + append</span> dan tezroq,
+                    chunki u ichki darajada (C tilida) optimallashtirilgan.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Sekinroq: har safar .append() chaqiriladi</span><br>
+                        natija = []<br>
+                        <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1000</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;natija.<span class="function">append</span>(x <span class="operator">*</span> x)<br>
+                        <br>
+                        <span class="comment"># Tezroq: list comprehension</span><br>
+                        natija = [x <span class="operator">*</span> x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1000</span>)]
+                    </div>
+                    <div class="comment-part">
+                        # Bir xil natija, lekin comprehension tezroq va qisqaroq
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5. Lokalizatsiya — Local O'zgaruvchi Tez</h2>
+                <div class="description">
+                    Python <strong>local</strong> (funksiya ichidagi) o'zgaruvchini
+                    <strong>global</strong> dan tezroq topadi. Sikl ichida ko'p ishlatadigan
+                    funksiyani <span class="highlight-var">local o'zgaruvchiga</span> saqlash tezlikni oshiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Sekinroq: har aylanishda append qidiriladi</span><br>
+                        <span class="keyword">for</span> x <span class="keyword">in</span> data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;natija.<span class="function">append</span>(x)<br>
+                        <br>
+                        <span class="comment"># Tezroq: metodni local o'zgaruvchiga oldik</span><br>
+                        qosh = natija.<span class="function">append</span><br>
+                        <span class="keyword">for</span> x <span class="keyword">in</span> data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">qosh</span>(x)
+                    </div>
+                    <div class="comment-part">
+                        # Katta sikllarda local nom qidiruvi tezroq
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>6. Built-in Funksiyalar Tez</h2>
+                <div class="description">
+                    <span class="highlight-var">sum()</span>, <span class="highlight-var">map()</span>,
+                    <span class="highlight-var">min()</span>, <span class="highlight-var">max()</span> kabi
+                    built-in funksiyalar C tilida yozilgan — ular qo'lda yozilgan sikldan tezroq.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Sekinroq: qo'lda yig'indi</span><br>
+                        jami = <span class="number">0</span><br>
+                        <span class="keyword">for</span> x <span class="keyword">in</span> sonlar:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;jami <span class="operator">+=</span> x<br>
+                        <br>
+                        <span class="comment"># Tezroq: built-in sum()</span><br>
+                        jami = <span class="function">sum</span>(sonlar)
+                    </div>
+                    <div class="comment-part">
+                        # Built-in funksiya har doim afzal — tez va o'qishli
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>7. Profiling Bilan O'lchash</h2>
+                <div class="description">
+                    Kodingiz qancha vaqt olishini <strong>o'lchang</strong>. Eng oddiy yo'l —
+                    <span class="highlight-var">time</span> moduli; aniqroq tahlil uchun
+                    <span class="highlight-var">timeit</span> va <span class="highlight-var">cProfile</span>.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> time<br>
+                        <br>
+                        boshi = time.<span class="function">perf_counter</span>()<br>
+                        natija = <span class="function">sum</span>(<span class="function">range</span>(<span class="number">10_000_000</span>))<br>
+                        oxiri = time.<span class="function">perf_counter</span>()<br>
+                        <br>
+                        <span class="function">print</span>(<span class="string">f"Vaqt: {oxiri - boshi:.4f} soniya"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # perf_counter() — eng aniq vaqt o'lchagich
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Vosita</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>time.perf_counter()</code></td><td>Oddiy vaqt o'lchash</td></tr>
+                        <tr><td><code>timeit</code></td><td>Kichik kod parchasini ko'p marta o'lchaydi</td></tr>
+                        <tr><td><code>cProfile</code></td><td>Qaysi funksiya qancha vaqt oladi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Avval <span class="highlight-var">o'lcha</span>, keyin optimallashtirgin<br>
+                    • Qidiruv uchun <span class="highlight-var">set / dict</span> ishlat<br>
+                    • Katta ma'lumotda <span class="highlight-var">generator</span> xotira tejaydi<br>
+                    • Takrorlanuvchi hisob uchun <span class="highlight-var">@lru_cache</span><br>
+                    • <span class="highlight-var">Built-in</span> funksiyalar har doim tezroq
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: list vs set Qidiruv Tezligi</h2>
+                <div class="description">
+                    Element soni qancha ko'p bo'lsa, list shuncha sekinlashadi.
+                    set esa doim deyarli bir xil tez qoladi. Sinab ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="searchN" placeholder="Element soni" value="100000" min="1000" max="5000000">
+                        <button onclick="demoSearch()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultSearch"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: lru_cache Bilan / Holda</h2>
+                <div class="description">
+                    Fibonachchi sonini keshsiz hisoblash juda ko'p takror amal qiladi.
+                    <span class="highlight-var">@lru_cache</span> bilan har son faqat bir marta hisoblanadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="fibN" placeholder="n qiymati" value="30" min="1" max="38">
+                        <button onclick="demoCache()">Hisobla</button>
+                    </div>
+                    <div class="demo-result" id="resultCache"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Optimizatsiya — Oldin / Keyin</h2>
+                <div class="description">
+                    Bir xil masala (sonlar yig'indisi) ikki xil yo'l bilan:
+                    qo'lda sikl <strong>(oldin)</strong> va built-in <span class="highlight-var">sum()</span>
+                    <strong>(keyin)</strong>. Tezlik farqini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="optN" placeholder="Son miqdori" value="1000000" min="10000" max="20000000">
+                        <button onclick="demoOptimize()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultOptimize"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Vaqtni o'lchang</strong>
+                            <p>time.perf_counter() bilan sum(range(5_000_000)) qancha vaqt olishini chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>list vs set</strong>
+                            <p>Bir xil ma'lumotda "in" qidiruvini list va set'da o'lchab solishtiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>@lru_cache qo'shing</strong>
+                            <p>Rekursiv fib() funksiyangizga @lru_cache qo'yib, tezlik farqini o'lchang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Generatorga o'tkazing</strong>
+                            <p>Katta list comprehension'ni generatorga aylantirib, xotira farqini his eting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 170: Design Patterns (Loyihalash naqshlari)</p>
+                    <p style="opacity: 0.9;">
+                        Kodni tez ishlatishni o'rgandingiz!<br>
+                        Endi kodni chiroyli va professional tuzishni — design pattern'larni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: list vs set qidiruv
+        function demoSearch() {
+            let n = parseInt(document.getElementById('searchN').value);
+            if (isNaN(n) || n < 1000) n = 1000;
+            if (n > 5000000) n = 5000000;
+
+            const arr = [];
+            for (let i = 0; i < n; i++) arr.push(i);
+            const st = new Set(arr);
+            const target = n - 1; // eng yomon holat: oxirgi element
+
+            // list qidiruv (indexOf)
+            let t0 = performance.now();
+            arr.indexOf(target);
+            let t1 = performance.now();
+            const listMs = t1 - t0;
+
+            // set qidiruv (has)
+            t0 = performance.now();
+            st.has(target);
+            t1 = performance.now();
+            const setMs = t1 - t0;
+
+            const ratio = setMs > 0 ? (listMs / setMs) : listMs;
+            const maxMs = Math.max(listMs, setMs, 0.0001);
+            const listPct = Math.max(4, (listMs / maxMs) * 100);
+            const setPct = Math.max(4, (setMs / maxMs) * 100);
+
+            const result = document.getElementById('resultSearch');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${n.toLocaleString()} elementda "${target} in ..." qidiruvi<br><br>` +
+                `<div class="perf-bar-wrap"><div class="perf-bar-label">list (sekin)</div>` +
+                `<div class="perf-bar-track"><div class="perf-bar-fill perf-slow" style="width:${listPct}%">${listMs.toFixed(3)} ms</div></div></div>` +
+                `<div class="perf-bar-wrap"><div class="perf-bar-label">set (tez)</div>` +
+                `<div class="perf-bar-track"><div class="perf-bar-fill perf-fast" style="width:${setPct}%">${setMs.toFixed(4)} ms</div></div></div>` +
+                `>>> set taxminan ${ratio.toFixed(0)}x tezroq!`;
+        }
+
+        // Misol 2: lru_cache bilan / holda (fibonachchi)
+        function demoCache() {
+            let n = parseInt(document.getElementById('fibN').value);
+            if (isNaN(n) || n < 1) n = 1;
+            if (n > 38) n = 38;
+
+            // keshsiz: takror hisob
+            let calls = { c: 0 };
+            function fibSlow(k) {
+                calls.c++;
+                if (k < 2) return k;
+                return fibSlow(k - 1) + fibSlow(k - 2);
+            }
+            let t0 = performance.now();
+            const val = fibSlow(n);
+            let t1 = performance.now();
+            const slowMs = t1 - t0;
+            const slowCalls = calls.c;
+
+            // kesh bilan
+            const memo = {};
+            let calls2 = 0;
+            function fibFast(k) {
+                calls2++;
+                if (k < 2) return k;
+                if (memo[k] !== undefined) return memo[k];
+                return memo[k] = fibFast(k - 1) + fibFast(k - 2);
+            }
+            t0 = performance.now();
+            fibFast(n);
+            t1 = performance.now();
+            const fastMs = t1 - t0;
+
+            const result = document.getElementById('resultCache');
+            result.classList.add('show');
+            result.innerHTML = `>>> fib(${n}) = ${val}<br><br>` +
+                `Keshsiz: ${slowCalls.toLocaleString()} ta chaqiruv, ${slowMs.toFixed(3)} ms<br>` +
+                `@lru_cache bilan: ${calls2.toLocaleString()} ta chaqiruv, ${fastMs.toFixed(4)} ms<br><br>` +
+                `>>> Kesh ${(slowCalls / calls2).toFixed(0)}x kamroq amal qildi!`;
+        }
+
+        // Misol 3: optimizatsiya oldin / keyin
+        function demoOptimize() {
+            let n = parseInt(document.getElementById('optN').value);
+            if (isNaN(n) || n < 10000) n = 10000;
+            if (n > 20000000) n = 20000000;
+
+            // oldin: qo'lda sikl
+            let t0 = performance.now();
+            let jami = 0;
+            for (let i = 0; i < n; i++) jami += i;
+            let t1 = performance.now();
+            const beforeMs = t1 - t0;
+
+            // keyin: built-in (formula bilan tezkor, sum() vakili)
+            t0 = performance.now();
+            const jami2 = (n - 1) * n / 2;
+            t1 = performance.now();
+            const afterMs = Math.max(t1 - t0, 0.0001);
+
+            const maxMs = Math.max(beforeMs, afterMs);
+            const beforePct = Math.max(4, (beforeMs / maxMs) * 100);
+            const afterPct = Math.max(4, (afterMs / maxMs) * 100);
+
+            const result = document.getElementById('resultOptimize');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${n.toLocaleString()} ta sonni qo'shish (natija: ${jami.toLocaleString()})<br><br>` +
+                `<div class="perf-bar-wrap"><div class="perf-bar-label">Oldin: qo'lda for sikl</div>` +
+                `<div class="perf-bar-track"><div class="perf-bar-fill perf-slow" style="width:${beforePct}%">${beforeMs.toFixed(2)} ms</div></div></div>` +
+                `<div class="perf-bar-wrap"><div class="perf-bar-label">Keyin: built-in sum()</div>` +
+                `<div class="perf-bar-track"><div class="perf-bar-fill perf-fast" style="width:${afterPct}%">${afterMs.toFixed(4)} ms</div></div></div>` +
+                `>>> Built-in yo'l ancha tezroq!`;
+        }
+    </script>
+</body>
+</html>

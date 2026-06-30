@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 119: Hodisalar (Events)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* tkinter mini oyna */
+        .tk-window {
+            background: #e5e7eb;
+            border: 2px solid #9ca3af;
+            border-radius: 8px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+        .tk-titlebar {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            color: var(--white);
+            padding: 7px 12px;
+            font-size: 0.82em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tk-dots { color: #f87171; letter-spacing: 2px; }
+        .tk-body {
+            padding: 22px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            text-align: center;
+        }
+        .tk-btn {
+            background: #d1d5db;
+            color: var(--dark);
+            border: 2px solid #9ca3af;
+            border-radius: 6px;
+            padding: 10px 22px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            min-width: auto;
+        }
+        .tk-btn:hover { background: #c7ccd3; transform: none; box-shadow: none; }
+        .tk-btn:active { transform: translateY(1px); }
+        .tk-label {
+            color: var(--dark);
+            font-size: 1.05em;
+            min-height: 1.4em;
+        }
+        .tk-area {
+            width: 100%;
+            background: var(--white);
+            border: 2px dashed #9ca3af;
+            border-radius: 6px;
+            padding: 16px;
+            color: var(--gray);
+            font-size: 0.9em;
+            cursor: crosshair;
+            user-select: none;
+        }
+        .tk-keybox {
+            width: 100%;
+            background: var(--white);
+            border: 2px solid #9ca3af;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: left;
+            color: var(--dark);
+            outline: none;
+        }
+        .tk-keybox:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(16,185,129,0.3); }
+
+        .flow-box {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 14px 0;
+        }
+        .flow-step {
+            background: var(--light);
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: var(--gray);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .flow-step.active {
+            background: var(--primary);
+            border-color: var(--primary-dark);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+        .flow-arrow { color: var(--gray); font-weight: bold; font-size: 1.2em; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 18 — GUI (tkinter) · Dars 119 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Hodisalar (Events)</h1>
+                <p>Modul 18 — GUI (tkinter) | Dars 119</p>
+            </header>
+
+            <div class="section">
+                <h2>Hodisa (Event) Nima?</h2>
+                <div class="description">
+                    <strong>Hodisa (event)</strong> — bu foydalanuvchining dasturdagi har qanday <strong>harakati</strong>:
+                    tugmani <strong>bosish</strong>, klaviaturada <strong>tugma bosish</strong>, sichqonchani
+                    <strong>harakatlantirish</strong> yoki oynani yopish. Dastur shu harakatlarga
+                    <strong>javob beradi</strong>.
+                </div>
+                <div class="description">
+                    Oddiy dastur tepadan pastga bir marta ishlaydi va tugaydi. GUI dastur esa
+                    <strong>kutib turadi</strong> — siz nimadir qilguningizcha jim turadi, harakat qilsangiz —
+                    javob beradi. Bu kutish jarayoni <span class="highlight-var">mainloop()</span> ichida bo'ladi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Callback Funksiya</h2>
+                <div class="description">
+                    Hodisa ro'y berganda <strong>chaqiriladigan funksiya</strong> — bu
+                    <span class="highlight-var">callback</span> (qaytma funksiya) deyiladi. Siz funksiyani yozasiz,
+                    ammo uni o'zingiz chaqirmaysiz — tkinter hodisa bo'lganda <strong>o'zi chaqiradi</strong>.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">salomlash</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Tugma bosildi!"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Bu callback funksiya — tugma bosilganda chaqiriladi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat: qavssiz yoziladi!</strong>
+                    <p>
+                        Callback nomini <strong>qavssiz</strong> beramiz: <span class="highlight-var">salomlash</span>
+                        — bu "shu funksiyani keyin chaqir" degani.<br>
+                        Agar <span class="highlight-var">salomlash()</span> deb qavs bilan yozsangiz, funksiya
+                        <strong>darrov</strong> ishlaydi (xato!).
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1-usul: Button command</h2>
+                <div class="description">
+                    Tugmaning eng oddiy hodisasi — <strong>bosilishi</strong>. Buni
+                    <span class="highlight-var">command=</span> parametri bilan bog'laymiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> tkinter <span class="keyword">as</span> tk<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">bosildi</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;natija.<span class="function">config</span>(text=<span class="string">"Salom!"</span>)<br>
+                        <br>
+                        oyna = tk.<span class="function">Tk</span>()<br>
+                        natija = tk.<span class="function">Label</span>(oyna, text=<span class="string">"..."</span>)<br>
+                        natija.<span class="function">pack</span>()<br>
+                        <br>
+                        tugma = tk.<span class="function">Button</span>(oyna, text=<span class="string">"Bos"</span>, command=bosildi)<br>
+                        tugma.<span class="function">pack</span>()<br>
+                        oyna.<span class="function">mainloop</span>()
+                    </div>
+                    <div class="comment-part">
+                        # command=bosildi → tugma bosilganda "bosildi" funksiyasi ishlaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Tugma bosilsa, Label "Salom!" ga o'zgaradi
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-usul: bind() bilan Hodisa Bog'lash</h2>
+                <div class="description">
+                    <span class="highlight-var">command=</span> faqat tugma bosilishi uchun. Boshqa hodisalar uchun —
+                    sichqoncha, klaviatura, sichqoncha harakati — <span class="highlight-var">bind()</span> ishlatamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        widget.<span class="function">bind</span>(<span class="string">"&lt;Button-1&gt;"</span>, callback)
+                    </div>
+                    <div class="comment-part">
+                        # bind(hodisa_nomi, chaqiriladigan_funksiya)
+                    </div>
+                </div>
+                <h3>Eng ko'p ishlatiladigan hodisalar</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Hodisa</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>&lt;Button-1&gt;</code></td><td>Sichqonchaning chap tugmasi bosildi</td></tr>
+                        <tr><td><code>&lt;Button-3&gt;</code></td><td>Sichqonchaning o'ng tugmasi bosildi</td></tr>
+                        <tr><td><code>&lt;Double-Button-1&gt;</code></td><td>Ikki marta tez bosish (double click)</td></tr>
+                        <tr><td><code>&lt;Motion&gt;</code></td><td>Sichqoncha harakatlanmoqda</td></tr>
+                        <tr><td><code>&lt;Key&gt;</code></td><td>Klaviaturada istalgan tugma bosildi</td></tr>
+                        <tr><td><code>&lt;Return&gt;</code></td><td>Enter tugmasi bosildi</td></tr>
+                        <tr><td><code>&lt;Enter&gt;</code></td><td>Sichqoncha widget ustiga keldi</td></tr>
+                        <tr><td><code>&lt;Leave&gt;</code></td><td>Sichqoncha widgetdan chiqib ketdi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Esda tuting</strong>
+                    <p>Hodisa nomi har doim <span class="highlight-var">&lt; &gt;</span> burchakli qavslar ichida yoziladi.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Event Obyekti</h2>
+                <div class="description">
+                    <span class="highlight-var">bind()</span> orqali chaqirilgan callback bitta argument oladi —
+                    <strong>event obyekti</strong>. Unda hodisa haqida ma'lumot bor: bosilgan joy, bosilgan tugma va h.k.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">bosildi</span>(event):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"X:"</span>, event.x, <span class="string">"Y:"</span>, event.y)<br>
+                        <br>
+                        oyna.<span class="function">bind</span>(<span class="string">"&lt;Button-1&gt;"</span>, bosildi)
+                    </div>
+                    <div class="comment-part">
+                        # event.x va event.y → sichqoncha bosilgan joyning koordinatasi
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Maydon</th><th>Nimani beradi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>event.x</code></td><td>Sichqonchaning X (gorizontal) koordinatasi</td></tr>
+                        <tr><td><code>event.y</code></td><td>Sichqonchaning Y (vertikal) koordinatasi</td></tr>
+                        <tr><td><code>event.char</code></td><td>Klaviaturada bosilgan harf</td></tr>
+                        <tr><td><code>event.keysym</code></td><td>Tugma nomi (masalan "Return", "a", "space")</td></tr>
+                        <tr><td><code>event.widget</code></td><td>Hodisa ro'y bergan widget</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Muhim farq</strong>
+                    <p>
+                        • <span class="highlight-var">command=</span> callback'i argument <strong>olmaydi</strong>:
+                        <span class="highlight-var">def f():</span><br>
+                        • <span class="highlight-var">bind()</span> callback'i <strong>event</strong> oladi:
+                        <span class="highlight-var">def f(event):</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Tugma Bosilganda Hodisa</h2>
+                <div class="description">
+                    Quyidagi tkinter oynachasida tugmani bosing. <span class="highlight-var">command</span> bog'langan
+                    callback ishga tushib, Label matnini o'zgartiradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="tk-window">
+                        <div class="tk-titlebar"><span>Salomlash</span><span class="tk-dots">● ● ●</span></div>
+                        <div class="tk-body">
+                            <div class="tk-label" id="tkLabel1">Hali hech narsa bo'lmadi...</div>
+                            <button class="tk-btn" onclick="demoCommand()">Bosing!</button>
+                        </div>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: bind() — Sichqoncha va Klaviatura</h2>
+                <div class="description">
+                    Pastdagi kulrang maydonni <strong>bosing</strong> — <span class="highlight-var">&lt;Button-1&gt;</span>
+                    hodisasi ishlaydi va bosilgan joy koordinatasini ko'rsatadi. Pastdagi katakka esa biror
+                    <strong>tugma bosing</strong> (klaviaturadan) — <span class="highlight-var">&lt;Key&gt;</span> hodisasi ishlaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="tk-window">
+                        <div class="tk-titlebar"><span>bind() demo</span><span class="tk-dots">● ● ●</span></div>
+                        <div class="tk-body">
+                            <div class="tk-area" id="tkArea" onclick="demoMouse(event)">
+                                Shu yerni sichqoncha bilan bosing (&lt;Button-1&gt;)
+                            </div>
+                            <input class="tk-keybox" id="tkKeyBox" placeholder="Shu yerga bosib, klaviaturadan tugma bosing (<Key>)" onkeydown="demoKey(event)">
+                        </div>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Hodisa → Callback Oqimi</h2>
+                <div class="description">
+                    Hodisa qanday ishlaydi? Tugmani bosing va bosqichlar yonib-yonib ketishini kuzating:
+                    <strong>foydalanuvchi harakati → hodisa hosil bo'ladi → callback chaqiriladi → natija ko'rinadi</strong>.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-box">
+                        <div class="flow-step" id="flow0">👆 Harakat<br>(tugma bosildi)</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step" id="flow1">⚡ Hodisa<br>(event hosil bo'ldi)</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step" id="flow2">🔁 Callback<br>(funksiya ishladi)</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step" id="flow3">✅ Natija<br>(ekran o'zgardi)</div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoFlow()">Oqimni ishga tushir</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Hodisa (event)</span> — foydalanuvchining harakati<br>
+                    • <span class="highlight-var">command=funksiya</span> — tugma bosilishi uchun (qavssiz!)<br>
+                    • <span class="highlight-var">bind("&lt;hodisa&gt;", funksiya)</span> — boshqa hodisalar uchun<br>
+                    • <span class="highlight-var">bind</span> callback'i <span class="highlight-var">event</span> argumentini oladi<br>
+                    • <span class="highlight-var">event.x</span>, <span class="highlight-var">event.char</span> — hodisa haqida ma'lumot
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Oyna va Label yarating</strong>
+                            <p>Tk() oyna oching va matni "..." bo'lgan Label qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>command bilan tugma</strong>
+                            <p>Button qo'shing, command= bilan callback bog'lang (qavssiz!)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>bind() qo'llang</strong>
+                            <p>Oynaga bind("&lt;Key&gt;", funksiya) qo'shib, bosilgan tugmani chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>event'dan foydalaning</strong>
+                            <p>Callback ichida event.char yoki event.x ni Label'ga yozing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 120: Entry va Forma</p>
+                    <p style="opacity: 0.9;">
+                        Hodisalar bilan ishlashni o'rgandingiz!<br>
+                        Endi foydalanuvchidan matn qabul qiladigan formalar yasaymiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoCommand() {
+            const lbl = document.getElementById('tkLabel1');
+            lbl.textContent = "Salom! Tugma bosildi 🎉";
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = `>>> Button bosildi → command=bosildi chaqirildi<br>>>> natija.config(text="Salom!")`;
+        }
+
+        function demoMouse(ev) {
+            const area = document.getElementById('tkArea');
+            const rect = area.getBoundingClientRect();
+            const x = Math.round(ev.clientX - rect.left);
+            const y = Math.round(ev.clientY - rect.top);
+            area.textContent = `Bosildi! X=${x}, Y=${y}`;
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            result.innerHTML = `>>> &lt;Button-1&gt; hodisasi<br>>>> event.x = ${x}, event.y = ${y}`;
+        }
+
+        function demoKey(ev) {
+            const harf = ev.key.length === 1 ? ev.key : "";
+            const nom = ev.key === ' ' ? 'space' : ev.key;
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            result.innerHTML = `>>> &lt;Key&gt; hodisasi<br>>>> event.char = "${harf}", event.keysym = "${nom}"`;
+        }
+
+        function demoFlow() {
+            const steps = ['flow0', 'flow1', 'flow2', 'flow3'];
+            const labels = [
+                '>>> Foydalanuvchi tugmani bosdi',
+                '>>> Hodisa (event) hosil bo\'ldi',
+                '>>> Callback funksiya chaqirildi',
+                '>>> Natija: ekran yangilandi ✅'
+            ];
+            steps.forEach(id => document.getElementById(id).classList.remove('active'));
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            result.innerHTML = '';
+            let i = 0;
+            const timer = setInterval(() => {
+                if (i > 0) document.getElementById(steps[i - 1]).classList.remove('active');
+                if (i >= steps.length) { clearInterval(timer); return; }
+                document.getElementById(steps[i]).classList.add('active');
+                result.innerHTML += labels[i] + '<br>';
+                i++;
+            }, 800);
+        }
+    </script>
+</body>
+</html>

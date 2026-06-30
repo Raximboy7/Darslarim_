@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 140: Regressiya</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f97316; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .demo-canvas {
+            background: var(--white);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            margin: 10px 0;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <span class="nav-center">Modul 20 — Vizualizatsiya va ML · Dars 140 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Regressiya</h1>
+                <p>Modul 20 — Vizualizatsiya va ML | Dars 140</p>
+            </header>
+
+            <div class="section">
+                <h2>Regressiya nima?</h2>
+                <div class="description">
+                    <strong>Regressiya</strong> — bu mashina o'qitishning bir turi bo'lib, unda biz
+                    <strong>uzluksiz son</strong> (raqam) bashorat qilamiz. Masalan: uy narxi, ertangi
+                    harorat, mahsulot sotuvi yoki talabaning bahosi. Javob "ha/yo'q" emas, balki
+                    <span class="highlight-var">aniq bir raqam</span> bo'ladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Savol</th><th>Bashorat (uzluksiz son)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Bu uy qancha turadi?</td><td>250 000 000 so'm</td></tr>
+                        <tr><td>Ertaga harorat necha gradus?</td><td>27.5 °C</td></tr>
+                        <tr><td>Bu mashina necha km yuradi?</td><td>180 000 km</td></tr>
+                        <tr><td>Talaba imtihonda necha ball oladi?</td><td>78 ball</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Eslab qoling</strong>
+                    <p>Agar javob <strong>son</strong> bo'lsa — bu <strong>regressiya</strong>.
+                    Agar javob <strong>toifa</strong> (masalan "spam / spam emas") bo'lsa — bu
+                    <strong>klassifikatsiya</strong> (keyingi darsda ko'ramiz).</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Chiziqli regressiya (Linear Regression)</h2>
+                <div class="description">
+                    Eng oddiy va eng mashhur regressiya turi — <strong>chiziqli regressiya</strong>.
+                    G'oyasi juda sodda: nuqtalar orasidan <strong>eng mos to'g'ri chiziq</strong>ni
+                    o'tkazamiz va shu chiziq yordamida bashorat qilamiz.
+                </div>
+                <div class="description" style="background:#f0fdf4;">
+                    Chiziq tenglamasi maktabdan tanish:
+                    <span class="highlight-var">y = a · x + b</span><br><br>
+                    • <strong>x</strong> — kirish (masalan uy o'lchami)<br>
+                    • <strong>y</strong> — bashorat (masalan narx)<br>
+                    • <strong>a</strong> — chiziqning og'ishi (qiyaligi): x bir birlikka oshganda y qancha oshadi<br>
+                    • <strong>b</strong> — boshlang'ich qiymat (x = 0 bo'lganda y qayerda)
+                </div>
+                <div class="info-box">
+                    <strong>Misol</strong>
+                    <p>Agar <span class="highlight-var">y = 2·x + 5</span> bo'lsa: x = 10 uchun
+                    y = 2·10 + 5 = <strong>25</strong>. Mana shu — bashorat!</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Chiziq qanday "eng mos" bo'ladi?</h2>
+                <div class="description">
+                    Cheksiz ko'p chiziq chizish mumkin. Qaysi biri eng yaxshi? <strong>Eng mos chiziq</strong> —
+                    bu barcha nuqtalarga <strong>eng yaqin</strong> o'tadigan chiziq. Ya'ni har bir nuqta bilan
+                    chiziq orasidagi masofa (xato) imkon qadar <strong>kichik</strong> bo'lishi kerak.
+                    Sklearn bu eng yaqin chiziqni biz uchun avtomatik topadi.
+                </div>
+                <div class="example-box">
+                    <div class="example-title">Tasavvur qiling</div>
+                    Nuqtalar — bu haqiqiy ma'lumotlar. Chiziq esa — ularning umumiy "tendensiyasi".
+                    Yaxshi chiziq nuqtalar orasidan o'rtadan o'tadi, ulardan uzoqlashmaydi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sklearn bilan: LinearRegression</h2>
+                <div class="description">
+                    Python-da <span class="highlight-var">scikit-learn</span> (sklearn) kutubxonasi
+                    chiziqli regressiyani bir necha qatorda bajaradi. Ikkita asosiy metod bor:
+                    <strong>.fit()</strong> — o'qitish, <strong>.predict()</strong> — bashorat.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression<br><br>
+                        <span class="comment"># X — kirish (uy o'lchami), y — natija (narx)</span><br>
+                        X = [[<span class="number">50</span>], [<span class="number">60</span>], [<span class="number">80</span>], [<span class="number">100</span>]]<br>
+                        y = [<span class="number">100</span>, <span class="number">120</span>, <span class="number">160</span>, <span class="number">200</span>]<br><br>
+                        model = <span class="function">LinearRegression</span>()<br>
+                        model.<span class="function">fit</span>(X, y)
+                    </div>
+                    <div class="comment-part">
+                        # fit() — modelni ma'lumotlarga moslaydi (eng mos chiziqni topadi)
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat: X ikki qavatli ro'yxat</strong>
+                    <p>Sklearn-da kirish (X) har doim ro'yxatlar ro'yxati shaklida bo'ladi:
+                    <span class="highlight-var">[[50], [60], ...]</span>. Natija (y) esa oddiy ro'yxat:
+                    <span class="highlight-var">[100, 120, ...]</span>.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Bashorat qilish: predict()</h2>
+                <div class="description">
+                    Model o'qitilgandan keyin, yangi qiymat uchun bashorat qilamiz.
+                    Masalan 90 m² uy qancha turadi?
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        natija = model.<span class="function">predict</span>([[<span class="number">90</span>]])<br>
+                        <span class="function">print</span>(natija)<br><br>
+                        <span class="comment"># Chiziq formulasini ham ko'rish mumkin:</span><br>
+                        <span class="function">print</span>(<span class="string">"og'ish (a):"</span>, model.coef_)<br>
+                        <span class="function">print</span>(<span class="string">"boshi (b):"</span>, model.intercept_)
+                    </div>
+                    <div class="comment-part">
+                        # predict() — o'qitilgan chiziq yordamida 90 m² uchun narxni hisoblaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [180.]<br>
+                    >>> og'ish (a): [2.]<br>
+                    >>> boshi (b): 0.0
+                </div>
+                <div class="info-box">
+                    <strong>Demak chiziq: y = 2·x + 0</strong>
+                    <p>90 m² → 2·90 = <strong>180</strong>. Model o'zi shu formulani ma'lumotlardan
+                    o'rgandi!</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq misol: uy o'lchami → narx</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression<br><br>
+                        <span class="comment"># O'lcham (m²) va narx (mln so'm)</span><br>
+                        X = [[<span class="number">40</span>], [<span class="number">55</span>], [<span class="number">70</span>], [<span class="number">85</span>], [<span class="number">100</span>]]<br>
+                        narx = [<span class="number">120</span>, <span class="number">165</span>, <span class="number">210</span>, <span class="number">255</span>, <span class="number">300</span>]<br><br>
+                        model = <span class="function">LinearRegression</span>()<br>
+                        model.<span class="function">fit</span>(X, narx)<br><br>
+                        <span class="comment"># 75 m² uy uchun bashorat</span><br>
+                        bashorat = model.<span class="function">predict</span>([[<span class="number">75</span>]])<br>
+                        <span class="function">print</span>(<span class="string">"75 m² uy narxi:"</span>, bashorat[<span class="number">0</span>], <span class="string">"mln"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Model o'lcham bilan narx o'rtasidagi bog'liqlikni o'rganadi va yangi o'lcham uchun narx aytadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 75 m² uy narxi: 225.0 mln
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Eng mos chiziqni chizish</h2>
+                <div class="description">
+                    Quyida bir nechta nuqta bor. Tugmani bosing — model ular orasidan
+                    <strong>eng mos chiziq</strong>ni topib chizadi. "Nuqta qo'shish" bilan yangi
+                    nuqtalar qo'shib, chiziq qanday o'zgarishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <canvas id="fitCanvas" class="demo-canvas" width="560" height="320"></canvas>
+                    <div class="btn-row">
+                        <button onclick="drawFitLine()">Eng mos chiziqni chiz</button>
+                        <button onclick="addRandomPoint()">Nuqta qo'shish</button>
+                        <button onclick="resetPoints()">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultFit"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Yangi qiymat uchun bashorat</h2>
+                <div class="description">
+                    Model o'qitilgan. Endi siz <strong>x</strong> qiymatini kiriting — model chiziq
+                    formulasi <span class="highlight-var">y = a·x + b</span> bo'yicha <strong>y</strong> ni
+                    bashorat qiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="predX" placeholder="x qiymati" value="12">
+                        <button onclick="demoPredict()">Bashorat qil</button>
+                    </div>
+                    <div class="demo-result" id="resultPredict"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Uy o'lchami → narx bashorati</h2>
+                <div class="description">
+                    Haqiqiy hayotdagi misol. Uy o'lchamini (m²) kiriting — model o'rgangan
+                    bog'liqlik asosida narxni (mln so'm) bashorat qiladi.
+                </div>
+                <div class="interactive-demo">
+                    <canvas id="houseCanvas" class="demo-canvas" width="560" height="300"></canvas>
+                    <div class="demo-input">
+                        <input type="number" id="houseSize" placeholder="o'lcham (m²)" value="75">
+                        <button onclick="demoHouse()">Narxni bashorat qil</button>
+                    </div>
+                    <div class="demo-result" id="resultHouse"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ma'lumot tayyorlang</strong>
+                            <p>Bir necha talabaning o'qish soatlari X = [[1],[2],[3],[4]] va ballari y = [50,60,70,80] ni yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Modelni yarating va o'qiting</strong>
+                            <p>LinearRegression() yarating va model.fit(X, y) bilan o'qiting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Bashorat qiling</strong>
+                            <p>model.predict([[5]]) bilan 5 soat o'qigan talaba necha ball olishini chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Chiziqni ko'ring</strong>
+                            <p>model.coef_ va model.intercept_ ni chop eting — model topgan a va b qiymatlari</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 141: Klassifikatsiya</p>
+                    <p style="opacity: 0.9;">
+                        Regressiya bilan son bashorat qilishni o'rgandingiz!<br>
+                        Endi toifalarni ("ha/yo'q", "spam/spam emas") bashorat qilishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Misol 1: eng mos chiziq =====
+        let points = [
+            {x: 1, y: 2}, {x: 2, y: 3.2}, {x: 3, y: 3.6},
+            {x: 4, y: 5.1}, {x: 5, y: 5.4}, {x: 6, y: 6.8}
+        ];
+
+        // chiziqli regressiya (eng kichik kvadratlar usuli)
+        function linearFit(pts) {
+            const n = pts.length;
+            if (n < 2) return null;
+            let sx = 0, sy = 0, sxy = 0, sxx = 0;
+            for (const p of pts) { sx += p.x; sy += p.y; sxy += p.x * p.y; sxx += p.x * p.x; }
+            const denom = (n * sxx - sx * sx);
+            if (denom === 0) return null;
+            const a = (n * sxy - sx * sy) / denom;
+            const b = (sy - a * sx) / n;
+            return {a, b};
+        }
+
+        function plotBase(canvas, pts, fit, opts) {
+            opts = opts || {};
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width, H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+            const pad = 40;
+            // diapazon
+            let maxX = Math.max(...pts.map(p => p.x), opts.maxX || 1);
+            let maxY = Math.max(...pts.map(p => p.y), opts.maxY || 1);
+            maxX *= 1.15; maxY *= 1.15;
+            const sx = v => pad + (v / maxX) * (W - 2 * pad);
+            const sy = v => H - pad - (v / maxY) * (H - 2 * pad);
+            // o'qlar
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+            ctx.stroke();
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '12px monospace';
+            ctx.fillText(opts.xlabel || 'x', W - pad - 10, H - pad + 22);
+            ctx.fillText(opts.ylabel || 'y', pad - 28, pad + 4);
+            // chiziq
+            if (fit) {
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(sx(0), sy(fit.b));
+                ctx.lineTo(sx(maxX), sy(fit.a * maxX + fit.b));
+                ctx.stroke();
+            }
+            // nuqtalar
+            for (const p of pts) {
+                ctx.fillStyle = '#0891b2';
+                ctx.beginPath();
+                ctx.arc(sx(p.x), sy(p.y), 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            return {sx, sy, maxX, maxY};
+        }
+
+        function drawFitLine() {
+            const canvas = document.getElementById('fitCanvas');
+            const fit = linearFit(points);
+            plotBase(canvas, points, fit, {xlabel: 'x', ylabel: 'y'});
+            const result = document.getElementById('resultFit');
+            result.classList.add('show');
+            if (fit) {
+                result.innerHTML = '>>> Eng mos chiziq topildi:<br>>>> y = ' +
+                    fit.a.toFixed(2) + ' &middot; x + ' + fit.b.toFixed(2) +
+                    '<br>>>> Nuqtalar soni: ' + points.length;
+            } else {
+                result.innerHTML = '>>> Kamida 2 ta nuqta kerak!';
+            }
+        }
+
+        function addRandomPoint() {
+            const x = Math.round((Math.random() * 6 + 1) * 10) / 10;
+            const y = Math.round((x * 0.9 + (Math.random() * 2 - 1) + 1) * 10) / 10;
+            points.push({x, y: Math.max(0, y)});
+            drawFitLine();
+        }
+
+        function resetPoints() {
+            points = [];
+            const canvas = document.getElementById('fitCanvas');
+            plotBase(canvas, [{x:0,y:0}], null, {xlabel: 'x', ylabel: 'y', maxX: 7, maxY: 8});
+            const result = document.getElementById('resultFit');
+            result.classList.add('show');
+            result.innerHTML = '>>> Nuqtalar tozalandi. "Nuqta qo\'shish" bilan yangi nuqta qo\'shing.';
+        }
+
+        // ===== Misol 2: bashorat =====
+        // oldindan o'qitilgan model: y = 1.5x + 3
+        const PRED_A = 1.5, PRED_B = 3;
+        function demoPredict() {
+            const x = parseFloat(document.getElementById('predX').value);
+            const result = document.getElementById('resultPredict');
+            result.classList.add('show');
+            if (isNaN(x)) {
+                result.innerHTML = '>>> Iltimos, son kiriting!';
+                return;
+            }
+            const y = PRED_A * x + PRED_B;
+            result.innerHTML = '>>> model.predict([[' + x + ']])<br>' +
+                '>>> chiziq: y = ' + PRED_A + ' &middot; x + ' + PRED_B + '<br>' +
+                '>>> bashorat y = ' + PRED_A + ' &middot; ' + x + ' + ' + PRED_B +
+                ' = <span style="color:#fbbf24">' + y.toFixed(2) + '</span>';
+        }
+
+        // ===== Misol 3: uy o'lchami -> narx =====
+        const housePoints = [
+            {x: 40, y: 120}, {x: 55, y: 165}, {x: 70, y: 210},
+            {x: 85, y: 255}, {x: 100, y: 300}
+        ];
+        const houseFit = linearFit(housePoints); // a=3, b=0
+
+        function drawHouse(predSize) {
+            const canvas = document.getElementById('houseCanvas');
+            const view = plotBase(canvas, housePoints, houseFit, {xlabel: "m²", ylabel: 'mln'});
+            if (predSize != null && !isNaN(predSize)) {
+                const ctx = canvas.getContext('2d');
+                const py = houseFit.a * predSize + houseFit.b;
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(view.sx(predSize), view.sy(py), 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#ef4444';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(view.sx(predSize), view.sy(0));
+                ctx.lineTo(view.sx(predSize), view.sy(py));
+                ctx.lineTo(view.sx(0), view.sy(py));
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function demoHouse() {
+            const size = parseFloat(document.getElementById('houseSize').value);
+            const result = document.getElementById('resultHouse');
+            result.classList.add('show');
+            if (isNaN(size) || size <= 0) {
+                result.innerHTML = '>>> Iltimos, to\'g\'ri o\'lcham kiriting!';
+                drawHouse(null);
+                return;
+            }
+            const price = houseFit.a * size + houseFit.b;
+            drawHouse(size);
+            result.innerHTML = '>>> model.predict([[' + size + ']])<br>' +
+                '>>> chiziq: narx = ' + houseFit.a.toFixed(1) + ' &middot; o\'lcham + ' + houseFit.b.toFixed(1) + '<br>' +
+                '>>> ' + size + ' m² uy narxi ≈ <span style="color:#fbbf24">' +
+                price.toFixed(1) + ' mln so\'m</span>';
+        }
+
+        // dastlabki ko'rinish
+        drawFitLine();
+        drawHouse(null);
+    </script>
+</body>
+</html>
