@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 55: Commit va Tarix</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TERMINAL SIMULYATSIYA */
+        .terminal {
+            background: #0d1117;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+        .terminal-bar {
+            background: #161b22;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+        .terminal-title { color: #8b949e; font-size: 0.78em; margin-left: 8px; font-family: monospace; }
+        .terminal-body {
+            padding: 15px 18px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.88em;
+            color: #c9d1d9;
+            line-height: 1.8;
+            min-height: 60px;
+        }
+        .term-prompt { color: #58a6ff; }
+        .term-cmd { color: #e6edf3; }
+        .term-out { color: #8b949e; }
+        .term-green { color: #3fb950; }
+        .term-red { color: #f85149; }
+        .term-yellow { color: #d29922; }
+
+        /* COMMIT GRAFI */
+        .commit-graph { margin: 12px 0; }
+        .commit-node {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+        }
+        .commit-bubble {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.95em; flex-shrink: 0;
+        }
+        .commit-info { flex: 1; }
+        .commit-hash { color: var(--secondary); font-family: monospace; font-weight: bold; font-size: 0.85em; }
+        .commit-msg { color: var(--dark); font-weight: bold; }
+        .commit-meta { color: var(--gray); font-size: 0.8em; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_54_git_asoslar.html">← Oldingi</a>
+        <span class="nav-center">Modul 10 — Git va Version Control · Dars 55 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_56_branch.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Commit va Tarix</h1>
+                <p>Modul 10 — Git va Version Control | Dars 55</p>
+            </header>
+
+            <div class="section">
+                <h2>Commit Nima?</h2>
+                <div class="description">
+                    <strong>Commit</strong> — bu loyihangizning ma'lum bir paytdagi
+                    <strong>surati (snapshot)</strong>. Har bir commit "o'zgarishlar suratga olingan nuqta"dir.
+                    Siz biror ish bajarasiz, keyin uni commit qilasiz — Git esa o'sha holatni
+                    abadiy eslab qoladi. Keyinchalik istalgan commitga qaytishingiz mumkin.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy taqqoslash</strong>
+                    <p>
+                        O'yin o'ynaganingizda <span class="highlight-var">save</span> qilasiz-ku?
+                        Commit ham xuddi shunday — kodingizning "save nuqtasi". Xato qilsangiz,
+                        oxirgi commitga qaytib olasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Uchta Asosiy Holat</h2>
+                <div class="description">
+                    Git'da fayl uchta bosqichdan o'tadi. Buni tushunish commit'ning kalitidir.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Holat</th><th>Joyi</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>O'zgargan</code></td><td>Working Directory</td><td>Faylni tahrir qildingiz, hali Git'ga aytmadingiz</td></tr>
+                        <tr><td><code>Staged</code></td><td>Staging Area</td><td><code>git add</code> qildingiz — commitga tayyor</td></tr>
+                        <tr><td><code>Committed</code></td><td>Repository</td><td><code>git commit</code> qildingiz — tarixga saqlandi</td></tr>
+                    </tbody>
+                </table>
+                <div class="output-demo">
+                    O'zgargan  ──git add──▶  Staged  ──git commit──▶  Committed
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git add — Staging'ga Qo'shish</h2>
+                <div class="description">
+                    <span class="highlight-var">git add</span> faylni
+                    <strong>staging area</strong>ga (commitga tayyorlash maydoniga) qo'shadi.
+                    Bu — "men shu faylni keyingi commitga qo'shmoqchiman" degani.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git add main.py
+                    </div>
+                    <div class="comment-part">
+                        # Faqat bitta faylni staging'ga qo'shish
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git add .
+                    </div>
+                    <div class="comment-part">
+                        # Nuqta (.) — hamma o'zgargan fayllarni qo'shish
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git commit — O'zgarishlarni Saqlash</h2>
+                <div class="description">
+                    <span class="highlight-var">git commit -m "xabar"</span> staging'dagi
+                    fayllarni tarixga saqlaydi. <span class="highlight-var">-m</span> degani
+                    <strong>message (xabar)</strong> — har commitga qisqa izoh yoziladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git commit -m <span class="string">"Birinchi sahifa qo'shildi"</span>
+                    </div>
+                    <div class="comment-part">
+                        # Staging'dagi o'zgarishlar xabar bilan saqlanadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [main a1b2c3d] Birinchi sahifa qo'shildi<br>
+                    >>> 1 file changed, 12 insertions(+)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git status — Hozirgi Holat</h2>
+                <div class="description">
+                    <span class="highlight-var">git status</span> — "hozir nima bo'lyapti?"
+                    degan savolga javob beradi. Qaysi fayllar o'zgargan, qaysilari staging'da,
+                    qaysilari hali kuzatilmagan — barchasini ko'rsatadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git status
+                    </div>
+                    <div class="comment-part">
+                        # Repozitoriyaning hozirgi holatini ko'rsatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git log — Commit Tarixi</h2>
+                <div class="description">
+                    <span class="highlight-var">git log</span> — barcha commitlar ro'yxatini
+                    ko'rsatadi. Eng yangisi tepada turadi. Har commitning
+                    <strong>hash</strong> (yagona kodi), <strong>muallifi</strong>,
+                    <strong>sanasi</strong> va <strong>xabari</strong> ko'rinadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git log<br>
+                        git log --oneline
+                    </div>
+                    <div class="comment-part">
+                        # --oneline har commitni bitta qatorda qisqa ko'rsatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Yaxshi Commit Xabari</h2>
+                <div class="description">
+                    Commit xabari kelajakdagi siz uchun yoziladi. "Nima qildim?" degan savolga
+                    aniq javob bo'lsin. Qisqa, aniq va ish-harakat shaklida yozing.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Yomon ✗</th><th>Yaxshi ✓</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>"o'zgartirish"</td><td>"Login tugmasi qo'shildi"</td></tr>
+                        <tr><td>"asdf"</td><td>"Narx hisoblash xatosi tuzatildi"</td></tr>
+                        <tr><td>"fix"</td><td>"Bosh sahifa dizayni yangilandi"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">git add .</span> — hamma o'zgarishlarni staging'ga<br>
+                    • <span class="highlight-var">git commit -m "..."</span> — xabar bilan saqlash<br>
+                    • <span class="highlight-var">git status</span> — hozirgi holatni ko'rish<br>
+                    • <span class="highlight-var">git log</span> — commit tarixini ko'rish<br>
+                    • Tartib: <span class="highlight-var">add → commit</span>, doimo shu ketma-ketlik
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: add → commit Ketma-ketligi</h2>
+                <div class="description">
+                    "Boshla" tugmasini bosing va terminal qadamma-qadam
+                    <span class="highlight-var">git add</span> dan
+                    <span class="highlight-var">git commit</span> gacha bo'lgan jarayonni ko'rsatadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="commitMsg" placeholder="Commit xabari" value="Bosh sahifa qo'shildi">
+                        <button onclick="runFlow()">Boshla</button>
+                    </div>
+                    <div class="terminal">
+                        <div class="terminal-bar">
+                            <span class="terminal-dot dot-red"></span>
+                            <span class="terminal-dot dot-yellow"></span>
+                            <span class="terminal-dot dot-green"></span>
+                            <span class="terminal-title">bash — loyiham</span>
+                        </div>
+                        <div class="terminal-body" id="flowTerm">
+                            <span class="term-out"># "Boshla" tugmasini bosing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: git status Holati</h2>
+                <div class="description">
+                    Bir faylni o'zgartiring, keyin uni staging'ga qo'shing va
+                    <span class="highlight-var">git status</span> qanday o'zgarishini kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="statusEdit()">Faylni o'zgartir</button>
+                        <button onclick="statusAdd()">git add</button>
+                        <button onclick="statusCommit()">git commit</button>
+                    </div>
+                    <div class="terminal">
+                        <div class="terminal-bar">
+                            <span class="terminal-dot dot-red"></span>
+                            <span class="terminal-dot dot-yellow"></span>
+                            <span class="terminal-dot dot-green"></span>
+                            <span class="terminal-title">git status</span>
+                        </div>
+                        <div class="terminal-body" id="statusTerm">
+                            <span class="term-prompt">$</span> <span class="term-cmd">git status</span><br>
+                            <span class="term-green">nothing to commit, working tree clean</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: git log Tarixi</h2>
+                <div class="description">
+                    Har "Commit qo'shish" bosilganda yangi commit tarixga qo'shiladi.
+                    <span class="highlight-var">git log</span> ro'yxatini real vaqtda ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="logMsg" placeholder="Commit xabari" value="Yangi xususiyat qo'shildi">
+                        <button onclick="addCommit()">Commit qo'shish</button>
+                        <button onclick="resetLog()">Tozalash</button>
+                    </div>
+                    <div class="commit-graph" id="logGraph"></div>
+                    <div class="demo-result" id="logResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Faylni o'zgartiring</strong>
+                            <p>main.py faylini tahrir qiling yoki yangi fayl yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>git add . bering</strong>
+                            <p>Barcha o'zgarishlarni staging'ga qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>git commit -m "..." qiling</strong>
+                            <p>Aniq xabar bilan o'zgarishlarni saqlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>git log bilan tekshiring</strong>
+                            <p>Commitingiz tarixda paydo bo'lganini ko'ring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 56: Branch (Tarmoqlar)</p>
+                    <p style="opacity: 0.9;">
+                        Commit va tarixni o'rgandingiz!<br>
+                        Endi branch — parallel ish tarmoqlarini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: add -> commit ketma-ketligi
+        function runFlow() {
+            const msg = document.getElementById('commitMsg').value || "O'zgarishlar saqlandi";
+            const term = document.getElementById('flowTerm');
+            const steps = [
+                '<span class="term-prompt">$</span> <span class="term-cmd">git add .</span>',
+                '<span class="term-prompt">$</span> <span class="term-cmd">git status</span>',
+                '<span class="term-green">Changes to be committed:</span>',
+                '<span class="term-green">&nbsp;&nbsp;modified: main.py</span>',
+                '<span class="term-prompt">$</span> <span class="term-cmd">git commit -m "' + msg + '"</span>',
+                '<span class="term-out">[main 7f3a9c1] ' + msg + '</span>',
+                '<span class="term-out">&nbsp;1 file changed, 8 insertions(+)</span>',
+                '<span class="term-green">✓ Commit muvaffaqiyatli saqlandi!</span>'
+            ];
+            term.innerHTML = '';
+            let i = 0;
+            const timer = setInterval(() => {
+                term.innerHTML += steps[i] + '<br>';
+                i++;
+                if (i >= steps.length) clearInterval(timer);
+            }, 550);
+        }
+
+        // Misol 2: git status holati
+        let fileState = 'clean'; // clean | modified | staged
+        function renderStatus() {
+            const term = document.getElementById('statusTerm');
+            let body = '<span class="term-prompt">$</span> <span class="term-cmd">git status</span><br>';
+            if (fileState === 'clean') {
+                body += '<span class="term-green">nothing to commit, working tree clean</span>';
+            } else if (fileState === 'modified') {
+                body += '<span class="term-out">Changes not staged for commit:</span><br>';
+                body += '<span class="term-red">&nbsp;&nbsp;modified: main.py</span><br>';
+                body += '<span class="term-out">(git add bering)</span>';
+            } else if (fileState === 'staged') {
+                body += '<span class="term-out">Changes to be committed:</span><br>';
+                body += '<span class="term-green">&nbsp;&nbsp;modified: main.py</span><br>';
+                body += '<span class="term-out">(git commit bering)</span>';
+            }
+            term.innerHTML = body;
+        }
+        function statusEdit() { fileState = 'modified'; renderStatus(); }
+        function statusAdd() {
+            if (fileState === 'modified') { fileState = 'staged'; }
+            renderStatus();
+        }
+        function statusCommit() {
+            if (fileState === 'staged') {
+                const term = document.getElementById('statusTerm');
+                term.innerHTML = '<span class="term-prompt">$</span> <span class="term-cmd">git commit -m "asosiy o\'zgarish"</span><br>'
+                    + '<span class="term-out">[main 4d5e6f2] asosiy o\'zgarish</span><br>'
+                    + '<span class="term-green">✓ Saqlandi! Endi: working tree clean</span>';
+                fileState = 'clean';
+            } else {
+                renderStatus();
+            }
+        }
+
+        // Misol 3: git log tarixi
+        let commits = [];
+        const hashes = ['a1b2c3d', 'e4f5g6h', '7i8j9k0', 'l1m2n3o', 'p4q5r6s', 't7u8v9w'];
+        function addCommit() {
+            const msg = document.getElementById('logMsg').value || "O'zgarish";
+            const hash = hashes[commits.length % hashes.length];
+            commits.unshift({ hash: hash, msg: msg, n: commits.length + 1 });
+            renderLog();
+        }
+        function resetLog() {
+            commits = [];
+            renderLog();
+        }
+        function renderLog() {
+            const graph = document.getElementById('logGraph');
+            const res = document.getElementById('logResult');
+            graph.innerHTML = '';
+            if (commits.length === 0) {
+                res.classList.add('show');
+                res.innerHTML = '>>> git log<br>>>> (hali commit yo\'q)';
+                return;
+            }
+            commits.forEach((c, i) => {
+                const node = document.createElement('div');
+                node.className = 'commit-node';
+                const label = (i === 0) ? ' (HEAD → main)' : '';
+                node.innerHTML =
+                    '<div class="commit-bubble">' + c.n + '</div>' +
+                    '<div class="commit-info">' +
+                        '<div class="commit-hash">commit ' + c.hash + label + '</div>' +
+                        '<div class="commit-msg">' + c.msg + '</div>' +
+                        '<div class="commit-meta">Muallif: siz · Sana: bugun</div>' +
+                    '</div>';
+                graph.appendChild(node);
+            });
+            res.classList.add('show');
+            let lines = '>>> git log --oneline<br>';
+            commits.forEach(c => { lines += '>>> ' + c.hash + ' ' + c.msg + '<br>'; });
+            res.innerHTML = lines;
+        }
+
+        // dastlabki ko'rinish
+        addCommit();
+    </script>
+</body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 121: Canvas va Chizish</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CANVAS DEMO */
+        .canvas-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        canvas {
+            background: var(--white);
+            border: 2px solid var(--primary-dark);
+            border-radius: 8px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            max-width: 100%;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: var(--gray);
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_120_entry_forma.html">← Oldingi</a>
+        <span class="nav-center">Modul 18 — GUI (tkinter) · Dars 121 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_122_dialog_menyu.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Canvas va Chizish</h1>
+                <p>Modul 18 — GUI (tkinter) | Dars 121</p>
+            </header>
+
+            <div class="section">
+                <h2>Canvas Nima?</h2>
+                <div class="description">
+                    <strong>Canvas</strong> — bu chizish maydoni (oq taxta). Unga
+                    <span class="highlight-var">chiziq</span>, <span class="highlight-var">to'rtburchak</span>,
+                    <span class="highlight-var">aylana</span> va <span class="highlight-var">matn</span> chizishingiz mumkin.
+                    Tugma yoki yorliqdan farqli ravishda, Canvas bo'sh bo'lib turadi — siz unga
+                    nima chizsangiz, o'sha ko'rinadi. O'yinlar, grafiklar va rasmlar uchun ishlatiladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> tkinter <span class="keyword">import</span> *<br>
+                        <br>
+                        oyna <span class="operator">=</span> <span class="function">Tk</span>()<br>
+                        chizma <span class="operator">=</span> <span class="function">Canvas</span>(oyna, width<span class="operator">=</span><span class="number">300</span>, height<span class="operator">=</span><span class="number">200</span>, bg<span class="operator">=</span><span class="string">"white"</span>)<br>
+                        chizma.<span class="function">pack</span>()<br>
+                        <br>
+                        oyna.<span class="function">mainloop</span>()
+                    </div>
+                    <div class="comment-part">
+                        # 300x200 o'lchamli oq chizish maydoni yaratadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Koordinata Tizimi (x, y)</h2>
+                <div class="description">
+                    Canvas da har bir nuqta ikkita raqam bilan belgilanadi:
+                    <span class="highlight-var">x</span> (gorizontal, chapdan o'ngga) va
+                    <span class="highlight-var">y</span> (vertikal, tepadan pastga).
+                    <strong>Muhim:</strong> chap-yuqori burchak <span class="highlight-var">(0, 0)</span> nuqtasidir.
+                    y qiymati oshsa, pastga tushasiz (matematikadagidan teskari).
+                </div>
+                <div class="output-demo">
+                    (0, 0) ───────────────▶ x oshadi<br>
+                    &nbsp;&nbsp;│<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;(50, 60) — chapdan 50, tepadan 60 px<br>
+                    &nbsp;&nbsp;▼<br>
+                    &nbsp;&nbsp;y oshadi (pastga)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Shakllar Chizish</h2>
+                <div class="description">
+                    Canvas ning <strong>create_</strong> metodlari bilan shakllar chizamiz.
+                    Har bir shakl koordinatalar bilan joylashtiriladi.
+                </div>
+
+                <h3>create_line — chiziq</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        chizma.<span class="function">create_line</span>(<span class="number">10</span>, <span class="number">10</span>, <span class="number">200</span>, <span class="number">100</span>)
+                    </div>
+                    <div class="comment-part">
+                        # (10,10) nuqtadan (200,100) nuqtagacha chiziq
+                    </div>
+                </div>
+
+                <h3>create_rectangle — to'rtburchak</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        chizma.<span class="function">create_rectangle</span>(<span class="number">20</span>, <span class="number">20</span>, <span class="number">120</span>, <span class="number">80</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Chap-yuqori (20,20), o'ng-past (120,80) burchaklar
+                    </div>
+                </div>
+
+                <h3>create_oval — aylana / oval</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        chizma.<span class="function">create_oval</span>(<span class="number">50</span>, <span class="number">50</span>, <span class="number">150</span>, <span class="number">150</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Ovalni o'rab turuvchi to'rtburchak burchaklari. Teng tomon = aylana
+                    </div>
+                </div>
+
+                <h3>create_text — matn</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        chizma.<span class="function">create_text</span>(<span class="number">100</span>, <span class="number">100</span>, text<span class="operator">=</span><span class="string">"Salom!"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # (100,100) nuqtaning markaziga "Salom!" yozadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Rang va To'ldirish</h2>
+                <div class="description">
+                    Shakllarga rang berish uchun ikkita asosiy parametr bor:
+                    <span class="highlight-var">fill</span> — ichini to'ldiruvchi rang,
+                    <span class="highlight-var">outline</span> — chegara (kontur) rangi.
+                    Chiziq uchun esa <span class="highlight-var">fill</span> chiziq rangini bildiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        chizma.<span class="function">create_rectangle</span>(<span class="number">20</span>, <span class="number">20</span>, <span class="number">120</span>, <span class="number">80</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;fill<span class="operator">=</span><span class="string">"green"</span>, outline<span class="operator">=</span><span class="string">"black"</span>, width<span class="operator">=</span><span class="number">3</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Ichi yashil, chegarasi qora, chegara qalinligi 3 px
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Parametr</th><th>Vazifasi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>fill</code></td><td>Ichki rang</td><td>fill="red"</td></tr>
+                        <tr><td><code>outline</code></td><td>Chegara rangi</td><td>outline="blue"</td></tr>
+                        <tr><td><code>width</code></td><td>Chegara qalinligi</td><td>width=2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Oddiy Animatsiya (move)</h2>
+                <div class="description">
+                    Shaklni chizganingizda u <strong>ID raqam</strong> qaytaradi. Shu ID orqali shaklni
+                    <span class="highlight-var">move(id, dx, dy)</span> bilan surishingiz mumkin:
+                    <span class="highlight-var">dx</span> — x bo'yicha, <span class="highlight-var">dy</span> — y bo'yicha siljish.
+                    <span class="highlight-var">after()</span> bilan buni qayta-qayta chaqirsak — animatsiya hosil bo'ladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        top <span class="operator">=</span> chizma.<span class="function">create_oval</span>(<span class="number">10</span>, <span class="number">10</span>, <span class="number">50</span>, <span class="number">50</span>, fill<span class="operator">=</span><span class="string">"red"</span>)<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">harakat</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;chizma.<span class="function">move</span>(top, <span class="number">2</span>, <span class="number">0</span>)&nbsp;&nbsp;<span class="comment"># o'ngga 2 px sur</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;oyna.<span class="function">after</span>(<span class="number">30</span>, harakat)&nbsp;&nbsp;<span class="comment"># 30 ms keyin yana</span><br>
+                        <br>
+                        <span class="function">harakat</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Qizil to'p ekran bo'ylab o'ngga sekin harakatlanadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Canvas — chizish maydoni: <span class="highlight-var">Canvas(oyna, width=.., height=..)</span><br>
+                    • Koordinata: <span class="highlight-var">(0,0)</span> chap-yuqorida, y pastga oshadi<br>
+                    • Shakllar: <span class="highlight-var">create_line / create_rectangle / create_oval / create_text</span><br>
+                    • Rang: <span class="highlight-var">fill</span> (ichi), <span class="highlight-var">outline</span> (chegara)<br>
+                    • Harakat: <span class="highlight-var">move(id, dx, dy)</span> + <span class="highlight-var">after()</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Shakl Chizuvchi</h2>
+                <div class="description">
+                    Tugmani bosing — Canvas ga shakl chizilsin. (Bu yerda Python emas, brauzer canvasi ishlaydi,
+                    lekin natija aynan tkinter dagidek ko'rinadi.)
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="drawShape('rect')">To'rtburchak</button>
+                        <button onclick="drawShape('oval')">Aylana</button>
+                        <button onclick="drawShape('line')">Chiziq</button>
+                        <button onclick="drawShape('text')">Matn</button>
+                        <button onclick="drawShape('clear')">Tozalash</button>
+                    </div>
+                    <div class="canvas-wrap">
+                        <canvas id="cv1" width="320" height="200"></canvas>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Koordinata bilan Joylashtirish</h2>
+                <div class="description">
+                    x va y qiymatlarini o'zgartiring — aylana qayerga tushishini ko'ring.
+                    Bu Canvas koordinata tizimini his qilishga yordam beradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="posX" placeholder="x" value="80" min="0" max="320" style="min-width:70px;">
+                        <input type="number" id="posY" placeholder="y" value="60" min="0" max="200" style="min-width:70px;">
+                        <button onclick="placeShape()">Joylashtir</button>
+                    </div>
+                    <div class="canvas-wrap">
+                        <canvas id="cv2" width="320" height="200"></canvas>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Rang Tanlab Chizish</h2>
+                <div class="description">
+                    Rang tanlang va to'rtburchak chizing. Har bir bosishda yangi rangli shakl qo'shiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="colorPick" style="flex:1; min-width:120px; background:var(--white); color:var(--dark);">
+                            <option value="red">Qizil (red)</option>
+                            <option value="green">Yashil (green)</option>
+                            <option value="blue">Ko'k (blue)</option>
+                            <option value="orange">To'q sariq (orange)</option>
+                            <option value="purple">Binafsha (purple)</option>
+                        </select>
+                        <button onclick="drawColored()">Chiz</button>
+                        <button onclick="clearColored()">Tozalash</button>
+                    </div>
+                    <div class="canvas-wrap">
+                        <canvas id="cv3" width="320" height="200"></canvas>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Animatsiya (move)</h2>
+                <div class="description">
+                    "Boshla" tugmasini bosing — to'p o'ngga harakatlanadi. Bu tkinter dagi
+                    <span class="highlight-var">move()</span> + <span class="highlight-var">after()</span> g'oyasini ko'rsatadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="startAnim()">Boshla</button>
+                        <button onclick="stopAnim()">To'xtat</button>
+                        <button onclick="resetAnim()">Qaytadan</button>
+                    </div>
+                    <div class="canvas-wrap">
+                        <canvas id="cv4" width="320" height="120"></canvas>
+                    </div>
+                    <div class="demo-result" id="result4"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Canvas yarating</strong>
+                            <p>400x300 o'lchamli, oq fonli Canvas oching</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Uy chizing</strong>
+                            <p>create_rectangle bilan devor, create_line bilan tom chizing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Quyosh qo'shing</strong>
+                            <p>create_oval bilan sariq (fill="yellow") aylana chizing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Quyoshni harakatlantiring</strong>
+                            <p>move() va after() bilan quyoshni pastga tushiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 122: Dialog Oynalar va Menyu</p>
+                    <p style="opacity: 0.9;">
+                        Canvas da chizishni o'rgandingiz!<br>
+                        Endi dialog oynalar va menyularni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- Misol 1: Shakl chizuvchi ----
+        function drawShape(kind) {
+            const cv = document.getElementById('cv1');
+            const ctx = cv.getContext('2d');
+            const result = document.getElementById('result1');
+            if (kind === 'clear') {
+                ctx.clearRect(0, 0, cv.width, cv.height);
+                result.classList.add('show');
+                result.innerHTML = '>>> Canvas tozalandi';
+                return;
+            }
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#059669';
+            ctx.fillStyle = '#10b981';
+            let code = '';
+            if (kind === 'rect') {
+                ctx.fillRect(60, 50, 200, 100);
+                ctx.strokeRect(60, 50, 200, 100);
+                code = 'create_rectangle(60, 50, 260, 150, fill="green")';
+            } else if (kind === 'oval') {
+                ctx.beginPath();
+                ctx.ellipse(160, 100, 100, 70, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                code = 'create_oval(60, 30, 260, 170, fill="green")';
+            } else if (kind === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(20, 20);
+                ctx.lineTo(300, 180);
+                ctx.stroke();
+                code = 'create_line(20, 20, 300, 180)';
+            } else if (kind === 'text') {
+                ctx.fillStyle = '#1f2937';
+                ctx.font = 'bold 28px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('Salom!', 160, 110);
+                code = 'create_text(160, 100, text="Salom!")';
+            }
+            result.classList.add('show');
+            result.innerHTML = '>>> chizma.' + code;
+        }
+
+        // ---- Misol 2: Koordinata ----
+        function placeShape() {
+            const cv = document.getElementById('cv2');
+            const ctx = cv.getContext('2d');
+            let x = parseInt(document.getElementById('posX').value);
+            let y = parseInt(document.getElementById('posY').value);
+            if (isNaN(x)) x = 0;
+            if (isNaN(y)) y = 0;
+            x = Math.max(0, Math.min(x, cv.width));
+            y = Math.max(0, Math.min(y, cv.height));
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            // koordinata chiziqlari
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, 0); ctx.lineTo(x, cv.height);
+            ctx.moveTo(0, y); ctx.lineTo(cv.width, y);
+            ctx.stroke();
+            // aylana
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(x, y, 18, 0, Math.PI * 2);
+            ctx.fill();
+            // belgi
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '13px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText('(' + x + ', ' + y + ')', Math.min(x + 24, cv.width - 70), Math.max(y, 14));
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            result.innerHTML = '>>> create_oval markazi = (' + x + ', ' + y + ')<br>>>> chapdan ' + x + ' px, tepadan ' + y + ' px';
+        }
+
+        // ---- Misol 3: Rang tanlab chizish ----
+        let coloredItems = [];
+        function drawColored() {
+            const cv = document.getElementById('cv3');
+            const ctx = cv.getContext('2d');
+            const color = document.getElementById('colorPick').value;
+            const x = 20 + coloredItems.length * 40;
+            const y = 40 + (coloredItems.length % 3) * 45;
+            coloredItems.push({ color: color, x: x, y: y });
+            ctx.fillStyle = color;
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 2;
+            ctx.fillRect(x % 280, y, 60, 40);
+            ctx.strokeRect(x % 280, y, 60, 40);
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            result.innerHTML = '>>> create_rectangle(.., fill="' + color + '", outline="black")<br>>>> Jami shakllar: ' + coloredItems.length;
+        }
+        function clearColored() {
+            const cv = document.getElementById('cv3');
+            const ctx = cv.getContext('2d');
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            coloredItems = [];
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            result.innerHTML = '>>> Canvas tozalandi';
+        }
+
+        // ---- Misol 4: Animatsiya ----
+        let animX = 30;
+        let animId = null;
+        function drawBall() {
+            const cv = document.getElementById('cv4');
+            const ctx = cv.getContext('2d');
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(animX, 60, 22, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        function startAnim() {
+            if (animId !== null) return;
+            const result = document.getElementById('result4');
+            result.classList.add('show');
+            result.innerHTML = '>>> chizma.move(top, 2, 0) — har 30 ms';
+            function step() {
+                animX += 2;
+                if (animX > 320 + 22) animX = -22;
+                drawBall();
+                animId = setTimeout(step, 30);
+            }
+            step();
+        }
+        function stopAnim() {
+            if (animId !== null) {
+                clearTimeout(animId);
+                animId = null;
+            }
+            const result = document.getElementById('result4');
+            result.classList.add('show');
+            result.innerHTML = '>>> Animatsiya to\'xtatildi';
+        }
+        function resetAnim() {
+            stopAnim();
+            animX = 30;
+            drawBall();
+            const result = document.getElementById('result4');
+            result.classList.add('show');
+            result.innerHTML = '>>> Boshlang\'ich holatga qaytarildi';
+        }
+
+        // dastlabki ko'rinish
+        drawShape('rect');
+        placeShape();
+        drawBall();
+    </script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 59: Git — Ilg'or Imkoniyatlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b91c1c; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+        .comment { color: #6b7280; font-style: italic; }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_58_collaboration.html">← Oldingi</a>
+        <span class="nav-center">Modul 10 — Git va Version Control · Dars 59 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_60_sorting.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Git — Ilg'or Imkoniyatlar</h1>
+                <p>Modul 10 — Git va Version Control | Dars 59</p>
+            </header>
+
+            <div class="section">
+                <h2>Ilg'or Git Buyruqlari</h2>
+                <div class="description">
+                    Siz allaqachon <span class="highlight-var">commit</span>, <span class="highlight-var">branch</span>
+                    va <span class="highlight-var">merge</span> ni bilasiz. Endi tajribali dasturchilar har kuni
+                    ishlatadigan <strong>4 ta kuchli buyruq</strong> bilan tanishamiz:
+                    <span class="highlight-var">rebase</span>, <span class="highlight-var">cherry-pick</span>,
+                    <span class="highlight-var">stash</span> va <span class="highlight-var">tag</span>.
+                    Bular sizning ish jarayoningizni ancha tartibli va qulay qiladi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. git rebase — Tarixni Qayta Tartiblash</h2>
+                <div class="description">
+                    <strong>rebase</strong> tarmoqning commitlarini boshqa tarmoq ustiga "ko'chirib" joylashtiradi.
+                    Natijada tarix <strong>to'g'ri chiziq</strong> kabi tekis bo'ladi.
+                </div>
+
+                <h3>merge dan farqi</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Buyruq</th><th>Tarix ko'rinishi</th><th>Qachon</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>merge</code></td><td>Tarmoqlarni birlashtirib qo'shimcha "merge commit" yaratadi</td><td>Jamoa ishida, ommaviy tarmoqlarda</td></tr>
+                        <tr><td><code>rebase</code></td><td>Commitlarni qayta joylashtirib tekis chiziq hosil qiladi</td><td>Shaxsiy tarmoqni tozalashda</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git checkout feature<br>
+                        git rebase main
+                    </div>
+                    <div class="comment-part">
+                        # feature tarmoqdamiz<br>
+                        # main ustiga qayta joylaymiz — tarix tekis bo'ladi
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Ogohlantirish</strong>
+                    <p>
+                        <span class="highlight-var">rebase</span> tarixni <strong>o'zgartiradi</strong> —
+                        eski commitlar o'rniga yangi commitlar yaratiladi. Boshqalar bilan baham ko'rilgan
+                        (push qilingan) tarmoqlarda rebase qilmang, aks holda jamoangizning tarixi buziladi.
+                        Faqat <strong>o'zingizning shaxsiy tarmog'ingizda</strong> ishlating.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. git cherry-pick — Bitta Commitni Olish</h2>
+                <div class="description">
+                    <strong>cherry-pick</strong> boshqa tarmoqdagi <strong>aniq bitta commit</strong>ni
+                    olib, hozirgi tarmog'ingizga qo'shadi. Butun tarmoqni emas, faqat kerakli o'zgarishni
+                    "terib olish" kabi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git log <span class="operator">--</span>oneline<br>
+                        <span class="comment">a1b2c3d Xatoni tuzatish</span><br>
+                        git cherry-pick a1b2c3d
+                    </div>
+                    <div class="comment-part">
+                        # commit kodini (hash) topamiz<br>
+                        # o'sha bitta commitni hozirgi tarmoqqa olamiz
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Qachon kerak?</strong>
+                    <p>
+                        Masalan, <span class="highlight-var">feature</span> tarmog'ida muhim xato tuzatildi.
+                        U yerdagi hamma o'zgarishlar tayyor emas, lekin faqat o'sha tuzatishni darhol
+                        <span class="highlight-var">main</span> ga olishingiz kerak — cherry-pick aynan shu ish uchun.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. git stash — O'zgarishlarni Vaqtincha Yashirish</h2>
+                <div class="description">
+                    Ishlab turibsiz, lekin commit qilishga tayyor emassiz. Shu paytda boshqa tarmoqqa
+                    o'tish kerak bo'lib qoldi. <strong>stash</strong> o'zgarishlaringizni vaqtincha
+                    <strong>chetga olib qo'yadi</strong> va ish papkangizni toza qiladi. Keyin
+                    <span class="highlight-var">stash pop</span> bilan ularni qaytarib olasiz.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git stash<br>
+                        <span class="comment"># ... boshqa ish bajaramiz ...</span><br>
+                        git stash pop
+                    </div>
+                    <div class="comment-part">
+                        # o'zgarishlarni yashiramiz, papka toza bo'ladi<br>
+                        # ishimizni qaytarib olamiz — hamma narsa joyida
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Buyruq</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>git stash</code></td><td>O'zgarishlarni yashiradi</td></tr>
+                        <tr><td><code>git stash list</code></td><td>Yashirilgan o'zgarishlar ro'yxati</td></tr>
+                        <tr><td><code>git stash pop</code></td><td>Oxirgisini qaytarib oladi va ro'yxatdan o'chiradi</td></tr>
+                        <tr><td><code>git stash drop</code></td><td>Yashirilganini butunlay o'chiradi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>4. git tag — Versiyalarni Belgilash</h2>
+                <div class="description">
+                    <strong>tag</strong> muhim commitlarga <strong>nom (yorliq)</strong> qo'yadi.
+                    Odatda dastur versiyalarini belgilash uchun ishlatiladi, masalan
+                    <span class="highlight-var">v1.0</span>, <span class="highlight-var">v2.3</span>.
+                    Shunda istalgan paytda "v1.0 qaysi commit edi?" degan savolga oson javob topasiz.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git tag v1.0<br>
+                        git tag <span class="operator">-</span>a v1.0 <span class="operator">-</span>m <span class="string">"Birinchi rasmiy versiya"</span><br>
+                        git push origin v1.0
+                    </div>
+                    <div class="comment-part">
+                        # oddiy yorliq<br>
+                        # izohli yorliq (tavsiya etiladi)<br>
+                        # yorliqni serverga yuboramiz
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Versiya nomi qoidasi</strong>
+                    <p>
+                        Ko'pchilik <span class="highlight-var">v1.0.0</span> ko'rinishini ishlatadi:
+                        katta.o'rta.kichik. Katta o'zgarish → 1-raqam, yangi imkoniyat → 2-raqam,
+                        kichik tuzatish → 3-raqam ortadi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">rebase</span> — tarixni tekis qiladi (ehtiyot bo'ling!)<br>
+                    • <span class="highlight-var">cherry-pick</span> — bitta commitni olib keladi<br>
+                    • <span class="highlight-var">stash</span> — ishni vaqtincha yashiradi, <span class="highlight-var">pop</span> qaytaradi<br>
+                    • <span class="highlight-var">tag</span> — versiyalarni belgilaydi (v1.0)
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: git stash → ish → stash pop</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="stashWork" placeholder="Tugatilmagan ishingiz" value="login sahifasi yarmi">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="stashStep(1)">git stash</button>
+                        <button onclick="stashStep(2)">boshqa ish</button>
+                        <button onclick="stashStep(3)">git stash pop</button>
+                        <button onclick="stashStep(0)">Qaytadan</button>
+                    </div>
+                    <div class="demo-result" id="resultStash"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: cherry-pick — Bitta Commitni Ko'chirish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="cpHash" placeholder="commit hash" value="a1b2c3d">
+                        <input type="text" id="cpMsg" placeholder="commit izohi" value="Xatoni tuzatish">
+                        <button onclick="demoCherry()">cherry-pick</button>
+                    </div>
+                    <div class="demo-result" id="resultCherry"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: git tag — Versiya Belgilash</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="tagName" placeholder="versiya" value="v1.0">
+                        <input type="text" id="tagMsg" placeholder="izoh" value="Birinchi rasmiy versiya">
+                        <button onclick="demoTag()">Tag qo'yish</button>
+                    </div>
+                    <div class="demo-result" id="resultTag"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: rebase vs merge — Tarix Ko'rinishi</h2>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoHistory('merge')">merge tarixi</button>
+                        <button onclick="demoHistory('rebase')">rebase tarixi</button>
+                    </div>
+                    <div class="demo-result" id="resultHistory"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ishni yashiring</strong>
+                            <p>Tugatilmagan o'zgarishni git stash bilan chetga oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Ishni qaytaring</strong>
+                            <p>git stash pop bilan o'zgarishlarni qaytarib oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Versiya belgilang</strong>
+                            <p>git tag -a v1.0 -m "Birinchi versiya" buyrug'ini bajaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Bitta commitni oling</strong>
+                            <p>git log bilan hash toping, so'ng git cherry-pick bilan ko'chiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Modul:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Modul 11 — Algoritmlar</p>
+                    <p style="opacity: 0.9;">
+                        Tabriklaymiz! Git va Version Control modulini tugatdingiz.<br>
+                        Endi keyingi bosqich — Modul 11 (Algoritmlar) sizni kutmoqda.<br>
+                        U yerda muammolarni samarali yechishni o'rganasiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stashState = 0;
+        function stashStep(step) {
+            const work = document.getElementById('stashWork').value || "tugatilmagan ish";
+            const result = document.getElementById('resultStash');
+            result.classList.add('show');
+            if (step === 0) {
+                stashState = 0;
+                result.innerHTML = `>>> Ish papka: "${work}" (tugatilmagan)<br>>>> Boshlash uchun "git stash" bosing`;
+                return;
+            }
+            if (step === 1) {
+                stashState = 1;
+                result.innerHTML = `>>> git stash<br>` +
+                    `Saved working directory: "${work}"<br>` +
+                    `>>> Ish papka endi TOZA — boshqa tarmoqqa o'tsa bo'ladi`;
+            } else if (step === 2) {
+                if (stashState < 1) { result.innerHTML = `>>> Avval "git stash" bosing!`; return; }
+                stashState = 2;
+                result.innerHTML = `>>> git checkout main<br>` +
+                    `>>> Shoshilinch xatoni tuzatdik va commit qildik<br>` +
+                    `>>> Endi ishimizni qaytaramiz...`;
+            } else if (step === 3) {
+                if (stashState < 1) { result.innerHTML = `>>> Avval "git stash" bosing!`; return; }
+                stashState = 0;
+                result.innerHTML = `>>> git stash pop<br>` +
+                    `Qaytarildi: "${work}"<br>` +
+                    `>>> Ishingiz joyida — davom etaverasiz!`;
+            }
+        }
+
+        function demoCherry() {
+            const hash = document.getElementById('cpHash').value || "a1b2c3d";
+            const msg = document.getElementById('cpMsg').value || "o'zgarish";
+            const result = document.getElementById('resultCherry');
+            result.classList.add('show');
+            result.innerHTML = `>>> git cherry-pick ${hash}<br>` +
+                `[main f9e8d7c] ${msg}<br>` +
+                `>>> "${hash}" commiti faqat o'zi main tarmog'iga qo'shildi`;
+        }
+
+        function demoTag() {
+            const name = document.getElementById('tagName').value || "v1.0";
+            const msg = document.getElementById('tagMsg').value || "Yangi versiya";
+            const result = document.getElementById('resultTag');
+            result.classList.add('show');
+            result.innerHTML = `>>> git tag -a ${name} -m "${msg}"<br>` +
+                `>>> git push origin ${name}<br>` +
+                `${name} yorlig'i yaratildi va serverga yuborildi`;
+        }
+
+        function demoHistory(kind) {
+            const result = document.getElementById('resultHistory');
+            result.classList.add('show');
+            if (kind === 'merge') {
+                result.innerHTML = `>>> merge — qo'shimcha commit bilan:<br>` +
+                    `*   m9 Merge feature into main<br>` +
+                    `|\\<br>` +
+                    `| * f2 feature ishi<br>` +
+                    `| * f1 feature ishi<br>` +
+                    `* | c2 main ishi<br>` +
+                    `|/<br>` +
+                    `* c1 boshlang'ich`;
+            } else {
+                result.innerHTML = `>>> rebase — tekis chiziq:<br>` +
+                    `* f2 feature ishi<br>` +
+                    `* f1 feature ishi<br>` +
+                    `* c2 main ishi<br>` +
+                    `* c1 boshlang'ich<br>` +
+                    `>>> Tarix toza va o'qishga oson`;
+            }
+        }
+
+        // dastlabki ko'rinish
+        stashStep(0);
+    </script>
+</body>
+</html>

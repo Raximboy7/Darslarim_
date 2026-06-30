@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 152: Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #34d399; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ADMIN MOCK TABLE */
+        .admin-mock {
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            margin-top: 10px;
+        }
+        .admin-bar {
+            background: #417690;
+            color: var(--white);
+            padding: 12px 16px;
+            font-weight: bold;
+            font-size: 0.95em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-bar span { font-size: 0.78em; font-weight: normal; opacity: 0.9; }
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th {
+            background: #79aec8;
+            color: var(--white);
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 0.85em;
+        }
+        .admin-table td { padding: 10px 14px; border-bottom: 1px solid #eee; font-size: 0.86em; color: var(--dark); }
+        .admin-table tr:hover td { background: var(--primary-light); }
+        .admin-table td a { color: var(--secondary); text-decoration: none; font-weight: bold; }
+        .admin-actions { padding: 10px 14px; font-size: 0.8em; color: var(--gray); background: var(--light); }
+        .admin-table button {
+            padding: 6px 12px;
+            font-size: 0.78em;
+            min-width: auto;
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_151_django_forma.html">← Oldingi</a>
+        <span class="nav-center">Modul 21 — Django · Dars 152 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_153_django_auth.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Admin Panel</h1>
+                <p>Modul 21 — Django | Dars 152</p>
+            </header>
+
+            <div class="section">
+                <h2>Admin Panel Nima?</h2>
+                <div class="description">
+                    Django'ning eng kuchli imkoniyatlaridan biri — <strong>tayyor admin paneli</strong>.
+                    Bu sizning ma'lumotlar bazangizni boshqarish uchun avtomatik tarzda quriladigan
+                    <strong>boshqaruv interfeysi</strong>. Hech qanday HTML yozmasdan ma'lumot
+                    <strong>qo'shish, ko'rish, tahrirlash va o'chirish</strong> mumkin (CRUD).
+                </div>
+                <div class="info-box">
+                    <strong>Nega bu zo'r?</strong>
+                    <p>
+                        Oddiy holatda har bir jadval uchun forma, ro'yxat sahifasi, tahrirlash sahifasi
+                        yozish kerak bo'lardi. Django admin buni avtomatik qiladi — siz faqat
+                        modellaringizni ro'yxatdan o'tkazasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1-qadam: Superuser Yaratish</h2>
+                <div class="description">
+                    Admin panelga kirish uchun avval <strong>superuser</strong> (bosh foydalanuvchi) kerak.
+                    U terminalda bitta buyruq bilan yaratiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        python manage.py createsuperuser
+                    </div>
+                    <div class="comment-part">
+                        # Terminalga yozasiz, keyin login va parol so'raydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    Username: admin<br>
+                    Email address: admin@misol.uz<br>
+                    Password: ********<br>
+                    Password (again): ********<br>
+                    Superuser created successfully.
+                </div>
+                <div class="description">
+                    Endi serverni ishga tushirib <span class="highlight-var">http://127.0.0.1:8000/admin/</span>
+                    manziliga kirsangiz, login oynasi chiqadi. Yangi yaratgan login-parolingiz bilan kirasiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-qadam: Modelni Ro'yxatdan O'tkazish</h2>
+                <div class="description">
+                    Admin panelda modelingizni ko'rish uchun uni <span class="highlight-var">admin.py</span>
+                    faylida ro'yxatdan o'tkazasiz. Buning uchun
+                    <span class="highlight-var">admin.site.register()</span> ishlatiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># admin.py</span><br>
+                        <span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin<br>
+                        <span class="keyword">from</span> .models <span class="keyword">import</span> Maqola<br>
+                        <br>
+                        admin.site.<span class="function">register</span>(Maqola)
+                    </div>
+                    <div class="comment-part">
+                        # Endi "Maqola" modeli admin panelda ko'rinadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>
+                        Modelni import qilishni unutmang:
+                        <span class="highlight-var">from .models import Maqola</span>. Ro'yxatdan
+                        o'tkazmagan model admin panelda umuman ko'rinmaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3-qadam: Admin Orqali CRUD</h2>
+                <div class="description">
+                    Model ro'yxatdan o'tgandan so'ng admin panelda to'liq
+                    <strong>CRUD</strong> imkoniyati paydo bo'ladi:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Harf</th><th>Amal</th><th>Admin'da</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>C</code></td><td>Create — qo'shish</td><td>"Add" tugmasi</td></tr>
+                        <tr><td><code>R</code></td><td>Read — ko'rish</td><td>Ro'yxat sahifasi</td></tr>
+                        <tr><td><code>U</code></td><td>Update — tahrirlash</td><td>Yozuvga bosib o'zgartirish</td></tr>
+                        <tr><td><code>D</code></td><td>Delete — o'chirish</td><td>"Delete" tugmasi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>4-qadam: Admin'ni Sozlash (ModelAdmin)</h2>
+                <div class="description">
+                    Admin ko'rinishini chiroyli qilish uchun <span class="highlight-var">ModelAdmin</span>
+                    klassidan foydalanamiz. Eng ko'p ishlatiladiganlar:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Sozlama</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>list_display</code></td><td>Ro'yxatda qaysi ustunlar ko'rinishini belgilaydi</td></tr>
+                        <tr><td><code>search_fields</code></td><td>Qidiruv maydoni qo'shadi</td></tr>
+                        <tr><td><code>list_filter</code></td><td>O'ng tomonda filtr paneli chiqaradi</td></tr>
+                        <tr><td><code>ordering</code></td><td>Yozuvlar tartibini belgilaydi</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># admin.py</span><br>
+                        <span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin<br>
+                        <span class="keyword">from</span> .models <span class="keyword">import</span> Maqola<br>
+                        <br>
+                        <span class="keyword">class</span> <span class="function">MaqolaAdmin</span>(admin.ModelAdmin):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;list_display <span class="operator">=</span> (<span class="string">"sarlavha"</span>, <span class="string">"sana"</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;search_fields <span class="operator">=</span> (<span class="string">"sarlavha"</span>,)<br>
+                        <br>
+                        admin.site.<span class="function">register</span>(Maqola, MaqolaAdmin)
+                    </div>
+                    <div class="comment-part">
+                        # list_display ustunlarni, search_fields qidiruvni qo'shadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>E'tibor bering</strong>
+                    <p>
+                        Sozlash bilan ro'yxatdan o'tkazishda
+                        <span class="highlight-var">register(Maqola, MaqolaAdmin)</span> — ikkita argument
+                        beriladi: model va uning ModelAdmin klassi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Admin Panel Ko'rinishi</h2>
+                <div class="description">
+                    Quyida admin panelning ro'yxat sahifasi mock (taqlid) ko'rinishi. Tugmalar bilan
+                    CRUD amallarini sinab ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="adminAdd()">+ Add (qo'shish)</button>
+                        <button onclick="adminRefresh()">Ko'rish</button>
+                    </div>
+                    <div class="admin-mock">
+                        <div class="admin-bar">Django administration <span>admin@misol.uz</span></div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>Sarlavha</th><th>Sana</th><th>Amal</th></tr>
+                            </thead>
+                            <tbody id="adminRows"></tbody>
+                        </table>
+                        <div class="admin-actions" id="adminInfo">Maqolalar ro'yxati</div>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Modelni Register Qilish</h2>
+                <div class="description">
+                    Modelni admin'ga qo'shish uchun <span class="highlight-var">register()</span> yozishingiz kerak.
+                    Tugmani bosing va admin panelda model paydo bo'lishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="modelName" placeholder="Model nomi" value="Maqola">
+                        <button onclick="demoRegister()">register()</button>
+                    </div>
+                    <div class="demo-result" id="resultRegister"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: list_display Natijasi</h2>
+                <div class="description">
+                    <span class="highlight-var">list_display</span> ga qo'shgan har bir maydon ro'yxatda
+                    yangi ustun bo'lib chiqadi. Ustunlarni tanlab, natijani ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="toggleCol('sarlavha')">sarlavha</button>
+                        <button onclick="toggleCol('sana')">sana</button>
+                        <button onclick="toggleCol('muallif')">muallif</button>
+                    </div>
+                    <div class="demo-result" id="resultDisplay"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">createsuperuser</span> — admin'ga kirish foydalanuvchisi<br>
+                    • <span class="highlight-var">admin.site.register(Model)</span> — modelni ro'yxatdan o'tkazadi<br>
+                    • <span class="highlight-var">ModelAdmin</span> — admin ko'rinishini sozlaydi<br>
+                    • <span class="highlight-var">list_display</span> — ro'yxat ustunlarini belgilaydi<br>
+                    • Admin orqali kod yozmasdan to'liq CRUD bajariladi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Superuser yarating</strong>
+                            <p>Terminalda python manage.py createsuperuser buyrug'ini bajaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Modelni ro'yxatdan o'tkazing</strong>
+                            <p>admin.py'da admin.site.register(Maqola) yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>ModelAdmin qo'shing</strong>
+                            <p>list_display va search_fields bilan admin'ni sozlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>CRUD sinab ko'ring</strong>
+                            <p>/admin/ ga kirib bir nechta maqola qo'shing va tahrirlang</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 153: Django Autentifikatsiya (Auth)</p>
+                    <p style="opacity: 0.9;">
+                        Admin panelni o'rgandingiz!<br>
+                        Endi foydalanuvchilarni ro'yxatdan o'tkazish va kirish (login) tizimini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: admin mock CRUD
+        let maqolalar = [
+            { sarlavha: "Birinchi maqola", sana: "2026-06-01" },
+            { sarlavha: "Django darslari", sana: "2026-06-15" }
+        ];
+        let qoshishSoni = 0;
+
+        function renderAdmin() {
+            const rows = document.getElementById('adminRows');
+            rows.innerHTML = '';
+            maqolalar.forEach((m, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><a href="#">${m.sarlavha}</a></td>
+                    <td>${m.sana}</td>
+                    <td><button onclick="adminDelete(${i})">Delete</button></td>`;
+                rows.appendChild(tr);
+            });
+            document.getElementById('adminInfo').textContent = maqolalar.length + ' ta maqola';
+        }
+
+        function adminAdd() {
+            qoshishSoni++;
+            maqolalar.push({ sarlavha: "Yangi maqola " + qoshishSoni, sana: "2026-06-30" });
+            renderAdmin();
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = `>>> Yangi maqola qo'shildi (Create)<br>>>> Jami: ${maqolalar.length} ta`;
+        }
+
+        function adminDelete(i) {
+            const nomi = maqolalar[i].sarlavha;
+            maqolalar.splice(i, 1);
+            renderAdmin();
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = `>>> "${nomi}" o'chirildi (Delete)<br>>>> Jami: ${maqolalar.length} ta`;
+        }
+
+        function adminRefresh() {
+            renderAdmin();
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = `>>> Ro'yxat ko'rsatildi (Read)<br>>>> Jami: ${maqolalar.length} ta maqola`;
+        }
+
+        // Misol 2: register
+        function demoRegister() {
+            const name = document.getElementById('modelName').value || "Maqola";
+            const result = document.getElementById('resultRegister');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> admin.site.register(${name})<br>` +
+                `>>> "${name}" modeli admin panelda ro'yxatdan o'tdi<br>` +
+                `>>> http://127.0.0.1:8000/admin/ → ${name}`;
+        }
+
+        // Misol 3: list_display
+        let ustunlar = ["sarlavha"];
+        function toggleCol(col) {
+            if (ustunlar.includes(col)) {
+                ustunlar = ustunlar.filter(c => c !== col);
+            } else {
+                ustunlar.push(col);
+            }
+            renderDisplay();
+        }
+
+        function renderDisplay() {
+            const result = document.getElementById('resultDisplay');
+            result.classList.add('show');
+            if (ustunlar.length === 0) {
+                result.innerHTML = `>>> list_display = ()<br>>>> Hech qanday ustun tanlanmadi`;
+                return;
+            }
+            const tuple = ustunlar.map(c => `"${c}"`).join(', ');
+            const header = ustunlar.join('   |   ');
+            result.innerHTML =
+                `>>> list_display = (${tuple})<br>` +
+                `>>> Ro'yxat ustunlari:<br>` +
+                `>>> ${header}`;
+        }
+
+        // dastlabki ko'rinish
+        renderAdmin();
+        renderDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 92: SELECT va Filtrlash</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DATA TABLE (soxta jadval) */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 0.85em;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .data-table th {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 9px 12px;
+            text-align: left;
+        }
+        .data-table td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; color: var(--dark); }
+        .data-table tr:nth-child(even) td { background: #f9fafb; }
+        .data-table tr.row-hit td { background: var(--primary-light); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_91_create_insert.html">← Oldingi</a>
+        <span class="nav-center">Modul 14 — Database va SQL · Dars 92 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_93_update_delete.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>SELECT va Filtrlash</h1>
+                <p>Modul 14 — Database va SQL | Dars 92</p>
+            </header>
+
+            <div class="section">
+                <h2>SELECT Nima?</h2>
+                <div class="description">
+                    <strong>SELECT</strong> — bu ma'lumotlar bazasidan <strong>ma'lumot o'qish</strong> uchun
+                    ishlatiladigan eng muhim SQL buyrug'i. U jadvaldan kerakli qatorlarni va ustunlarni
+                    olib, sizga ko'rsatadi. Jadvalga hech narsa qo'shmaydi va o'zgartirmaydi — faqat
+                    <strong>o'qiydi</strong>.
+                </div>
+                <div class="info-box">
+                    <strong>Tasavvur qiling</strong>
+                    <p>
+                        Jadval — bu Excel jadvalidek. <span class="highlight-var">SELECT</span> esa
+                        "menga shu ma'lumotlarni ko'rsat" degan so'rovdir. Qaysi ustunlarni, qaysi
+                        qatorlarni, qanday tartibda ko'rishni siz hal qilasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Bizning Jadval: o'quvchilar</h2>
+                <div class="description">
+                    Butun dars davomida quyidagi <span class="highlight-var">o'quvchilar</span> jadvalidan
+                    foydalanamiz. Unda 5 ta qator (yozuv) bor:
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>id</th><th>ism</th><th>yosh</th><th>shahar</th><th>ball</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Ali</td><td>20</td><td>Toshkent</td><td>85</td></tr>
+                        <tr><td>2</td><td>Vali</td><td>22</td><td>Samarqand</td><td>72</td></tr>
+                        <tr><td>3</td><td>Guli</td><td>19</td><td>Toshkent</td><td>91</td></tr>
+                        <tr><td>4</td><td>Hasan</td><td>25</td><td>Buxoro</td><td>68</td></tr>
+                        <tr><td>5</td><td>Laylo</td><td>21</td><td>Samarqand</td><td>88</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>SELECT * — Hamma Ustunlar</h2>
+                <div class="description">
+                    Yulduzcha <span class="highlight-var">*</span> — "barcha ustunlar" degani.
+                    <span class="highlight-var">SELECT * FROM jadval</span> jadvaldagi hamma narsani qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> o'quvchilar<span class="operator">;</span>
+                    </div>
+                    <div class="comment-part">
+                        # Barcha ustun va barcha qatorni o'qiydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 5 ta qator, hamma ustun bilan qaytadi
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Faqat Kerakli Ustunlar</h2>
+                <div class="description">
+                    <span class="highlight-var">*</span> o'rniga ustun nomlarini vergul bilan yozsangiz,
+                    faqat o'sha ustunlar qaytadi. Bu tezroq va tartibliroq.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">SELECT</span> ism<span class="operator">,</span> ball <span class="keyword">FROM</span> o'quvchilar<span class="operator">;</span>
+                    </div>
+                    <div class="comment-part">
+                        # Faqat ism va ball ustunlari chiqadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali 85<br>
+                    >>> Vali 72<br>
+                    >>> Guli 91<br>
+                    >>> ...
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>WHERE — Shart Qo'yish</h2>
+                <div class="description">
+                    <span class="highlight-var">WHERE</span> bilan faqat shartni qanoatlantiradigan
+                    qatorlarni olasiz. Bu — <strong>filtrlash</strong>. Masalan, faqat Toshkentdagi
+                    o'quvchilarni ko'rish.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> o'quvchilar<br>
+                        <span class="keyword">WHERE</span> shahar <span class="operator">=</span> <span class="string">'Toshkent'</span><span class="operator">;</span>
+                    </div>
+                    <div class="comment-part">
+                        # Faqat shahri Toshkent bo'lganlar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali  20  Toshkent  85<br>
+                    >>> Guli 19  Toshkent  91
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        Matn qiymatlar <span class="highlight-var">'tirnoq'</span> ichida yoziladi
+                        (<span class="highlight-var">'Toshkent'</span>), sonlar esa tirnoqsiz
+                        (<span class="highlight-var">20</span>).
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>WHERE da Taqqoslash Operatorlari</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Operator</th><th>Ma'nosi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>=</code></td><td>Teng</td><td>WHERE yosh = 20</td></tr>
+                        <tr><td><code>&gt;</code></td><td>Katta</td><td>WHERE ball &gt; 80</td></tr>
+                        <tr><td><code>&lt;</code></td><td>Kichik</td><td>WHERE yosh &lt; 21</td></tr>
+                        <tr><td><code>&gt;=</code></td><td>Katta yoki teng</td><td>WHERE ball &gt;= 85</td></tr>
+                        <tr><td><code>&lt;=</code></td><td>Kichik yoki teng</td><td>WHERE yosh &lt;= 22</td></tr>
+                        <tr><td><code>!=</code></td><td>Teng emas</td><td>WHERE shahar != 'Buxoro'</td></tr>
+                        <tr><td><code>LIKE</code></td><td>Naqshga o'xshash</td><td>WHERE ism LIKE 'A%'</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>LIKE va % belgisi</strong>
+                    <p>
+                        <span class="highlight-var">%</span> — "har qanday harflar" degani.<br>
+                        • <span class="highlight-var">'A%'</span> — A bilan boshlanadigan (Ali)<br>
+                        • <span class="highlight-var">'%n'</span> — n bilan tugaydigan (Hasan)<br>
+                        • <span class="highlight-var">'%al%'</span> — ichida "al" bor (Ali, Vali, Laylo)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>ORDER BY — Tartiblash</h2>
+                <div class="description">
+                    <span class="highlight-var">ORDER BY</span> natijani biror ustun bo'yicha tartiblaydi.
+                    <span class="highlight-var">ASC</span> — o'sish (kichikdan kattaga, bu standart),
+                    <span class="highlight-var">DESC</span> — kamayish (kattadan kichikka).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">SELECT</span> ism<span class="operator">,</span> ball <span class="keyword">FROM</span> o'quvchilar<br>
+                        <span class="keyword">ORDER BY</span> ball <span class="keyword">DESC</span><span class="operator">;</span>
+                    </div>
+                    <div class="comment-part">
+                        # Eng yuqori balldan boshlab tartiblaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Guli  91<br>
+                    >>> Laylo 88<br>
+                    >>> Ali   85<br>
+                    >>> Vali  72<br>
+                    >>> Hasan 68
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>LIMIT — Sonni Cheklash</h2>
+                <div class="description">
+                    <span class="highlight-var">LIMIT</span> qaytadigan qatorlar sonini cheklaydi.
+                    Masalan, eng yaxshi 3 o'quvchini ko'rish uchun ORDER BY bilan birga ishlatamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">SELECT</span> ism<span class="operator">,</span> ball <span class="keyword">FROM</span> o'quvchilar<br>
+                        <span class="keyword">ORDER BY</span> ball <span class="keyword">DESC</span><br>
+                        <span class="keyword">LIMIT</span> <span class="number">3</span><span class="operator">;</span>
+                    </div>
+                    <div class="comment-part">
+                        # Faqat eng yuqori 3 ta natija
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Guli  91<br>
+                    >>> Laylo 88<br>
+                    >>> Ali   85
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>DISTINCT — Takrorlanmaydiganlar</h2>
+                <div class="description">
+                    <span class="highlight-var">DISTINCT</span> takroriy qiymatlarni olib tashlaydi va
+                    har birini faqat <strong>bir marta</strong> ko'rsatadi. Masalan, jadvalda qaysi
+                    shaharlar borligini bilish uchun.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> shahar <span class="keyword">FROM</span> o'quvchilar<span class="operator">;</span>
+                    </div>
+                    <div class="comment-part">
+                        # Toshkent 2 marta bor, lekin 1 marta chiqadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Toshkent<br>
+                    >>> Samarqand<br>
+                    >>> Buxoro
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling — So'rovning Tartibi</strong>
+                <p>
+                    1. <span class="highlight-var">SELECT</span> ustunlar — nimani o'qish<br>
+                    2. <span class="highlight-var">FROM</span> jadval — qayerdan<br>
+                    3. <span class="highlight-var">WHERE</span> shart — qaysi qatorlar<br>
+                    4. <span class="highlight-var">ORDER BY</span> ustun — qanday tartibda<br>
+                    5. <span class="highlight-var">LIMIT</span> son — nechtasi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: SELECT * vs Ustun Tanlash</h2>
+                <div class="interactive-demo">
+                    <div class="description" style="margin-bottom:12px;">
+                        Qaysi ustunlarni ko'rishni tanlang va natijani ko'ring.
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="selectCols('all')">SELECT *</button>
+                        <button onclick="selectCols('name_ball')">ism, ball</button>
+                        <button onclick="selectCols('name_city')">ism, shahar</button>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: WHERE bilan Filtrlash</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="whereCol">
+                            <option value="ball">ball</option>
+                            <option value="yosh">yosh</option>
+                            <option value="shahar">shahar</option>
+                        </select>
+                        <select id="whereOp">
+                            <option value="=">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value=">=">&gt;=</option>
+                            <option value="<=">&lt;=</option>
+                        </select>
+                        <input type="text" id="whereVal" placeholder="qiymat" value="80" style="min-width:90px;">
+                        <button onclick="demoWhere()">Filtrla</button>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: ORDER BY Tartiblash</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="orderCol">
+                            <option value="ball">ball</option>
+                            <option value="yosh">yosh</option>
+                            <option value="ism">ism</option>
+                        </select>
+                        <select id="orderDir">
+                            <option value="ASC">ASC (o'sish)</option>
+                            <option value="DESC">DESC (kamayish)</option>
+                        </select>
+                        <button onclick="demoOrder()">Tartibla</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Hamma o'quvchini o'qing</strong>
+                            <p>SELECT * FROM o'quvchilar; — barcha qatorni ko'ring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>WHERE bilan filtrlang</strong>
+                            <p>Faqat ball &gt; 80 bo'lgan o'quvchilarni chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>ORDER BY qo'shing</strong>
+                            <p>Natijani ball bo'yicha DESC tartibda chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>LIMIT bilan cheklang</strong>
+                            <p>Eng yuqori 2 o'quvchini LIMIT 2 bilan oling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 93: UPDATE va DELETE</p>
+                    <p style="opacity: 0.9;">
+                        Endi ma'lumotni o'qishni bilasiz!<br>
+                        Keyingi darsda yozuvlarni o'zgartirish va o'chirishni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const students = [
+            { id: 1, ism: 'Ali',   yosh: 20, shahar: 'Toshkent',  ball: 85 },
+            { id: 2, ism: 'Vali',  yosh: 22, shahar: 'Samarqand', ball: 72 },
+            { id: 3, ism: 'Guli',  yosh: 19, shahar: 'Toshkent',  ball: 91 },
+            { id: 4, ism: 'Hasan', yosh: 25, shahar: 'Buxoro',    ball: 68 },
+            { id: 5, ism: 'Laylo', yosh: 21, shahar: 'Samarqand', ball: 88 }
+        ];
+
+        function renderTable(rows, cols) {
+            if (rows.length === 0) return '(natija bo\'sh)';
+            let html = '<table class="data-table"><thead><tr>';
+            cols.forEach(c => html += '<th>' + c + '</th>');
+            html += '</tr></thead><tbody>';
+            rows.forEach(r => {
+                html += '<tr>';
+                cols.forEach(c => html += '<td>' + r[c] + '</td>');
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function selectCols(mode) {
+            let cols, sql;
+            if (mode === 'all') {
+                cols = ['id', 'ism', 'yosh', 'shahar', 'ball'];
+                sql = "SELECT * FROM o'quvchilar;";
+            } else if (mode === 'name_ball') {
+                cols = ['ism', 'ball'];
+                sql = "SELECT ism, ball FROM o'quvchilar;";
+            } else {
+                cols = ['ism', 'shahar'];
+                sql = "SELECT ism, shahar FROM o'quvchilar;";
+            }
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + sql + renderTable(students, cols);
+        }
+
+        function demoWhere() {
+            const col = document.getElementById('whereCol').value;
+            const op = document.getElementById('whereOp').value;
+            let val = document.getElementById('whereVal').value;
+            const isNum = (col === 'ball' || col === 'yosh');
+            let cmp = isNum ? parseFloat(val) : val;
+            const filtered = students.filter(r => {
+                const v = r[col];
+                if (op === '=') return v == cmp;
+                if (op === '>') return v > cmp;
+                if (op === '<') return v < cmp;
+                if (op === '>=') return v >= cmp;
+                if (op === '<=') return v <= cmp;
+                return false;
+            });
+            const shownVal = isNum ? val : "'" + val + "'";
+            const sql = "SELECT * FROM o'quvchilar WHERE " + col + " " + op + " " + shownVal + ";";
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + sql + renderTable(filtered, ['ism', 'yosh', 'shahar', 'ball']);
+        }
+
+        function demoOrder() {
+            const col = document.getElementById('orderCol').value;
+            const dir = document.getElementById('orderDir').value;
+            const sorted = [...students].sort((a, b) => {
+                if (a[col] < b[col]) return dir === 'ASC' ? -1 : 1;
+                if (a[col] > b[col]) return dir === 'ASC' ? 1 : -1;
+                return 0;
+            });
+            const sql = "SELECT ism, " + col + " FROM o'quvchilar ORDER BY " + col + " " + dir + ";";
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + sql + renderTable(sorted, ['ism', col]);
+        }
+    </script>
+</body>
+</html>

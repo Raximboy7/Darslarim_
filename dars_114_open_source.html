@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 114: Open Source</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* GITHUB STEP FLOW */
+        .flow-track { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .flow-node {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            background: #1f2937;
+            color: #9ca3af;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px 8px;
+            font-size: 0.82em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .flow-node.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-4px);
+        }
+        .flow-node .flow-num {
+            display: block;
+            font-size: 0.95em;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_113_best_practices.html">← Oldingi</a>
+        <span class="nav-center">Modul 17 — Qo'shimcha Mavzular · Dars 114 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_115_career.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Open Source</h1>
+                <p>Modul 17 — Qo'shimcha Mavzular | Dars 114</p>
+            </header>
+
+            <div class="section">
+                <h2>Open Source Nima?</h2>
+                <div class="description">
+                    <strong>Open source</strong> (ochiq kodli) — bu kodi hammaga ochiq bo'lgan loyiha.
+                    Har kim uni <strong>ko'rishi</strong>, <strong>ishlatishi</strong>, o'rganishi va hatto
+                    yaxshilashi mumkin. Python, Django, Flask — bularning barchasi open source loyihalardir.
+                </div>
+                <div class="info-box">
+                    <strong>Nega bu muhim?</strong>
+                    <p>
+                        Sen ham o'z kodingni ochiq qo'yib, butun dunyoga ko'rsatishing mumkin.
+                        Bu sening <strong>portfoliong</strong> bo'ladi — ish beruvchilar sening
+                        kodingni ko'rib, qobiliyatingni baholaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>GitHub Nima?</h2>
+                <div class="description">
+                    <span class="highlight-var">GitHub</span> — bu kodlarni saqlash va ulashish uchun eng
+                    mashhur sayt. Sen loyihangni GitHub ga joylasang, u butun dunyoga ochiq bo'ladi.
+                    GitHub <strong>bepul</strong> va dasturchilar uchun eng muhim joy.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Atama</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Repository (repo)</code></td><td>Loyiha papkasi — barcha fayllar shu yerda</td></tr>
+                        <tr><td><code>README</code></td><td>Loyihani tushuntiruvchi asosiy hujjat</td></tr>
+                        <tr><td><code>LICENSE</code></td><td>Kodni ishlatish ruxsati (litsenziya)</td></tr>
+                        <tr><td><code>commit</code></td><td>Saqlangan o'zgarish (qadam)</td></tr>
+                        <tr><td><code>issue</code></td><td>Muammo yoki taklif yozilgan xabar</td></tr>
+                        <tr><td><code>pull request</code></td><td>Kod qo'shish bo'yicha so'rov</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Loyihani GitHub ga Joylash</h2>
+                <div class="description">
+                    Quyidagi buyruqlar bilan loyihangni GitHub ga yuborasan. Bularni
+                    <strong>terminal</strong> (buyruqlar oynasi) da yozasan.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git init<br>
+                        git add .<br>
+                        git commit -m <span class="string">"Birinchi versiya"</span><br>
+                        git remote add origin URL<br>
+                        git push -u origin main
+                    </div>
+                    <div class="comment-part">
+                        # init — loyihani Git ga ulaydi<br>
+                        # add — fayllarni tayyorlaydi<br>
+                        # commit — o'zgarishni saqlaydi<br>
+                        # remote — GitHub manzilini bog'laydi<br>
+                        # push — GitHub ga yuboradi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Yaxshi README</h2>
+                <div class="description">
+                    <span class="highlight-var">README.md</span> — loyihangizni birinchi bo'lib ko'radigan
+                    sahifa. U <strong>Markdown</strong> tilida yoziladi va loyihani tushuntiradi.
+                    Yaxshi README loyihangni professional ko'rsatadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Loyiha nomi</span><br>
+                        Bu loyiha nima qilishini yozing.<br><br>
+                        <span class="comment">## O'rnatish</span><br>
+                        pip install loyiha<br><br>
+                        <span class="comment">## Ishlatish</span><br>
+                        python main.py
+                    </div>
+                    <div class="comment-part">
+                        # markdown: # — sarlavha, ## — kichik sarlavha
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>GitHub Pages — Bepul Sayt</h2>
+                <div class="description">
+                    <span class="highlight-var">GitHub Pages</span> — bu sening HTML loyihangni
+                    <strong>bepul saytga aylantiradi</strong>. Repo sozlamalarida Pages ni yoqsang,
+                    loyihang <code>username.github.io/loyiha</code> manzilida ochiladi.
+                </div>
+                <div class="info-box">
+                    <strong>Misol</strong>
+                    <p>
+                        Mana bu Python darslari ham GitHub Pages orqali bepul saytga aylanishi mumkin!
+                        HTML fayllarni repo ga joyla, Pages ni yoq — tayyor.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Jamoa va Hissa Qo'shish</h2>
+                <div class="description">
+                    Open source — bu <strong>jamoa</strong> (community). Sen boshqa loyihalarga ham
+                    hissa qo'shishing mumkin. Buning oqimi: <span class="highlight-var">fork</span> →
+                    o'zgartirish → <span class="highlight-var">pull request</span>.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qadam</th><th>Nima bo'ladi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Fork</code></td><td>Loyihaning nusxasini o'zingga olasan</td></tr>
+                        <tr><td><code>Clone</code></td><td>Kompyuteringga yuklab olasan</td></tr>
+                        <tr><td><code>O'zgartirish</code></td><td>Kodni tuzatasan yoki yangilik qo'shasan</td></tr>
+                        <tr><td><code>Pull Request</code></td><td>O'zgarishni egasiga taklif qilasan</td></tr>
+                        <tr><td><code>Merge</code></td><td>Egasi maqullasa, kodga qo'shiladi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Open source — kodi hammaga ochiq loyiha<br>
+                    • GitHub — kodni saqlash va ulashish sayti<br>
+                    • <span class="highlight-var">README</span> va <span class="highlight-var">LICENSE</span> — har repo da bo'lishi kerak<br>
+                    • Hissa qo'shish oqimi: fork → pull request → merge<br>
+                    • GitHub — bu sening portfoliong
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Loyihani GitHub ga Joylash</h2>
+                <div class="interactive-demo">
+                    <div class="flow-track" id="ghFlow"></div>
+                    <div class="btn-row">
+                        <button onclick="ghNext()">Keyingi qadam →</button>
+                        <button onclick="ghReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultGh"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: README Tuzilmasi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="projName" placeholder="Loyiha nomi" value="MeningLoyiham">
+                        <input type="text" id="projDesc" placeholder="Nima qiladi?" value="Hisob-kitob dasturi">
+                        <button onclick="demoReadme()">README yarat</button>
+                    </div>
+                    <div class="demo-result" id="resultReadme"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Hissa Qo'shish Oqimi (fork → PR)</h2>
+                <div class="interactive-demo">
+                    <div class="flow-track" id="prFlow"></div>
+                    <div class="btn-row">
+                        <button onclick="prNext()">Keyingi →</button>
+                        <button onclick="prReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultPr"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>GitHub akkaunt oching</strong>
+                            <p>github.com ga kiring va bepul ro'yxatdan o'ting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Yangi repo yarating</strong>
+                            <p>"New repository" tugmasini bosing va nom bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>README va LICENSE qo'shing</strong>
+                            <p>Loyihani tushuntiruvchi README.md yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Loyihangizni yuklang</strong>
+                            <p>git push bilan kodni GitHub ga joylang</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 115: Karyera va Keyingi Qadamlar</p>
+                    <p style="opacity: 0.9;">
+                        Open source dunyosi bilan tanishdingiz!<br>
+                        Endi dasturchi sifatida karyerangizni qanday qurishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MISOL 1: GitHub ga joylash oqimi
+        const ghSteps = [
+            { name: "git init", desc: "Loyihani Git nazoratiga oladi" },
+            { name: "git add .", desc: "Barcha fayllarni tayyorlaydi" },
+            { name: "git commit", desc: '"Birinchi versiya" deb saqlaydi' },
+            { name: "git remote", desc: "GitHub manzilini bog'laydi" },
+            { name: "git push", desc: "Loyiha GitHub ga yuborildi!" }
+        ];
+        let ghIndex = -1;
+
+        function renderGhFlow() {
+            const box = document.getElementById('ghFlow');
+            box.innerHTML = '';
+            ghSteps.forEach((s, i) => {
+                const node = document.createElement('div');
+                node.className = 'flow-node' + (i === ghIndex ? ' active' : '');
+                node.innerHTML = `<span class="flow-num">${i + 1}</span>${s.name}`;
+                box.appendChild(node);
+            });
+        }
+
+        function ghNext() {
+            if (ghIndex < ghSteps.length - 1) ghIndex++;
+            renderGhFlow();
+            const s = ghSteps[ghIndex];
+            const result = document.getElementById('resultGh');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${s.name}<br>>>> ${s.desc}`;
+            if (ghIndex === ghSteps.length - 1) {
+                result.innerHTML += `<br>>>> Tabriklaymiz! Loyihangiz endi ochiq.`;
+            }
+        }
+
+        function ghReset() {
+            ghIndex = -1;
+            renderGhFlow();
+            const result = document.getElementById('resultGh');
+            result.classList.add('show');
+            result.innerHTML = `>>> Boshlash uchun "Keyingi qadam" ni bosing`;
+        }
+
+        // MISOL 2: README yaratish
+        function demoReadme() {
+            const name = document.getElementById('projName').value || "Loyiha";
+            const desc = document.getElementById('projDesc').value || "Tavsif yo'q";
+            const result = document.getElementById('resultReadme');
+            result.classList.add('show');
+            result.innerHTML =
+                `# ${name}<br>` +
+                `${desc}<br><br>` +
+                `## O'rnatish<br>` +
+                `pip install ${name.toLowerCase()}<br><br>` +
+                `## Ishlatish<br>` +
+                `python main.py<br><br>` +
+                `## Litsenziya<br>` +
+                `MIT`;
+        }
+
+        // MISOL 3: fork -> PR oqimi
+        const prSteps = [
+            { name: "Fork", desc: "Loyiha nusxasini o'zingizga oldingiz" },
+            { name: "Clone", desc: "Kompyuteringizga yuklab oldingiz" },
+            { name: "O'zgartirish", desc: "Kodni tuzatdingiz / yangilik qo'shdingiz" },
+            { name: "Pull Request", desc: "O'zgarishni egasiga taklif qildingiz" },
+            { name: "Merge", desc: "Egasi maqulladi — kodingiz qo'shildi!" }
+        ];
+        let prIndex = -1;
+
+        function renderPrFlow() {
+            const box = document.getElementById('prFlow');
+            box.innerHTML = '';
+            prSteps.forEach((s, i) => {
+                const node = document.createElement('div');
+                node.className = 'flow-node' + (i === prIndex ? ' active' : '');
+                node.innerHTML = `<span class="flow-num">${i + 1}</span>${s.name}`;
+                box.appendChild(node);
+            });
+        }
+
+        function prNext() {
+            if (prIndex < prSteps.length - 1) prIndex++;
+            renderPrFlow();
+            const s = prSteps[prIndex];
+            const result = document.getElementById('resultPr');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${s.name}<br>>>> ${s.desc}`;
+            if (prIndex === prSteps.length - 1) {
+                result.innerHTML += `<br>>>> Siz open source ga hissa qo'shdingiz!`;
+            }
+        }
+
+        function prReset() {
+            prIndex = -1;
+            renderPrFlow();
+            const result = document.getElementById('resultPr');
+            result.classList.add('show');
+            result.innerHTML = `>>> Boshlash uchun "Keyingi" ni bosing`;
+        }
+
+        // dastlabki ko'rinish
+        renderGhFlow();
+        renderPrFlow();
+    </script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 83: API bilan Ishlash</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { flex: 1; min-width: 120px; background: var(--white); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* API FLOW */
+        .flow-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 15px 0; justify-content: center; }
+        .flow-box {
+            background: #1f2937; color: #fbbf24;
+            padding: 12px 16px; border-radius: 8px;
+            font-family: monospace; font-weight: bold; font-size: 0.9em;
+            border: 2px solid transparent; transition: all 0.4s ease;
+            text-align: center; min-width: 110px;
+        }
+        .flow-box.lit { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .flow-arrow { color: var(--primary-dark); font-weight: bold; font-size: 1.4em; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_82_requests.html">← Oldingi</a>
+        <span class="nav-center">Modul 13 — Web Asoslari · Dars 83 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_84_web_scraping.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>API bilan Ishlash</h1>
+                <p>Modul 13 — Web Asoslari | Dars 83</p>
+            </header>
+
+            <div class="section">
+                <h2>API Nima?</h2>
+                <div class="description">
+                    <strong>API</strong> (Application Programming Interface) — bu dasturlar
+                    o'rtasida ma'lumot almashish uchun <strong>interfeys</strong>, ya'ni maxsus eshik.
+                    Sizning dasturingiz boshqa serverdan ma'lumot so'raydi, server esa javob qaytaradi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy taqqoslash</strong>
+                    <p>
+                        API — restorandagi ofitsiant kabi. Siz (dastur) menyudan taom so'raysiz,
+                        ofitsiant (API) buyurtmani oshxonaga (serverga) yetkazadi va tayyor taomni
+                        sizga olib keladi. Siz oshxona ichida nima bo'layotganini bilishingiz shart emas.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>REST API va JSON API</h2>
+                <div class="description">
+                    <strong>REST API</strong> — bugungi kunda eng keng tarqalgan API turi.
+                    U oddiy HTTP so'rovlari orqali ishlaydi (GET, POST va boshqalar).
+                    Ko'pchilik REST API <strong>JSON</strong> formatida ma'lumot qaytaradi —
+                    shuning uchun ularni <strong>JSON API</strong> deb ham atashadi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tushuncha</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>REST</code></td><td>HTTP orqali ishlaydigan API uslubi</td></tr>
+                        <tr><td><code>JSON</code></td><td>Ma'lumot uzatish formati (kalit: qiymat)</td></tr>
+                        <tr><td><code>GET</code></td><td>Ma'lumot olish uchun so'rov</td></tr>
+                        <tr><td><code>endpoint</code></td><td>So'rov yuboriladigan aniq URL manzil</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Endpoint Tushunchasi</h2>
+                <div class="description">
+                    <strong>Endpoint</strong> — bu API ning aniq bir manzili (URL).
+                    Har bir endpoint ma'lum bir ma'lumotni beradi. Masalan ob-havo API sida
+                    bitta endpoint shahar ob-havosini, boshqasi esa valyuta kursini berishi mumkin.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Bazaviy manzil (base URL)</span><br>
+                        https://api. obhavo.uz<br>
+                        <br>
+                        <span class="comment"># Endpoint qo'shilgan to'liq manzil</span><br>
+                        https://api. obhavo.uz/<span class="function">weather</span><span class="operator">?</span>city<span class="operator">=</span>Tashkent
+                    </div>
+                    <div class="comment-part">
+                        # ?city=Tashkent — bu parametr (qaysi shahar kerakligini bildiradi)
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>API Key (Kalit)</h2>
+                <div class="description">
+                    Ko'pchilik API sizdan <strong>API key</strong> (maxsus kalit) so'raydi.
+                    Bu kalit sizni tanitadi — ya'ni <strong>autentifikatsiya</strong> qiladi.
+                    Kalitsiz server so'rovingizni rad etishi mumkin.
+                </div>
+                <div class="info-box">
+                    <strong>Xavfsizlik qoidasi</strong>
+                    <p>
+                        API key — sizning maxfiy parolingiz kabi. Uni hech kimga bermang
+                        va kodingizni internetga joylashtirganda kalitni ko'rinadigan joyda
+                        qoldirmang.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>API ga So'rov Yuborish</h2>
+                <div class="description">
+                    Python da <span class="highlight-var">requests</span> kutubxonasi yordamida
+                    API ga so'rov yuboramiz. Kelgan JSON javobni <span class="highlight-var">.json()</span>
+                    metodi bilan Python lug'atiga (dictionary) aylantiramiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> requests<br>
+                        <br>
+                        url <span class="operator">=</span> <span class="string">"https://api.example.uz/weather?city=Tashkent"</span><br>
+                        javob <span class="operator">=</span> requests.<span class="function">get</span>(url)<br>
+                        <br>
+                        malumot <span class="operator">=</span> javob.<span class="function">json</span>()  <span class="comment"># JSON -> dictionary</span><br>
+                        <span class="function">print</span>(malumot)
+                    </div>
+                    <div class="comment-part">
+                        # requests.get() so'rov yuboradi, .json() esa javobni o'qiydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> {'city': 'Tashkent', 'temp': 28, 'status': 'Quyoshli'}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>JSON Javobdan Maydon Olish</h2>
+                <div class="description">
+                    JSON javob Python lug'atiga aylangach, undan kerakli ma'lumotni
+                    <span class="highlight-var">[kalit]</span> orqali olamiz — xuddi
+                    lug'at bilan ishlagandek.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        malumot <span class="operator">=</span> javob.<span class="function">json</span>()<br>
+                        <br>
+                        shahar <span class="operator">=</span> malumot[<span class="string">"city"</span>]<br>
+                        harorat <span class="operator">=</span> malumot[<span class="string">"temp"</span>]<br>
+                        <br>
+                        <span class="function">print</span>(<span class="string">f"</span>{shahar}<span class="string">: </span>{harorat}<span class="string">°C"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # malumot["temp"] — "temp" kalitining qiymatini oladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Tashkent: 28°C
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>API Key bilan So'rov</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> requests<br>
+                        <br>
+                        url <span class="operator">=</span> <span class="string">"https://api.example.uz/currency"</span><br>
+                        parametrlar <span class="operator">=</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"from"</span>: <span class="string">"USD"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"to"</span>: <span class="string">"UZS"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"apikey"</span>: <span class="string">"SIZNING_KALIT"</span><br>
+                        }<br>
+                        <br>
+                        javob <span class="operator">=</span> requests.<span class="function">get</span>(url, params<span class="operator">=</span>parametrlar)<br>
+                        <span class="function">print</span>(javob.<span class="function">json</span>())
+                    </div>
+                    <div class="comment-part">
+                        # params= bilan parametrlarni avtomatik URL ga qo'shadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> {'from': 'USD', 'to': 'UZS', 'rate': 12650}
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • API — dasturlar o'rtasida ma'lumot almashish interfeysi<br>
+                    • <span class="highlight-var">requests.get(url)</span> — so'rov yuboradi<br>
+                    • <span class="highlight-var">.json()</span> — javobni Python lug'atiga aylantiradi<br>
+                    • Maydonni <span class="highlight-var">malumot["kalit"]</span> orqali olamiz<br>
+                    • API key — autentifikatsiya uchun maxfiy kalit
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: So'rov → JSON Javob Oqimi</h2>
+                <div class="description">
+                    Tugmani bosing va API so'rovi qanday bosqichlardan o'tishini kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-row">
+                        <div class="flow-box" id="f0">Dastur</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box" id="f1">So'rov (GET)</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box" id="f2">Server</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box" id="f3">JSON javob</div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="runFlow()">So'rovni yuborish</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: JSON Javobdan Maydon Olish</h2>
+                <div class="description">
+                    Quyidagi JSON javobdan qaysi maydonni olishni tanlang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="output-demo" style="display:block; margin-bottom:12px;">
+                        malumot = {'city': 'Tashkent', 'temp': 28, 'status': 'Quyoshli'}
+                    </div>
+                    <div class="demo-input">
+                        <select id="fieldSelect">
+                            <option value="city">city</option>
+                            <option value="temp">temp</option>
+                            <option value="status">status</option>
+                        </select>
+                        <button onclick="getField()">Maydonni ol</button>
+                    </div>
+                    <div class="demo-result" id="resultField"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Endpoint URL Tuzish</h2>
+                <div class="description">
+                    Bazaviy manzil, endpoint va parametrlarni kiriting — to'liq URL tuziladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="baseUrl" placeholder="bazaviy URL" value="https://api.example.uz">
+                        <input type="text" id="endpoint" placeholder="endpoint" value="weather" style="min-width:90px;">
+                    </div>
+                    <div class="demo-input">
+                        <input type="text" id="paramKey" placeholder="parametr nomi" value="city" style="min-width:90px;">
+                        <input type="text" id="paramVal" placeholder="qiymat" value="Tashkent" style="min-width:90px;">
+                        <button onclick="buildUrl()">URL tuzish</button>
+                    </div>
+                    <div class="demo-result" id="resultUrl"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: To'liq So'rov Simulyatsiyasi</h2>
+                <div class="description">
+                    Shaharni tanlang — soxta (test) ob-havo API ga so'rov yuborib, natijani ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="citySelect">
+                            <option value="Tashkent">Tashkent</option>
+                            <option value="Samarqand">Samarqand</option>
+                            <option value="Buxoro">Buxoro</option>
+                        </select>
+                        <button onclick="fakeWeather()">So'rov yuborish</button>
+                    </div>
+                    <div class="demo-result" id="resultWeather"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>requests ni import qiling</strong>
+                            <p>import requests yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>URL tuzing</strong>
+                            <p>endpoint va parametr bilan to'liq manzilni yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>So'rov yuboring</strong>
+                            <p>requests.get(url) bilan so'rov yuboring, .json() bilan o'qing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Maydonni chiqaring</strong>
+                            <p>malumot["kalit"] orqali kerakli qiymatni print() qiling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 84: Web Scraping</p>
+                    <p style="opacity: 0.9;">
+                        API orqali ma'lumot olishni o'rgandingiz!<br>
+                        Endi web sahifalardan to'g'ridan-to'g'ri ma'lumot yig'ishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runFlow() {
+            const ids = ['f0', 'f1', 'f2', 'f3'];
+            const labels = [
+                'Dastur so\'rovni tayyorlaydi...',
+                'GET so\'rovi serverga yuborildi...',
+                'Server so\'rovni qayta ishlamoqda...',
+                'JSON javob qaytdi: {"temp": 28}'
+            ];
+            ids.forEach(id => document.getElementById(id).classList.remove('lit'));
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = '';
+            let i = 0;
+            function step() {
+                if (i > 0) document.getElementById(ids[i - 1]).classList.remove('lit');
+                if (i < ids.length) {
+                    document.getElementById(ids[i]).classList.add('lit');
+                    result.innerHTML = '>>> ' + labels[i];
+                    i++;
+                    setTimeout(step, 800);
+                } else {
+                    document.getElementById(ids[ids.length - 1]).classList.add('lit');
+                    result.innerHTML = '>>> Tayyor! Ma\'lumot olindi.';
+                }
+            }
+            step();
+        }
+
+        function getField() {
+            const data = { city: 'Tashkent', temp: 28, status: 'Quyoshli' };
+            const key = document.getElementById('fieldSelect').value;
+            const val = data[key];
+            const shown = typeof val === 'string' ? "'" + val + "'" : val;
+            const result = document.getElementById('resultField');
+            result.classList.add('show');
+            result.innerHTML = '>>> malumot["' + key + '"]<br>>>> ' + shown;
+        }
+
+        function buildUrl() {
+            let base = document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+            const ep = document.getElementById('endpoint').value.trim();
+            const k = document.getElementById('paramKey').value.trim();
+            const v = document.getElementById('paramVal').value.trim();
+            let url = base;
+            if (ep) url += '/' + ep;
+            if (k && v) url += '?' + k + '=' + v;
+            const result = document.getElementById('resultUrl');
+            result.classList.add('show');
+            result.innerHTML = '>>> To\'liq URL:<br>>>> ' + url;
+        }
+
+        function fakeWeather() {
+            const db = {
+                Tashkent: { temp: 28, status: 'Quyoshli' },
+                Samarqand: { temp: 25, status: 'Bulutli' },
+                Buxoro: { temp: 31, status: 'Issiq' }
+            };
+            const city = document.getElementById('citySelect').value;
+            const w = db[city];
+            const result = document.getElementById('resultWeather');
+            result.classList.add('show');
+            result.innerHTML =
+                '>>> requests.get(".../weather?city=' + city + '")<br>' +
+                '>>> javob.json()<br>' +
+                ">>> {'city': '" + city + "', 'temp': " + w.temp + ", 'status': '" + w.status + "'}<br>" +
+                '>>> ' + city + ': ' + w.temp + '°C, ' + w.status;
+        }
+    </script>
+</body>
+</html>

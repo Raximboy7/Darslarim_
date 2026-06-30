@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 57: Remote Repository (GitHub)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* LOCAL <-> REMOTE VISUALIZER */
+        .sync-viz {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 18px 0;
+            flex-wrap: nowrap;
+        }
+        .sync-node {
+            flex: 1;
+            background: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+            min-width: 0;
+            transition: all 0.4s ease;
+        }
+        .sync-node.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+            transform: translateY(-4px);
+        }
+        .sync-node .node-icon { font-size: 2.4em; line-height: 1; }
+        .sync-node .node-title { color: var(--white); font-weight: bold; margin-top: 8px; font-size: 0.95em; }
+        .sync-node .node-sub { color: var(--gray); font-size: 0.78em; margin-top: 3px; }
+        .sync-box {
+            margin-top: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 64px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-chip {
+            background: var(--primary-dark);
+            color: var(--white);
+            font-family: monospace;
+            font-size: 0.78em;
+            padding: 4px 9px;
+            border-radius: 6px;
+            white-space: nowrap;
+            animation: slideUp 0.4s ease-out;
+        }
+        .file-chip.empty { background: transparent; color: var(--gray); }
+        .sync-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-weight: bold;
+            min-width: 56px;
+        }
+        .sync-arrow .arrow-glyph { font-size: 1.8em; transition: all 0.4s ease; }
+        .sync-arrow.flow-right .arrow-glyph { color: var(--primary); transform: scale(1.3); }
+        .sync-arrow.flow-left .arrow-glyph { color: var(--secondary); transform: scale(1.3); }
+        .sync-arrow .arrow-label { font-size: 0.72em; margin-top: 4px; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+            .sync-node .node-icon { font-size: 1.8em; }
+            .sync-arrow { min-width: 40px; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_56_branch.html">← Oldingi</a>
+        <span class="nav-center">Modul 10 — Git va Version Control · Dars 57 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_58_collaboration.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Remote Repository (GitHub)</h1>
+                <p>Modul 10 — Git va Version Control | Dars 57</p>
+            </header>
+
+            <div class="section">
+                <h2>Remote Repository Nima?</h2>
+                <div class="description">
+                    Hozirgacha siz Git'ni faqat <strong>o'z kompyuteringizda</strong> ishlatdingiz. Bu
+                    <span class="highlight-var">local repository</span> deyiladi — kod faqat sizning
+                    kompyuteringizda saqlanadi.<br><br>
+                    <strong>Remote repository</strong> — bu loyihangizning <strong>internetdagi (bulutdagi)
+                    nusxasi</strong>. U boshqa serverda saqlanadi va istalgan joydan kira olasiz.
+                </div>
+                <div class="info-box">
+                    <strong>Nega remote kerak?</strong>
+                    <p>
+                        • Kompyuteringiz buzilsa ham kod yo'qolmaydi (zaxira nusxa)<br>
+                        • Boshqa kompyuterdan ishlay olasiz (uydan, ishdan)<br>
+                        • Boshqalar bilan birga ishlash imkoni (jamoa)<br>
+                        • Kodni dunyoga ulashish (portfolio)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>GitHub Nima?</h2>
+                <div class="description">
+                    <strong>GitHub</strong> — bu kodni saqlash va ulashish uchun eng mashhur platforma. U
+                    remote repository'larni bulutda saqlaydi. Boshqa platformalar ham bor:
+                    <span class="highlight-var">GitLab</span>, <span class="highlight-var">Bitbucket</span>.
+                    Lekin GitHub eng ko'p ishlatiladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tushuncha</th><th>Bu nima</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Git</code></td><td>Versiyalarni boshqaruvchi dastur (kompyuterda)</td></tr>
+                        <tr><td><code>GitHub</code></td><td>Kodni bulutda saqlovchi veb-platforma (sayt)</td></tr>
+                        <tr><td><code>Repository</code></td><td>Loyiha papkasi (kod + tarix)</td></tr>
+                        <tr><td><code>origin</code></td><td>Remote repository'ning standart nomi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Diqqat: Git va GitHub bir narsa emas!</strong>
+                    <p>
+                        <strong>Git</strong> — kompyuteringizdagi dastur.<br>
+                        <strong>GitHub</strong> — internetdagi sayt (github.com). Git'siz ham mavjud.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Local va Remote Farqi</h2>
+                <div class="description">
+                    <span class="highlight-var">Local</span> — sizning kompyuteringizdagi nusxa.
+                    <span class="highlight-var">Remote</span> — bulutdagi (GitHub'dagi) nusxa.<br>
+                    Bu ikkalasi <strong>buyruqlar orqali</strong> bir-biri bilan sinxronlanadi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Buyruq</th><th>Yo'nalish</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>git clone</code></td><td>Remote → Local</td><td>Repo nusxasini olib kelish (birinchi marta)</td></tr>
+                        <tr><td><code>git remote add</code></td><td>—</td><td>Local'ni remote'ga ulash</td></tr>
+                        <tr><td><code>git push</code></td><td>Local → Remote</td><td>O'zgarishlarni bulutga yuborish</td></tr>
+                        <tr><td><code>git pull</code></td><td>Remote → Local</td><td>Bulutdagi o'zgarishlarni olib kelish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>git clone — Nusxa Olish</h2>
+                <div class="description">
+                    GitHub'dagi tayyor repository'ni o'z kompyuteringizga nusxalash uchun
+                    <span class="highlight-var">git clone</span> ishlatiladi. Bu repo manzilini (URL)
+                    nusxalab oladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git clone https://github.com/foydalanuvchi/loyiha.git
+                    </div>
+                    <div class="comment-part">
+                        # GitHub'dagi repo'ni kompyuterga ko'chiradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    Cloning into 'loyiha'...<br>
+                    remote: Counting objects: 100% done.<br>
+                    Receiving objects: 100% done.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git remote add origin — Ulash</h2>
+                <div class="description">
+                    Agar repo'ni o'zingiz kompyuterda yaratgan bo'lsangiz (<span class="highlight-var">git init</span>),
+                    uni GitHub'ga ulash kerak. Buni <span class="highlight-var">git remote add origin</span> qiladi.
+                    <strong>origin</strong> — remote'ning odatdagi nomi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git remote add origin https://github.com/foydalanuvchi/loyiha.git<br>
+                        git remote -v
+                    </div>
+                    <div class="comment-part">
+                        # origin nomi bilan remote ulanadi, -v ulanishni tekshiradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    origin&nbsp;&nbsp;https://github.com/foydalanuvchi/loyiha.git (fetch)<br>
+                    origin&nbsp;&nbsp;https://github.com/foydalanuvchi/loyiha.git (push)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git push — Bulutga Yuborish</h2>
+                <div class="description">
+                    Local'da commit qilgan o'zgarishlaringizni GitHub'ga yuborish uchun
+                    <span class="highlight-var">git push</span> ishlatiladi. Birinchi marta
+                    <span class="highlight-var">-u origin main</span> qo'shiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git add .<br>
+                        git commit -m <span class="string">"Yangi sahifa qo'shildi"</span><br>
+                        git push -u origin main
+                    </div>
+                    <div class="comment-part">
+                        # O'zgarishlar saqlanadi va bulutga yuboriladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    Enumerating objects: done.<br>
+                    To https://github.com/foydalanuvchi/loyiha.git<br>
+                    &nbsp;&nbsp;&nbsp;a1b2c3d..e4f5g6h&nbsp;&nbsp;main -> main
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git pull — Bulutdan Olish</h2>
+                <div class="description">
+                    Boshqa joyda (yoki jamoadoshingiz) qilgan o'zgarishlarni o'z kompyuteringizga olib kelish
+                    uchun <span class="highlight-var">git pull</span> ishlatiladi. Bu remote'dagi yangiliklarni
+                    local'ga qo'shadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git pull origin main
+                    </div>
+                    <div class="comment-part">
+                        # Bulutdagi yangi o'zgarishlarni kompyuterga oladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    From https://github.com/foydalanuvchi/loyiha<br>
+                    &nbsp;&nbsp;&nbsp;e4f5g6h..i7j8k9l&nbsp;&nbsp;main -> origin/main<br>
+                    Updating files: 100% done.
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">clone</span> — birinchi marta nusxa olish<br>
+                    • <span class="highlight-var">push</span> — yuborish (Local → Remote)<br>
+                    • <span class="highlight-var">pull</span> — olish (Remote → Local)<br>
+                    • <span class="highlight-var">origin</span> — remote'ning standart nomi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: git push (Local → Remote)</h2>
+                <div class="description">
+                    Tugmani bosing va kompyuteringizdagi fayllar qanday bulutga (GitHub'ga) yuborilishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="sync-viz">
+                        <div class="sync-node" id="pushLocal">
+                            <div class="node-icon">💻</div>
+                            <div class="node-title">Local</div>
+                            <div class="node-sub">Kompyuteringiz</div>
+                            <div class="sync-box" id="pushLocalBox"></div>
+                        </div>
+                        <div class="sync-arrow" id="pushArrow">
+                            <div class="arrow-glyph">→</div>
+                            <div class="arrow-label">push</div>
+                        </div>
+                        <div class="sync-node" id="pushRemote">
+                            <div class="node-icon">☁️</div>
+                            <div class="node-title">Remote</div>
+                            <div class="node-sub">GitHub</div>
+                            <div class="sync-box" id="pushRemoteBox"></div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoPush()">git push</button>
+                        <button onclick="resetPush()">Qayta</button>
+                    </div>
+                    <div class="demo-result" id="resultPush"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: git pull (Remote → Local)</h2>
+                <div class="description">
+                    Jamoadoshingiz GitHub'ga yangi fayl qo'shdi. Uni o'z kompyuteringizga olib kelaylik.
+                </div>
+                <div class="interactive-demo">
+                    <div class="sync-viz">
+                        <div class="sync-node" id="pullLocal">
+                            <div class="node-icon">💻</div>
+                            <div class="node-title">Local</div>
+                            <div class="node-sub">Kompyuteringiz</div>
+                            <div class="sync-box" id="pullLocalBox"></div>
+                        </div>
+                        <div class="sync-arrow" id="pullArrow">
+                            <div class="arrow-glyph">←</div>
+                            <div class="arrow-label">pull</div>
+                        </div>
+                        <div class="sync-node" id="pullRemote">
+                            <div class="node-icon">☁️</div>
+                            <div class="node-title">Remote</div>
+                            <div class="node-sub">GitHub</div>
+                            <div class="sync-box" id="pullRemoteBox"></div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoPull()">git pull</button>
+                        <button onclick="resetPull()">Qayta</button>
+                    </div>
+                    <div class="demo-result" id="resultPull"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: git clone (Nusxa Olish)</h2>
+                <div class="description">
+                    GitHub'dagi tayyor loyihani birinchi marta o'z kompyuteringizga ko'chirib olaylik.
+                    Repo nomini kiriting va tugmani bosing.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="cloneName" placeholder="repo nomi" value="loyiha">
+                        <button onclick="demoClone()">git clone</button>
+                    </div>
+                    <div class="sync-viz">
+                        <div class="sync-node" id="cloneRemote">
+                            <div class="node-icon">☁️</div>
+                            <div class="node-title">Remote</div>
+                            <div class="node-sub">GitHub</div>
+                            <div class="sync-box" id="cloneRemoteBox"></div>
+                        </div>
+                        <div class="sync-arrow" id="cloneArrow">
+                            <div class="arrow-glyph">→</div>
+                            <div class="arrow-label">clone</div>
+                        </div>
+                        <div class="sync-node" id="cloneLocal">
+                            <div class="node-icon">💻</div>
+                            <div class="node-title">Local</div>
+                            <div class="node-sub">Kompyuteringiz</div>
+                            <div class="sync-box" id="cloneLocalBox"></div>
+                        </div>
+                    </div>
+                    <div class="demo-result" id="resultClone"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Qaysi Buyruq?</h2>
+                <div class="description">
+                    Vaziyatni o'qing va to'g'ri buyruqni tanlang.
+                </div>
+                <div class="interactive-demo">
+                    <div id="quizQuestion" style="color: var(--dark); font-weight: bold; margin-bottom: 14px;"></div>
+                    <div class="btn-row">
+                        <button onclick="answerQuiz('clone')">git clone</button>
+                        <button onclick="answerQuiz('push')">git push</button>
+                        <button onclick="answerQuiz('pull')">git pull</button>
+                    </div>
+                    <div class="demo-result" id="resultQuiz"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>GitHub'da hisob oching</strong>
+                            <p>github.com saytiga kiring va ro'yxatdan o'ting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Yangi repository yarating</strong>
+                            <p>"New repository" tugmasini bosing va nom bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Local'ni ulang</strong>
+                            <p>git remote add origin &lt;URL&gt; buyrug'ini bajaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Kodni yuboring</strong>
+                            <p>git push -u origin main bilan bulutga jo'nating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 58: Jamoa bilan Ishlash (Collaboration)</p>
+                    <p style="opacity: 0.9;">
+                        Kodni bulutga yuborishni o'rgandingiz!<br>
+                        Endi boshqalar bilan birga ishlashni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Misol 1: push ---
+        function chip(text, empty) {
+            return `<div class="file-chip${empty ? ' empty' : ''}">${text}</div>`;
+        }
+
+        function resetPush() {
+            document.getElementById('pushLocalBox').innerHTML = chip('app.py') + chip('index.html');
+            document.getElementById('pushRemoteBox').innerHTML = chip('(bo\'sh)', true);
+            document.getElementById('pushArrow').className = 'sync-arrow';
+            document.getElementById('pushLocal').classList.remove('active');
+            document.getElementById('pushRemote').classList.remove('active');
+            const r = document.getElementById('resultPush');
+            r.classList.remove('show');
+            r.innerHTML = '';
+        }
+
+        function demoPush() {
+            document.getElementById('pushArrow').className = 'sync-arrow flow-right';
+            document.getElementById('pushLocal').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('pushRemote').classList.add('active');
+                document.getElementById('pushRemoteBox').innerHTML = chip('app.py') + chip('index.html');
+                const r = document.getElementById('resultPush');
+                r.classList.add('show');
+                r.innerHTML = '$ git push -u origin main<br>>>> Local fayllar bulutga (GitHub) yuborildi ✓';
+            }, 500);
+        }
+
+        // --- Misol 2: pull ---
+        function resetPull() {
+            document.getElementById('pullLocalBox').innerHTML = chip('app.py');
+            document.getElementById('pullRemoteBox').innerHTML = chip('app.py') + chip('readme.md');
+            document.getElementById('pullArrow').className = 'sync-arrow';
+            document.getElementById('pullLocal').classList.remove('active');
+            document.getElementById('pullRemote').classList.remove('active');
+            const r = document.getElementById('resultPull');
+            r.classList.remove('show');
+            r.innerHTML = '';
+        }
+
+        function demoPull() {
+            document.getElementById('pullArrow').className = 'sync-arrow flow-left';
+            document.getElementById('pullRemote').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('pullLocal').classList.add('active');
+                document.getElementById('pullLocalBox').innerHTML = chip('app.py') + chip('readme.md');
+                const r = document.getElementById('resultPull');
+                r.classList.add('show');
+                r.innerHTML = '$ git pull origin main<br>>>> "readme.md" bulutdan kompyuterga olindi ✓';
+            }, 500);
+        }
+
+        // --- Misol 3: clone ---
+        function resetClone() {
+            document.getElementById('cloneRemoteBox').innerHTML = chip('main.py') + chip('data.csv');
+            document.getElementById('cloneLocalBox').innerHTML = chip('(bo\'sh)', true);
+            document.getElementById('cloneArrow').className = 'sync-arrow';
+            document.getElementById('cloneRemote').classList.remove('active');
+            document.getElementById('cloneLocal').classList.remove('active');
+        }
+
+        function demoClone() {
+            const name = document.getElementById('cloneName').value || 'loyiha';
+            document.getElementById('cloneArrow').className = 'sync-arrow flow-right';
+            document.getElementById('cloneRemote').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('cloneLocal').classList.add('active');
+                document.getElementById('cloneLocalBox').innerHTML =
+                    `<div class="file-chip">${name}/</div>` + chip('main.py') + chip('data.csv');
+                const r = document.getElementById('resultClone');
+                r.classList.add('show');
+                r.innerHTML =
+                    `$ git clone .../${name}.git<br>>>> Cloning into '${name}'...<br>>>> Repo nusxasi kompyuterga olindi ✓`;
+            }, 500);
+        }
+
+        // --- Misol 4: quiz ---
+        const quizItems = [
+            { q: 'GitHub\'dagi tayyor loyihani birinchi marta kompyuteringizga olmoqchisiz.', a: 'clone' },
+            { q: 'Kompyuteringizda commit qildingiz, endi uni GitHub\'ga jo\'natmoqchisiz.', a: 'push' },
+            { q: 'Jamoadoshingiz GitHub\'ga yangi fayl qo\'shdi, uni olib kelmoqchisiz.', a: 'pull' },
+            { q: 'O\'zgartirilgan kodni bulutdagi zaxira nusxaga yubormoqchisiz.', a: 'push' },
+            { q: 'Boshqa kompyuterda yaratilgan repo\'ni shu yerga ko\'chirib olmoqchisiz.', a: 'clone' }
+        ];
+        let quizIndex = 0;
+
+        function showQuiz() {
+            document.getElementById('quizQuestion').textContent = (quizIndex + 1) + '. ' + quizItems[quizIndex].q;
+        }
+
+        function answerQuiz(choice) {
+            const correct = quizItems[quizIndex].a;
+            const r = document.getElementById('resultQuiz');
+            r.classList.add('show');
+            if (choice === correct) {
+                r.innerHTML = '>>> To\'g\'ri! "git ' + correct + '" ✓';
+                quizIndex = (quizIndex + 1) % quizItems.length;
+                setTimeout(showQuiz, 900);
+            } else {
+                r.innerHTML = '>>> Noto\'g\'ri. Yana urinib ko\'ring. (To\'g\'risi: git ' + correct + ')';
+            }
+        }
+
+        // dastlabki ko'rinish
+        resetPush();
+        resetPull();
+        resetClone();
+        showQuiz();
+    </script>
+</body>
+</html>

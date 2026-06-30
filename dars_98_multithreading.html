@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 98: Multithreading (Ko'p Oqim)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* THREAD VISUALIZER */
+        .thread-track {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .thread-label {
+            width: 90px;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: var(--primary-dark);
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .thread-bar {
+            flex: 1;
+            height: 22px;
+            background: #e5e7eb;
+            border-radius: 11px;
+            overflow: hidden;
+            position: relative;
+        }
+        .thread-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 11px;
+            transition: width 0.1s linear;
+        }
+        .thread-fill.seq { background: linear-gradient(135deg, var(--secondary) 0%, #0e7490 100%); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_97_transactions.html">← Oldingi</a>
+        <span class="nav-center">Modul 15 — Concurrency va Advanced · Dars 98 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_99_multiprocessing.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Multithreading (Ko'p Oqim)</h1>
+                <p>Modul 15 — Concurrency va Advanced | Dars 98</p>
+            </header>
+
+            <div class="section">
+                <h2>Thread (Oqim) Nima?</h2>
+                <div class="description">
+                    Odatda dastur kodni <strong>ketma-ket</strong> bajaradi: bir ish tugamaguncha,
+                    keyingisi boshlanmaydi. <strong>Thread (oqim)</strong> esa dasturga
+                    <strong>bir vaqtning o'zida bir nechta ishni</strong> bajarish imkonini beradi.
+                </div>
+                <div class="description">
+                    Buni oshxonaga o'xshatamiz: bitta oshpaz hamma taomni navbatma-navbat pishirsa —
+                    bu <span class="highlight-var">ketma-ket</span>. Agar bir nechta oshpaz birga
+                    ishlasa — bu <span class="highlight-var">ko'p oqim (multithreading)</span>.
+                    Thread ayniqsa <strong>kutish</strong> ko'p bo'lgan ishlarda (fayl o'qish,
+                    internetdan ma'lumot olish) juda foydali.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>threading Moduli</h2>
+                <div class="description">
+                    Pythonda oqimlar bilan ishlash uchun standart <span class="highlight-var">threading</span>
+                    moduli mavjud. Uni import qilamiz:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> threading<br>
+                        <span class="keyword">import</span> time
+                    </div>
+                    <div class="comment-part">
+                        # threading — oqimlar bilan ishlash uchun
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Thread Yaratish</h2>
+                <div class="description">
+                    Thread yaratish uchun <span class="highlight-var">threading.Thread(target=funksiya)</span>
+                    ishlatamiz. Bunda <strong>target</strong> — yangi oqimda bajariladigan funksiya.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> threading<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">salomla</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Salom oqimdan!"</span>)<br>
+                        <br>
+                        oqim = threading.<span class="function">Thread</span>(target=salomla)<br>
+                        oqim.<span class="function">start</span>()&nbsp;&nbsp;&nbsp;<span class="comment"># oqimni ishga tushiradi</span><br>
+                        oqim.<span class="function">join</span>()&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># oqim tugashini kutadi</span>
+                    </div>
+                    <div class="comment-part">
+                        # .start() — oqimni ishga tushiradi<br>
+                        # .join() — oqim tugaguncha kutadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom oqimdan!
+                </div>
+                <div class="info-box">
+                    <strong>Eng muhim 3 metod</strong>
+                    <p>
+                        • <span class="highlight-var">Thread(target=...)</span> — oqim ob'ektini yaratadi<br>
+                        • <span class="highlight-var">.start()</span> — oqimni ishga tushiradi (funksiyani parallel boshlaydi)<br>
+                        • <span class="highlight-var">.join()</span> — asosiy dastur shu oqim tugashini kutadi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Bir Nechta Thread va Argumentlar</h2>
+                <div class="description">
+                    Funksiyaga argument berish uchun <span class="highlight-var">args=(...)</span> ishlatamiz.
+                    Bir nechta oqimni sikl orqali yaratish mumkin:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> threading<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">ishchi</span>(raqam):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">f"Ishchi {raqam} ishladi"</span>)<br>
+                        <br>
+                        oqimlar = []<br>
+                        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">3</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;t = threading.<span class="function">Thread</span>(target=ishchi, args=(i,))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;t.<span class="function">start</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;oqimlar.<span class="function">append</span>(t)<br>
+                        <br>
+                        <span class="keyword">for</span> t <span class="keyword">in</span> oqimlar:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;t.<span class="function">join</span>()&nbsp;&nbsp;&nbsp;<span class="comment"># hamma oqim tugashini kutamiz</span>
+                    </div>
+                    <div class="comment-part">
+                        # args=(i,) — funksiyaga argument beradi (vergul shart!)<br>
+                        # hamma oqimni ro'yxatga yig'ib, keyin .join() qilamiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ishchi 0 ishladi<br>
+                    >>> Ishchi 1 ishladi<br>
+                    >>> Ishchi 2 ishladi
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Thread Sinxronizatsiyasi: Race Condition</h2>
+                <div class="description">
+                    Bir nechta oqim <strong>bitta umumiy resursni</strong> (masalan, bitta o'zgaruvchini)
+                    bir vaqtda o'zgartirsa, muammo yuzaga keladi. Bu
+                    <span class="highlight-var">race condition</span> (poyga holati) deyiladi —
+                    natija har safar boshqacha va noto'g'ri chiqishi mumkin.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        hisob = <span class="number">0</span><br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">qoshish</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">global</span> hisob<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(<span class="number">100000</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hisob <span class="operator">+=</span> <span class="number">1</span>&nbsp;&nbsp;&nbsp;<span class="comment"># xavfli! umumiy resurs</span>
+                    </div>
+                    <div class="comment-part">
+                        # Ikki oqim birga hisob += 1 qilsa, ba'zi qo'shishlar yo'qoladi
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <strong>Muammo</strong>
+                    <p>
+                        <span class="highlight-var">hisob += 1</span> aslida 3 qadam: o'qish → qo'shish → yozish.
+                        Ikki oqim bir vaqtda o'qisa, ikkalasi ham eski qiymatni ko'radi va bir qo'shish yo'qoladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Lock va Mutex bilan Himoyalash</h2>
+                <div class="description">
+                    Yechim — <span class="highlight-var">Lock</span> (qulf, ya'ni
+                    <strong>mutex</strong>). Lock umumiy resursni bir vaqtda faqat bitta oqim
+                    o'zgartirishini kafolatlaydi. Boshqa oqimlar qulf ochilguncha kutib turadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> threading<br>
+                        <br>
+                        hisob = <span class="number">0</span><br>
+                        qulf = threading.<span class="function">Lock</span>()&nbsp;&nbsp;&nbsp;<span class="comment"># qulf yaratamiz</span><br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">qoshish</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">global</span> hisob<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(<span class="number">100000</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span> qulf:&nbsp;&nbsp;&nbsp;<span class="comment"># qulflaymiz</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hisob <span class="operator">+=</span> <span class="number">1</span>&nbsp;&nbsp;&nbsp;<span class="comment"># endi xavfsiz</span>
+                    </div>
+                    <div class="comment-part">
+                        # with qulf: — bloki boshida qulflaydi, oxirida avtomatik ochadi<br>
+                        # endi natija har doim to'g'ri: 200000
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Lock metodlari</strong>
+                    <p>
+                        • <span class="highlight-var">qulf = threading.Lock()</span> — qulf yaratadi<br>
+                        • <span class="highlight-var">with qulf:</span> — eng oson va xavfsiz usul<br>
+                        • <span class="highlight-var">qulf.acquire()</span> / <span class="highlight-var">qulf.release()</span> — qo'lda qulflash/ochish
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>GIL — Qisqacha Eslatma</h2>
+                <div class="warning-box">
+                    <strong>GIL (Global Interpreter Lock) nima?</strong>
+                    <p>
+                        Pythonda <span class="highlight-var">GIL</span> degan mexanizm bor: u bir vaqtda
+                        faqat bitta oqim Python kodini bajarishiga ruxsat beradi. Shuning uchun
+                        <strong>og'ir hisob-kitoblarda</strong> (matematika, sikllar) thread tezlikni
+                        oshirmaydi. Lekin <strong>kutish</strong> bor ishlarda (internet, fayl, kutish vaqti)
+                        thread juda foydali — chunki bitta oqim kutayotganda boshqasi ishlay oladi.
+                        Og'ir hisob-kitob uchun esa keyingi darsdagi <strong>multiprocessing</strong> kerak.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Thread — bir vaqtda bir nechta ishni bajarish<br>
+                    • <span class="highlight-var">Thread(target=f)</span> → <span class="highlight-var">.start()</span> → <span class="highlight-var">.join()</span><br>
+                    • Umumiy resursni <span class="highlight-var">Lock</span> bilan himoyalang (race condition)<br>
+                    • Thread kutish bor ishlarga zo'r; og'ir hisobga — multiprocessing
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Ketma-ket vs Parallel Vaqt</h2>
+                <div class="description">
+                    Har bir ish 1 soniya kutadi. Ketma-ket bajarsak vaqtlar qo'shiladi.
+                    Thread bilan parallel bajarsak — birga ketadi va ancha tez tugaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="taskCount" placeholder="ishlar soni" value="4" min="1" max="10">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="compareSpeed('seq')">Ketma-ket</button>
+                        <button onclick="compareSpeed('thread')">Thread bilan</button>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Lock bilan/holda Race Condition</h2>
+                <div class="description">
+                    Ikki oqim bitta hisobchini oshiradi. Lock bo'lmasa, ba'zi qo'shishlar yo'qoladi
+                    va natija noto'g'ri chiqadi. Lock bilan natija har doim to'g'ri.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="raceN" placeholder="har oqim qo'shadi" value="100000" min="1000">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="raceDemo(false)">Lock-siz</button>
+                        <button onclick="raceDemo(true)">Lock bilan</button>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Oqimlar Vizualizatori</h2>
+                <div class="description">
+                    Bir nechta oqim bir vaqtda ishlaganini ko'ring. Har bir oqim o'z chizig'ida
+                    parallel to'ladi — bu thread bir vaqtda ishlashini ko'rsatadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="vizThreads" placeholder="oqimlar soni" value="3" min="1" max="6">
+                        <button onclick="startThreadViz()">Ishga tushir</button>
+                    </div>
+                    <div id="vizTracks"></div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>threading ni import qiling</strong>
+                            <p>import threading va import time yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Funksiya yozing</strong>
+                            <p>2 soniya kutib (time.sleep), "Tayyor!" chiqaradigan funksiya</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>3 ta oqim yarating</strong>
+                            <p>Sikl bilan Thread yarating va har birini .start() qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>.join() bilan kuting</strong>
+                            <p>Hamma oqim tugagach "Barchasi bajarildi" chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 99: Multiprocessing</p>
+                    <p style="opacity: 0.9;">
+                        Thread va Lock bilan ishlashni o'rgandingiz!<br>
+                        Endi GIL chegarasini chetlab o'tib, og'ir hisob-kitobni<br>
+                        haqiqiy parallel bajaradigan multiprocessing ni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: ketma-ket vs parallel vaqt
+        function compareSpeed(mode) {
+            let n = parseInt(document.getElementById('taskCount').value);
+            if (isNaN(n) || n < 1) n = 1;
+            if (n > 10) n = 10;
+            const perTask = 1; // har ish 1 soniya
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            if (mode === 'seq') {
+                const total = n * perTask;
+                result.innerHTML =
+                    `>>> Ketma-ket bajarish (har ish ${perTask} soniya)<br>` +
+                    `>>> ${n} ta ish navbatma-navbat<br>` +
+                    `>>> Jami vaqt: ${total} soniya`;
+            } else {
+                // parallel: hammasi bir vaqtda, ~1 soniya
+                result.innerHTML =
+                    `>>> Thread bilan parallel bajarish<br>` +
+                    `>>> ${n} ta ish bir vaqtda boshlandi<br>` +
+                    `>>> Jami vaqt: ~${perTask} soniya (${n}x tezroq!)`;
+            }
+        }
+
+        // Misol 2: race condition simulyatsiyasi
+        function raceDemo(useLock) {
+            let n = parseInt(document.getElementById('raceN').value);
+            if (isNaN(n) || n < 1000) n = 1000;
+            const expected = n * 2; // ikki oqim
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            if (useLock) {
+                result.innerHTML =
+                    `>>> Lock bilan: with qulf: hisob += 1<br>` +
+                    `>>> Kutilgan: ${expected}<br>` +
+                    `>>> Natija: ${expected} ✅ to'g'ri!`;
+            } else {
+                // yo'qotishni taqlid qilamiz: tasodifiy yo'qotish
+                const lost = Math.floor(expected * (0.03 + Math.random() * 0.08));
+                const got = expected - lost;
+                result.innerHTML =
+                    `>>> Lock-siz: hisob += 1 (himoyasiz)<br>` +
+                    `>>> Kutilgan: ${expected}<br>` +
+                    `>>> Natija: ${got} ❌ (${lost} ta qo'shish yo'qoldi!)`;
+            }
+        }
+
+        // Misol 3: oqimlar vizualizatori
+        let vizTimer = null;
+        function startThreadViz() {
+            if (vizTimer) { clearInterval(vizTimer); vizTimer = null; }
+            let n = parseInt(document.getElementById('vizThreads').value);
+            if (isNaN(n) || n < 1) n = 1;
+            if (n > 6) n = 6;
+            const tracks = document.getElementById('vizTracks');
+            tracks.innerHTML = '';
+            const speeds = [];
+            const fills = [];
+            for (let i = 0; i < n; i++) {
+                const row = document.createElement('div');
+                row.className = 'thread-track';
+                row.innerHTML =
+                    `<div class="thread-label">Oqim ${i + 1}</div>` +
+                    `<div class="thread-bar"><div class="thread-fill" id="fill-${i}"></div></div>`;
+                tracks.appendChild(row);
+                fills.push(document.getElementById('fill-' + i));
+                speeds.push(0.8 + Math.random() * 1.4); // har xil tezlik
+            }
+            const progress = new Array(n).fill(0);
+            const result = document.getElementById('result3');
+            result.classList.remove('show');
+            vizTimer = setInterval(() => {
+                let allDone = true;
+                for (let i = 0; i < n; i++) {
+                    if (progress[i] < 100) {
+                        progress[i] = Math.min(100, progress[i] + speeds[i]);
+                        fills[i].style.width = progress[i] + '%';
+                        if (progress[i] < 100) allDone = false;
+                    }
+                }
+                if (allDone) {
+                    clearInterval(vizTimer);
+                    vizTimer = null;
+                    result.classList.add('show');
+                    result.innerHTML =
+                        `>>> ${n} ta oqim bir vaqtda ishladi<br>` +
+                        `>>> Hammasi parallel tugadi (.join() qaytdi)`;
+                }
+            }, 40);
+        }
+
+        // dastlabki ko'rinish
+        startThreadViz();
+    </script>
+</body>
+</html>

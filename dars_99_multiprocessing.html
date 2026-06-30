@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 99: Multiprocessing (Ko'p Jarayon)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f87171; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* PROGRESS BAR (jarayon vizualizatsiyasi) */
+        .bar-track {
+            background: #374151;
+            border-radius: 8px;
+            height: 22px;
+            margin: 8px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            height: 100%;
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.2s linear;
+        }
+        .bar-label { font-size: 0.8em; color: #d1fae5; font-family: monospace; margin-bottom: 2px; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_98_multithreading.html">← Oldingi</a>
+        <span class="nav-center">Modul 15 — Concurrency va Advanced · Dars 99 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_100_async.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Multiprocessing (Ko'p Jarayon)</h1>
+                <p>Modul 15 — Concurrency va Advanced | Dars 99</p>
+            </header>
+
+            <div class="section">
+                <h2>Jarayon (Process) Nima?</h2>
+                <div class="description">
+                    <strong>Jarayon (process)</strong> — bu operatsion tizim ishga tushiradigan
+                    mustaqil dasturning bir nusxasi. Har bir jarayonning <strong>o'ziga xos alohida xotirasi</strong>
+                    bo'ladi. Ular bir-birining o'zgaruvchilarini ko'rmaydi — har biri o'z dunyosida ishlaydi.
+                    Bu thread'dan eng katta farqi: thread'lar bitta xotirani bo'lishadi, jarayonlar esa yo'q.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy tasavvur</strong>
+                    <p>
+                        Tasavvur qiling, bir nechta oshpaz bor. Thread — bu bitta oshxonada
+                        (umumiy xotira) ishlayotgan oshpazlar; ular bir xil idishlardan foydalanadi.
+                        Process — har biri o'z alohida oshxonasiga ega oshpazlar; hech narsani bo'lishmaydi,
+                        shu sababli bir-biriga xalal bermaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>multiprocessing Moduli</h2>
+                <div class="description">
+                    Python'da jarayonlar bilan ishlash uchun standart
+                    <span class="highlight-var">multiprocessing</span> moduli mavjud. Uni import qilib,
+                    yangi jarayonlar yaratamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> multiprocessing
+                    </div>
+                    <div class="comment-part">
+                        # Jarayonlar bilan ishlash kutubxonasi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Thread vs Process: Eng Muhim Farq</h2>
+                <div class="description">
+                    Python'da <strong>GIL (Global Interpreter Lock)</strong> degan mexanizm bor. U bir vaqtda
+                    faqat bitta thread Python kodini bajarishiga ruxsat beradi. Shuning uchun
+                    thread'lar <strong>CPU-og'ir</strong> (hisob-kitob ko'p) ishlarda haqiqiy tezlik bermaydi.
+                    Jarayonlar esa har biri alohida Python interpretatoriga ega bo'lgani uchun
+                    <strong>GIL ni chetlab o'tadi</strong> va bir nechta yadroda
+                    <strong>haqiqiy parallel</strong> ishlay oladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>Thread (Multithreading)</th><th>Process (Multiprocessing)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Xotira</td><td>Umumiy (bir xil)</td><td>Alohida (har biriga o'zining)</td></tr>
+                        <tr><td>GIL ta'siri</td><td>Bor — cheklaydi</td><td>Yo'q — chetlab o'tadi</td></tr>
+                        <tr><td>Haqiqiy parallellik</td><td>Yo'q (CPU ishlarda)</td><td>Ha (bir nechta yadro)</td></tr>
+                        <tr><td>Yaratish narxi</td><td>Yengil, tez</td><td>Og'irroq, sekinroq</td></tr>
+                        <tr><td>Ma'lumot almashish</td><td>Oson (umumiy xotira)</td><td>Queue / Pipe orqali</td></tr>
+                        <tr><td>Qachon kerak</td><td>I/O-og'ir ishlar (kutish)</td><td>CPU-og'ir ishlar (hisoblash)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Jarayon Yaratish (Process)</h2>
+                <div class="description">
+                    <span class="highlight-var">Process(target=funksiya)</span> bilan jarayon yaratamiz.
+                    <span class="highlight-var">.start()</span> uni ishga tushiradi,
+                    <span class="highlight-var">.join()</span> esa jarayon tugashini kutadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> multiprocessing<br><br>
+                        <span class="keyword">def</span> <span class="function">ish</span>(raqam):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">f"Jarayon {raqam} ishladi"</span>)<br><br>
+                        <span class="keyword">if</span> __name__ <span class="operator">==</span> <span class="string">"__main__"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;p1 <span class="operator">=</span> multiprocessing.<span class="function">Process</span>(target<span class="operator">=</span>ish, args<span class="operator">=</span>(<span class="number">1</span>,))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;p1.<span class="function">start</span>()&nbsp;&nbsp;<span class="comment"># jarayonni boshlash</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;p1.<span class="function">join</span>()&nbsp;&nbsp;&nbsp;<span class="comment"># tugashini kutish</span>
+                    </div>
+                    <div class="comment-part">
+                        # target — bajariladigan funksiya; args — unga beriladigan argumentlar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Jarayon 1 ishladi
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat: __name__ == "__main__"</strong>
+                    <p>
+                        multiprocessing'da kodni har doim <span class="highlight-var">if __name__ == "__main__":</span>
+                        blokining ichida yozing. Bu yangi jarayonlar fayl kodini qayta-qayta ishga tushirib
+                        yuborishining oldini oladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Process Pool (Pool va map)</h2>
+                <div class="description">
+                    Ko'p jarayonni qo'lda yaratish o'rniga <span class="highlight-var">Pool</span> ishlatamiz.
+                    U jarayonlar guruhini (basseyn) yaratadi va ishni ular o'rtasida avtomatik taqsimlaydi.
+                    <span class="highlight-var">pool.map(funksiya, ro'yxat)</span> ro'yxatdagi har bir elementga
+                    funksiyani parallel qo'llaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool<br><br>
+                        <span class="keyword">def</span> <span class="function">kvadrat</span>(x):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> x <span class="operator">*</span> x<br><br>
+                        <span class="keyword">if</span> __name__ <span class="operator">==</span> <span class="string">"__main__"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span> <span class="function">Pool</span>(<span class="number">4</span>) <span class="keyword">as</span> p:&nbsp;&nbsp;<span class="comment"># 4 ta jarayon</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> p.<span class="function">map</span>(kvadrat, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(natija)
+                    </div>
+                    <div class="comment-part">
+                        # Pool ishni 4 jarayonga bo'lib, har biriga elementlarni beradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1, 4, 9, 16]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Queue Orqali Ma'lumot Almashish</h2>
+                <div class="description">
+                    Jarayonlarning xotirasi alohida bo'lgani uchun ular oddiy o'zgaruvchi orqali
+                    ma'lumot bera olmaydi. Buning uchun <span class="highlight-var">Queue</span> (navbat) ishlatamiz.
+                    Bir jarayon navbatga <span class="highlight-var">.put()</span> bilan qo'yadi,
+                    boshqasi <span class="highlight-var">.get()</span> bilan oladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process, Queue<br><br>
+                        <span class="keyword">def</span> <span class="function">ishchi</span>(q):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;q.<span class="function">put</span>(<span class="string">"Salom asosiy jarayon!"</span>)<br><br>
+                        <span class="keyword">if</span> __name__ <span class="operator">==</span> <span class="string">"__main__"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;q <span class="operator">=</span> <span class="function">Queue</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;p <span class="operator">=</span> <span class="function">Process</span>(target<span class="operator">=</span>ishchi, args<span class="operator">=</span>(q,))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;p.<span class="function">start</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(q.<span class="function">get</span>())&nbsp;&nbsp;<span class="comment"># navbatdan o'qish</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;p.<span class="function">join</span>()
+                    </div>
+                    <div class="comment-part">
+                        # .put() — navbatga qo'yish, .get() — navbatdan olish
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom asosiy jarayon!
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Process — alohida xotirali mustaqil jarayon<br>
+                    • Jarayonlar GIL ni chetlab o'tadi → <span class="highlight-var">haqiqiy parallellik</span><br>
+                    • <span class="highlight-var">Process(target=...)</span> + <span class="highlight-var">.start()</span> + <span class="highlight-var">.join()</span><br>
+                    • <span class="highlight-var">Pool</span> + <span class="highlight-var">.map()</span> — ishni avtomatik taqsimlaydi<br>
+                    • <span class="highlight-var">Queue</span> — jarayonlar o'rtasida ma'lumot almashish<br>
+                    • CPU-og'ir ishlar → process; I/O kutish ishlari → thread
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Thread vs Process Tezligi</h2>
+                <div class="description">
+                    CPU-og'ir ishni (katta hisoblash) thread va process bilan bajarishni taqqoslaymiz.
+                    Yadrolar sonini tanlang va ishga tushiring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="coreCount" value="4" min="1" max="8" style="min-width:90px;">
+                        <input type="number" id="workSize" value="100" min="10" max="400" style="min-width:90px;">
+                        <button onclick="demoCompare()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Pool bilan Ishni Bo'lish</h2>
+                <div class="description">
+                    Ro'yxatdagi sonlarni kvadratga ko'taramiz. Pool ishni jarayonlarga bo'lib,
+                    har birining hissasini ko'rsatadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="poolNums" value="1,2,3,4,5,6,7,8" placeholder="sonlar (vergul bilan)">
+                        <input type="number" id="poolSize" value="4" min="1" max="8" style="min-width:90px;">
+                        <button onclick="demoPool()">map() bajar</button>
+                    </div>
+                    <div id="poolBars"></div>
+                    <div class="demo-result" id="resultPool"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Queue Orqali Almashish</h2>
+                <div class="description">
+                    Ishchi jarayon navbatga xabar qo'yadi, asosiy jarayon uni oladi.
+                    Navbatning ishlashini kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="queueMsg" value="natija=42" placeholder="ishchi yuboradigan xabar">
+                        <button onclick="demoQueuePut()">.put()</button>
+                        <button onclick="demoQueueGet()">.get()</button>
+                    </div>
+                    <div class="demo-result" id="resultQueue"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Modulni import qiling</strong>
+                            <p>multiprocessing'dan Process va Queue ni oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>CPU-og'ir funksiya yozing</strong>
+                            <p>Masalan, 1 dan 1000000 gacha sonlar yig'indisini hisoblovchi funksiya</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Pool bilan parallel bajaring</strong>
+                            <p>Pool(4) yaratib, .map() orqali ishni 4 jarayonga bo'ling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Natijani Queue orqali yig'ing</strong>
+                            <p>Har bir jarayon natijani navbatga qo'ysin, asosiy jarayon ularni o'qisin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 100: Asinxron Dasturlash (async / await)</p>
+                    <p style="opacity: 0.9;">
+                        Jarayonlar bilan haqiqiy parallellikni o'rgandingiz!<br>
+                        Endi async/await yordamida bitta jarayonda minglab ishni kutishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoCompare() {
+            let cores = parseInt(document.getElementById('coreCount').value);
+            let work = parseInt(document.getElementById('workSize').value);
+            if (isNaN(cores) || cores < 1) cores = 1;
+            if (isNaN(work) || work < 10) work = 10;
+            // thread: GIL sababli parallellik yo'q -> deyarli to'liq vaqt
+            const threadTime = work;
+            // process: ish yadrolar soniga bo'linadi (kichik ortiqcha xarajat bilan)
+            const procTime = Math.round((work / cores) + cores * 1.5);
+            const tezlik = (threadTime / procTime).toFixed(1);
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> CPU-og'ir ish hajmi: ${work} birlik, yadrolar: ${cores}<br><br>` +
+                `Thread (GIL bor): ~${threadTime} ms&nbsp;&nbsp;(parallel emas)<br>` +
+                `Process (GIL yo'q): ~${procTime} ms&nbsp;&nbsp;(${cores} yadroda)<br><br>` +
+                `>>> Process taxminan ${tezlik}x tezroq!`;
+        }
+
+        function demoPool() {
+            const raw = document.getElementById('poolNums').value;
+            let size = parseInt(document.getElementById('poolSize').value);
+            if (isNaN(size) || size < 1) size = 1;
+            const nums = raw.split(',').map(s => s.trim()).filter(s => s !== '').map(Number).filter(n => !isNaN(n));
+            const squares = nums.map(n => n * n);
+            // har bir jarayonga ishni taqsimlash (round-robin)
+            const buckets = [];
+            for (let i = 0; i < size; i++) buckets.push([]);
+            nums.forEach((n, i) => buckets[i % size].push(n));
+
+            const barsBox = document.getElementById('poolBars');
+            barsBox.innerHTML = '';
+            const maxLoad = Math.max(1, ...buckets.map(b => b.length));
+            buckets.forEach((b, i) => {
+                if (b.length === 0) return;
+                const wrap = document.createElement('div');
+                wrap.innerHTML =
+                    `<div class="bar-label">Jarayon ${i + 1}: [${b.join(', ')}]</div>` +
+                    `<div class="bar-track"><div class="bar-fill" id="pbar-${i}"></div></div>`;
+                barsBox.appendChild(wrap);
+                const fill = wrap.querySelector('#pbar-' + i);
+                setTimeout(() => { fill.style.width = (b.length / maxLoad * 100) + '%'; }, 50);
+            });
+
+            const result = document.getElementById('resultPool');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> Pool(${size}).map(kvadrat, [${nums.join(', ')}])<br>` +
+                `>>> ${size} jarayon ishni bo'lib oldi<br>` +
+                `>>> Natija: [${squares.join(', ')}]`;
+        }
+
+        let queueData = [];
+        function demoQueuePut() {
+            const msg = document.getElementById('queueMsg').value || "(bo'sh)";
+            queueData.push(msg);
+            const result = document.getElementById('resultQueue');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> Ishchi jarayon: q.put("${msg}")<br>` +
+                `>>> Navbat hozir: [${queueData.map(m => `'${m}'`).join(', ')}]`;
+        }
+        function demoQueueGet() {
+            const result = document.getElementById('resultQueue');
+            result.classList.add('show');
+            if (queueData.length === 0) {
+                result.innerHTML = `>>> Navbat bo'sh — avval .put() bosing`;
+                return;
+            }
+            const item = queueData.shift();
+            result.innerHTML =
+                `>>> Asosiy jarayon: q.get()<br>` +
+                `>>> Olingan xabar: "${item}"<br>` +
+                `>>> Navbatda qoldi: [${queueData.map(m => `'${m}'`).join(', ')}]`;
+        }
+
+        // dastlabki ko'rinish
+        demoPool();
+    </script>
+</body>
+</html>

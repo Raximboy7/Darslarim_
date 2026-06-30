@@ -32,11 +32,8 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
         }
 
         .panel {
@@ -45,8 +42,6 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
             animation: slideInLeft 0.8s ease-out;
-            max-height: 95vh;
-            overflow-y: auto;
         }
 
         .panel.right {
@@ -148,36 +143,22 @@
         }
 
         .code-with-comment {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            min-height: 60px;
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
         }
-
-        .code-with-comment.full {
-            grid-template-columns: 1fr;
-        }
-
         .code-part {
             padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
             color: #d4d4d4;
             font-family: 'Monaco', monospace;
             font-size: 0.95em;
-            line-height: 1.6;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
         }
-
-        .code-with-comment.full .code-part {
-            border-right: none;
-        }
-
         .comment-part {
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            background: rgba(16, 185, 129, 0.05);
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
             color: var(--primary-dark);
             font-size: 0.9em;
             line-height: 1.6;
@@ -475,11 +456,63 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(10px); }
         }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
     </style>
 </head>
 <body>
+    <nav class="lesson-nav">
+        <span class="nav-btn disabled">← Oldingi</span>
+        <span class="nav-center">Modul 1 — Asoslar · Dars 1 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_2_ornatish.html">Keyingi →</a>
+    </nav>
     <div class="container">
-        <!-- LEFT PANEL -->
         <div class="panel">
             <header>
                 <h1>Dasturlashga Kirish</h1>
@@ -489,14 +522,14 @@
             <div class="section">
                 <h2>Kod Nima?</h2>
                 <div class="description">
-                    <strong>Kod</strong> — bu kompyuterni o'qitish uchun yozilgan buyruqlarning ketma-ketligi. 
+                    <strong>Kod</strong> — bu kompyuterga beriladigan buyruqlarning ketma-ketligi.
                     Har bir qator — bitta buyruq. Kompyuter bu qatorlarni bitta-bitta bajaradi!
                 </div>
 
                 <h3>O'zgaruvchi Nima?</h3>
                 <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
                     <strong>O'zgaruvchi</strong> — bu xotirada qiymat saqlash uchun nomi berilgan joy. 
-                    Xonali kutilarni tasavvur qiling — har qutining nomi va unda saqlangan qiymat bor!
+                    Qutichalarni tasavvur qiling — har bir qutining nomi va unda saqlangan qiymati bor!
                 </p>
 
                 <div class="explanation-box">
@@ -562,7 +595,7 @@
                     <div class="code-line" id="line4-comment">
                         <div class="code-with-comment full">
                             <div class="comment-part">
-                                # natija (8) ni ekranga chap qil
+                                # natija (8) ni ekranga chiqar
                             </div>
                         </div>
                     </div>
@@ -571,7 +604,7 @@
                 <div class="explanation-box">
                     <div class="explanation-title">"#" Belgisi:</div>
                     Pythonda <span class="highlight-var">#</span> belgisidan keyin yozilgan barcha narsa — tushuntirish. 
-                    Kompyuter buni bajarolmaydi, faqat dasturchiga o'rta.
+                    Kompyuter buni bajarmaydi — bu faqat dasturchi uchun eslatma.
                 </div>
             </div>
 
@@ -622,7 +655,7 @@
                     <div class="explanation-title">Qator 4️⃣: print(natija)</div>
                     <strong style="color: var(--primary-dark);">Nima bo'ladi?</strong>
                     <p style="margin-top: 8px;">
-                        <span class="highlight-var">natija</span> o'zgaruvchining qiymatini (8) ekranga chap qilamiz.
+                        <span class="highlight-var">natija</span> o'zgaruvchining qiymatini (8) ekranga chiqaramiz.
                     </p>
                     <strong style="color: var(--primary-dark); margin-top: 10px; display: block;">Ekranda:</strong>
                     <p style="margin-top: 8px; font-family: monospace; background: #1f2937; color: #34d399; padding: 8px; border-radius: 4px;">
@@ -639,14 +672,6 @@
                     Tartib juda muhimdir!
                 </p>
             </div>
-        </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="panel right">
-            <header>
-                <h1>Kod Bajarilishi (Animatsiya)</h1>
-                <p>Real-time Visualization</p>
-            </header>
 
             <!-- STEP INDICATOR -->
             <div class="step-indicator" id="stepIndicator">
@@ -702,7 +727,7 @@
                     <div class="code-line" id="anim-line4-comment">
                         <div class="code-with-comment full">
                             <div class="comment-part">
-                                # 8 ni ekranga chap qil
+                                # 8 ni ekranga chiqar
                             </div>
                         </div>
                     </div>
@@ -772,7 +797,7 @@
                     <div class="step-icon">4</div>
                     <div class="step-content">
                         <strong>print(natija)</strong>
-                        <p>8 ni ekranga chap qiling</p>
+                        <p>8 ni ekranga chiqaring</p>
                     </div>
                 </div>
             </div>
@@ -780,7 +805,7 @@
             <div class="info-box">
                 <strong>O'zgaruvchi va print() Funksiyasi</strong>
                 <p>
-                    O'zgaruvchi — xotirada saqlash joyi. print() — natijani ekranga chap qilish. 
+                    O'zgaruvchi — xotirada saqlash joyi. print() — natijani ekranga chiqarish.
                     Bu dasturlashning eng asosiy amallari!
                 </p>
             </div>
@@ -804,7 +829,7 @@
             await executeStep(3, "natija = a + b ni bajaring (5 + 3 = 8)", "anim-line3", {name: 'natija', value: '8'});
 
             // Step 4
-            await executeStep(4, "print(natija) — 8 ni ekranga chap qiling", "anim-line4", null, true);
+            await executeStep(4, "print(natija) — 8 ni ekranga chiqaring", "anim-line4", null, true);
 
             runBtn.disabled = false;
             resetBtn.disabled = false;

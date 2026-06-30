@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 159: CI/CD — Kirish</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CI/CD PIPELINE DIAGRAM */
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 0;
+            margin: 20px 0;
+        }
+        .pipe-stage {
+            flex: 1;
+            min-width: 120px;
+            background: #1f2937;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 16px 12px;
+            text-align: center;
+            border: 2px solid #374151;
+            transition: all 0.4s ease;
+        }
+        .pipe-stage.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        .pipe-stage.failed {
+            border-color: #ef4444;
+            background: #ef4444;
+            color: var(--white);
+            transform: translateY(-5px);
+        }
+        .pipe-stage.skipped { opacity: 0.35; }
+        .pipe-stage .pipe-icon { font-size: 1.6em; display: block; margin-bottom: 6px; }
+        .pipe-stage .pipe-name { font-weight: bold; font-size: 0.95em; }
+        .pipe-stage .pipe-desc { font-size: 0.72em; opacity: 0.8; margin-top: 4px; }
+        .pipe-arrow {
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary-dark); font-weight: bold; font-size: 1.4em;
+            padding: 0 6px;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+            .pipe-arrow { transform: rotate(90deg); width: 100%; }
+            .pipeline { flex-direction: column; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_158_docker_compose.html">← Oldingi</a>
+        <span class="nav-center">Modul 22 — DevOps (Docker va CI/CD) · Dars 159 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_160_github_actions.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>CI/CD — Kirish</h1>
+                <p>Modul 22 — DevOps (Docker va CI/CD) | Dars 159</p>
+            </header>
+
+            <div class="section">
+                <h2>CI/CD Nima?</h2>
+                <div class="description">
+                    <strong>CI/CD</strong> — bu dasturni avtomatik tekshirish va yetkazib berish
+                    usuli. Ikki qismdan iborat:
+                    <span class="highlight-var">CI</span> (Continuous Integration — uzluksiz
+                    integratsiya) va <span class="highlight-var">CD</span> (Continuous Deployment —
+                    uzluksiz joylashtirish). Maqsadi — kod yozilgandan keyin uni odam qo'l bilan
+                    tekshirib o'tirmasin, hammasi <strong>avtomatik</strong> bajarilsin.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy qilib aytganda</strong>
+                    <p>
+                        Siz kod yozasiz va GitHub'ga yuborasiz. Shu zahoti maxsus robot ishga
+                        tushadi: testlarni o'tkazadi, dasturni yig'adi va serverga joylaydi.
+                        Hammasi siz tugma bosmasdan, o'zi bajariladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>CI — Continuous Integration (Uzluksiz Integratsiya)</h2>
+                <div class="description">
+                    <strong>CI</strong> — kod qo'shilganda <strong>avtomatik test</strong> ishga
+                    tushiriladi. Har bir dasturchi o'z kodini umumiy loyihaga qo'shganda,
+                    sistema darhol tekshiradi: kod ishlayaptimi, testlar o'tdimi, xato bormi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Dasturchi kod yozadi</span><br>
+                        git add .<br>
+                        git commit -m <span class="string">"yangi funksiya"</span><br>
+                        git push<br>
+                        <span class="comment"># --> CI avtomatik testlarni boshlaydi</span>
+                    </div>
+                    <div class="comment-part">
+                        # Kod yuborilishi bilan testlar avtomatik ishga tushadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>CI nima beradi?</strong>
+                    <p>
+                        • Xato kodni erta topadi (server'ga chiqmasdan oldin)<br>
+                        • Testlarni qo'lda ishga tushirish shart emas<br>
+                        • Jamoa kodini birlashtirish xavfsiz bo'ladi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>CD — Continuous Deployment (Uzluksiz Joylashtirish)</h2>
+                <div class="description">
+                    <strong>CD</strong> — testlardan o'tgan kod <strong>avtomatik deploy</strong>
+                    qilinadi, ya'ni serverga joylanadi va foydalanuvchilarga yetib boradi. Siz
+                    serverga kirib, fayllarni qo'lda ko'chirib o'tirmaysiz — sistema o'zi qiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Testlar o'tdi --> CD ishga tushadi</span><br>
+                        docker build -t myapp .<br>
+                        docker push myapp<br>
+                        <span class="comment"># --> Dastur serverda yangilandi</span>
+                    </div>
+                    <div class="comment-part">
+                        # Test muvaffaqiyatli bo'lsa, dastur avtomatik serverga chiqadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nega CI/CD Kerak?</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qo'lda (CI/CD'siz)</th><th>Avtomatik (CI/CD bilan)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Testni odam qo'lda ishga tushiradi</td><td>Testlar o'zi ishga tushadi</td></tr>
+                        <tr><td>Inson xatosi ko'p bo'ladi</td><td>Xatolardan qochiladi</td></tr>
+                        <tr><td>Deploy soatlab vaqt oladi</td><td>Tez yetkazib berish (bir necha daqiqa)</td></tr>
+                        <tr><td>Server'ga qo'lda fayl ko'chiriladi</td><td>Hammasi avtomatik</td></tr>
+                        <tr><td>Xato faqat foydalanuvchida chiqadi</td><td>Xato deploydan oldin topiladi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Pipeline Tushunchasi</h2>
+                <div class="description">
+                    <strong>Pipeline</strong> (quvur) — bu ketma-ket bajariladigan
+                    qadamlar zanjiri. Kod har bir qadamdan o'tib boradi:
+                    <span class="highlight-var">test</span> →
+                    <span class="highlight-var">build</span> →
+                    <span class="highlight-var">deploy</span>.
+                    Agar bir qadam muvaffaqiyatsiz bo'lsa, keyingi qadamlar bajarilmaydi.
+                </div>
+
+                <div class="pipeline">
+                    <div class="pipe-stage active"><span class="pipe-icon">📝</span><span class="pipe-name">Commit</span><span class="pipe-desc">Kod yuborildi</span></div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-stage active"><span class="pipe-icon">🧪</span><span class="pipe-name">Test</span><span class="pipe-desc">Testlar tekshiriladi</span></div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-stage active"><span class="pipe-icon">🔨</span><span class="pipe-name">Build</span><span class="pipe-desc">Dastur yig'iladi</span></div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-stage active"><span class="pipe-icon">🚀</span><span class="pipe-name">Deploy</span><span class="pipe-desc">Serverga chiqadi</span></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>CI/CD Vositalari</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Vosita</th><th>Tavsifi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>GitHub Actions</code></td><td>GitHub ichida ishlaydi, sozlash oson, eng mashhur</td></tr>
+                        <tr><td><code>GitLab CI</code></td><td>GitLab ichiga o'rnatilgan CI/CD tizimi</td></tr>
+                        <tr><td><code>Jenkins</code></td><td>Eski va kuchli, o'z serveringizda ishlaydi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Biz nimani o'rganamiz?</strong>
+                    <p>
+                        Keyingi darsda <span class="highlight-var">GitHub Actions</span> bilan
+                        ishlaymiz, chunki u eng oson va GitHub bilan to'g'ridan-to'g'ri
+                        bog'langan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Pipeline Oqimi</h2>
+                <div class="description">
+                    Pastdagi tugmani bosing — kod commit qilinganidan to deploy bo'lishigacha
+                    bo'lgan oqimni qadamma-qadam ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="pipeline" id="flowPipe">
+                        <div class="pipe-stage" id="fs0"><span class="pipe-icon">📝</span><span class="pipe-name">Commit</span><span class="pipe-desc">Kod yuborildi</span></div>
+                        <div class="pipe-arrow">→</div>
+                        <div class="pipe-stage" id="fs1"><span class="pipe-icon">🧪</span><span class="pipe-name">Test</span><span class="pipe-desc">Testlar</span></div>
+                        <div class="pipe-arrow">→</div>
+                        <div class="pipe-stage" id="fs2"><span class="pipe-icon">🔨</span><span class="pipe-name">Build</span><span class="pipe-desc">Yig'ish</span></div>
+                        <div class="pipe-arrow">→</div>
+                        <div class="pipe-stage" id="fs3"><span class="pipe-icon">🚀</span><span class="pipe-name">Deploy</span><span class="pipe-desc">Joylash</span></div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="runFlow()">▶ Pipeline'ni ishga tushir</button>
+                        <button onclick="resetFlow()">↺ Qayta</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: CI va CD Farqi</h2>
+                <div class="description">
+                    Tugmani bosing — qaysi qadamlar <strong>CI</strong>ga, qaysilari
+                    <strong>CD</strong>ga tegishli ekanini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="showPart('ci')">CI qismi</button>
+                        <button onclick="showPart('cd')">CD qismi</button>
+                        <button onclick="showPart('all')">Hammasi</button>
+                    </div>
+                    <div class="demo-result" id="resultPart"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Test O'tdi yoki O'tmadi?</h2>
+                <div class="description">
+                    Test natijasini tanlang va pipeline qanday harakat qilishini kuzating.
+                    Agar test muvaffaqiyatsiz bo'lsa, build va deploy bajarilmaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="pipeline" id="testPipe">
+                        <div class="pipe-stage" id="ts0"><span class="pipe-icon">📝</span><span class="pipe-name">Commit</span></div>
+                        <div class="pipe-arrow">→</div>
+                        <div class="pipe-stage" id="ts1"><span class="pipe-icon">🧪</span><span class="pipe-name">Test</span></div>
+                        <div class="pipe-arrow">→</div>
+                        <div class="pipe-stage" id="ts2"><span class="pipe-icon">🔨</span><span class="pipe-name">Build</span></div>
+                        <div class="pipe-arrow">→</div>
+                        <div class="pipe-stage" id="ts3"><span class="pipe-icon">🚀</span><span class="pipe-name">Deploy</span></div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="runTest(true)">✅ Test muvaffaqiyatli</button>
+                        <button onclick="runTest(false)">❌ Test muvaffaqiyatsiz</button>
+                    </div>
+                    <div class="demo-result" id="resultTest"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">CI</span> — kod qo'shilganda avtomatik test<br>
+                    • <span class="highlight-var">CD</span> — testdan o'tgan kod avtomatik deploy<br>
+                    • <span class="highlight-var">Pipeline</span>: test → build → deploy<br>
+                    • Bir qadam yiqilsa — keyingilari bajarilmaydi<br>
+                    • Vositalar: GitHub Actions, GitLab CI, Jenkins
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>CI va CD'ni ta'riflang</strong>
+                            <p>O'z so'zingiz bilan CI nima, CD nima — yozib chiqing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Pipeline qadamlarini chizing</strong>
+                            <p>test → build → deploy ketma-ketligini qog'ozga chizing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Foydani sanang</strong>
+                            <p>CI/CD nega kerakligini 3 ta sabab bilan tushuntiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Vositani tanlang</strong>
+                            <p>GitHub Actions, GitLab CI va Jenkins'dan birini tanlab, nega ekanini yozing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 160: GitHub Actions</p>
+                    <p style="opacity: 0.9;">
+                        CI/CD tushunchasini o'rgandingiz!<br>
+                        Endi GitHub Actions bilan haqiqiy pipeline yozamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const flowSteps = [
+            { id: 'fs0', text: '📝 Commit: kod GitHub\'ga yuborildi' },
+            { id: 'fs1', text: '🧪 Test: testlar o\'tkazilmoqda... OK' },
+            { id: 'fs2', text: '🔨 Build: dastur yig\'ilmoqda... OK' },
+            { id: 'fs3', text: '🚀 Deploy: dastur serverga joylandi! ✅' }
+        ];
+
+        function resetFlow() {
+            flowSteps.forEach(s => {
+                const el = document.getElementById(s.id);
+                el.classList.remove('active', 'failed', 'skipped');
+            });
+            const result = document.getElementById('resultFlow');
+            result.classList.remove('show');
+            result.innerHTML = '';
+        }
+
+        function runFlow() {
+            resetFlow();
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = '>>> Pipeline ishga tushdi...<br>';
+            flowSteps.forEach((s, i) => {
+                setTimeout(() => {
+                    document.getElementById(s.id).classList.add('active');
+                    result.innerHTML += '>>> ' + s.text + '<br>';
+                    if (i === flowSteps.length - 1) {
+                        result.innerHTML += '>>> Tayyor! Dastur ishlamoqda. 🎉';
+                    }
+                }, i * 800);
+            });
+        }
+
+        function showPart(kind) {
+            const result = document.getElementById('resultPart');
+            result.classList.add('show');
+            let out = '';
+            if (kind === 'ci') {
+                out = '>>> CI (Continuous Integration):<br>' +
+                      '>>> 📝 Commit — kod yuborish<br>' +
+                      '>>> 🧪 Test — avtomatik tekshirish<br>' +
+                      '>>> Maqsad: xatoni erta topish';
+            } else if (kind === 'cd') {
+                out = '>>> CD (Continuous Deployment):<br>' +
+                      '>>> 🔨 Build — dasturni yig\'ish<br>' +
+                      '>>> 🚀 Deploy — serverga joylash<br>' +
+                      '>>> Maqsad: tez yetkazib berish';
+            } else {
+                out = '>>> CI qismi: Commit + Test 🧪<br>' +
+                      '>>> CD qismi: Build + Deploy 🚀<br>' +
+                      '>>> Birgalikda: CI/CD pipeline';
+            }
+            result.innerHTML = out;
+        }
+
+        function runTest(passed) {
+            ['ts0', 'ts1', 'ts2', 'ts3'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('active', 'failed', 'skipped');
+            });
+            const result = document.getElementById('resultTest');
+            result.classList.add('show');
+
+            document.getElementById('ts0').classList.add('active');
+
+            setTimeout(() => {
+                if (passed) {
+                    document.getElementById('ts1').classList.add('active');
+                    setTimeout(() => document.getElementById('ts2').classList.add('active'), 700);
+                    setTimeout(() => document.getElementById('ts3').classList.add('active'), 1400);
+                    result.innerHTML = '>>> 🧪 Test: barcha testlar o\'tdi ✅<br>' +
+                                       '>>> 🔨 Build: dastur yig\'ildi<br>' +
+                                       '>>> 🚀 Deploy: serverga joylandi!<br>' +
+                                       '>>> Pipeline muvaffaqiyatli yakunlandi. 🎉';
+                } else {
+                    document.getElementById('ts1').classList.add('failed');
+                    document.getElementById('ts2').classList.add('skipped');
+                    document.getElementById('ts3').classList.add('skipped');
+                    result.innerHTML = '>>> 🧪 Test: XATO topildi! ❌<br>' +
+                                       '>>> 🔨 Build: bajarilmadi (o\'tkazib yuborildi)<br>' +
+                                       '>>> 🚀 Deploy: bajarilmadi (o\'tkazib yuborildi)<br>' +
+                                       '>>> Pipeline to\'xtadi. Avval xatoni tuzating!';
+                }
+            }, 700);
+        }
+    </script>
+</body>
+</html>

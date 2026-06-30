@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 136: seaborn bilan Vizualizatsiya</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .demo-canvas-wrap {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            text-align: center;
+        }
+        canvas { max-width: 100%; height: auto; background: var(--white); border-radius: 6px; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_135_grafik_turlari.html">← Oldingi</a>
+        <span class="nav-center">Modul 20 — Vizualizatsiya va ML · Dars 136 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_137_ml_kirish.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>seaborn bilan Vizualizatsiya</h1>
+                <p>Modul 20 — Vizualizatsiya va ML | Dars 136</p>
+            </header>
+
+            <div class="section">
+                <h2>seaborn Nima?</h2>
+                <div class="description">
+                    <strong>seaborn</strong> — bu <span class="highlight-var">matplotlib</span> ustiga qurilgan
+                    kutubxona. U yordamida <strong>chiroyli statistik grafiklar</strong>ni juda kam kod bilan
+                    chizish mumkin. Ya'ni matplotlib — poydevor, seaborn esa uning ustidagi
+                    bezatilgan, qulay qavat.
+                </div>
+                <div class="description">
+                    seaborn ayniqsa <span class="highlight-var">pandas</span> DataFrame bilan juda yaxshi
+                    ishlaydi: jadval ustunlari nomini berasiz, qolganini seaborn o'zi qiladi — ranglar,
+                    o'lchovlar, izohlar avtomatik chiroyli chiqadi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>O'rnatish va Import</h2>
+                <div class="description">
+                    seaborn standart Python bilan kelmaydi, uni avval o'rnatib olish kerak. Buni
+                    terminalda <span class="highlight-var">pip</span> orqali bajaramiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        pip install seaborn
+                    </div>
+                    <div class="comment-part">
+                        # Terminalda bir marta o'rnatamiz (matplotlib va pandas bilan birga keladi)
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> seaborn <span class="keyword">as</span> sns<br>
+                        <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br>
+                        <span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+                    </div>
+                    <div class="comment-part">
+                        # sns — seaborn uchun an'anaviy qisqartma. plt grafikni ko'rsatish uchun kerak
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>pandas bilan Ishlash</h2>
+                <div class="description">
+                    seaborn'ga odatda <strong>DataFrame</strong> beramiz va <span class="highlight-var">x</span>,
+                    <span class="highlight-var">y</span> uchun ustun nomlarini ko'rsatamiz. Mana sodda misol:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        data = pd.<span class="function">DataFrame</span>({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"oy"</span>: [<span class="string">"Yan"</span>, <span class="string">"Fev"</span>, <span class="string">"Mar"</span>, <span class="string">"Apr"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"savdo"</span>: [<span class="number">120</span>, <span class="number">200</span>, <span class="number">150</span>, <span class="number">280</span>]<br>
+                        })<br>
+                        <br>
+                        sns.<span class="function">barplot</span>(data=data, x=<span class="string">"oy"</span>, y=<span class="string">"savdo"</span>)<br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # DataFrame'ni beramiz, x va y ga faqat ustun nomini yozamiz — qolganini seaborn qiladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy seaborn Grafiklari</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Funksiya</th><th>Vazifasi</th><th>Qachon ishlatamiz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>sns.barplot()</code></td><td>Ustunli diagramma</td><td>Toifalarni taqqoslash</td></tr>
+                        <tr><td><code>sns.lineplot()</code></td><td>Chiziqli grafik</td><td>Vaqt bo'yicha o'zgarish</td></tr>
+                        <tr><td><code>sns.scatterplot()</code></td><td>Nuqtali grafik</td><td>Ikki son bog'liqligi</td></tr>
+                        <tr><td><code>sns.histplot()</code></td><td>Gistogramma</td><td>Taqsimotni ko'rish</td></tr>
+                        <tr><td><code>sns.boxplot()</code></td><td>Quti grafik</td><td>Median va chetga chiqishlar</td></tr>
+                        <tr><td><code>sns.heatmap()</code></td><td>Issiqlik xaritasi</td><td>Jadvalni rang bilan ko'rsatish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>seaborn vs matplotlib</h2>
+                <div class="description">
+                    Bir xil grafikni ikki usulda chizib ko'raylik. seaborn'da kod kamroq va natija
+                    chiroyliroq chiqadi.
+                </div>
+                <h3>matplotlib bilan</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        plt.<span class="function">bar</span>(data[<span class="string">"oy"</span>], data[<span class="string">"savdo"</span>], color=<span class="string">"gray"</span>)<br>
+                        plt.<span class="function">xlabel</span>(<span class="string">"oy"</span>)<br>
+                        plt.<span class="function">ylabel</span>(<span class="string">"savdo"</span>)<br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Ranglar, o'qlar nomi — hammasini qo'lda yozamiz
+                    </div>
+                </div>
+                <h3>seaborn bilan</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sns.<span class="function">barplot</span>(data=data, x=<span class="string">"oy"</span>, y=<span class="string">"savdo"</span>)<br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Bir qator! O'q nomlari, ranglar avtomatik va chiroyli chiqadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Asosiy farq</strong>
+                    <p>
+                        • seaborn — <span class="highlight-var">kamroq kod</span>, chiroyliroq natija<br>
+                        • seaborn — DataFrame ustun nomlari bilan ishlaydi<br>
+                        • matplotlib — to'liq nazorat, lekin ko'proq kod<br>
+                        • seaborn ichida baribir matplotlib ishlaydi (plt.show() kerak)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Rang Palitralari</h2>
+                <div class="description">
+                    seaborn'da tayyor <strong>rang palitralari</strong> bor. Ularni
+                    <span class="highlight-var">palette</span> orqali tanlaymiz yoki butun mavzuni
+                    <span class="highlight-var">sns.set_theme()</span> bilan o'rnatamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sns.<span class="function">set_theme</span>(style=<span class="string">"whitegrid"</span>)<br>
+                        sns.<span class="function">barplot</span>(data=data, x=<span class="string">"oy"</span>, y=<span class="string">"savdo"</span>, palette=<span class="string">"viridis"</span>)<br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # style — fon ko'rinishi; palette — ranglar to'plami (viridis, magma, coolwarm...)
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: seaborn vs matplotlib Ko'rinish Farqi</h2>
+                <div class="description">
+                    Bir xil ma'lumotni ikki uslubda ko'ring. Tugmani bosib uslubni almashtiring va
+                    farqni his qiling.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="drawStyle('matplotlib')">matplotlib uslubi</button>
+                        <button onclick="drawStyle('seaborn')">seaborn uslubi</button>
+                    </div>
+                    <div class="demo-canvas-wrap">
+                        <canvas id="cmpCanvas" width="560" height="280"></canvas>
+                    </div>
+                    <div class="demo-result" id="cmpResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Turli seaborn Grafiklari</h2>
+                <div class="description">
+                    Bitta ma'lumotni turli grafik turlarida ko'ring: ustunli, chiziqli va nuqtali.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="drawChart('bar')">barplot</button>
+                        <button onclick="drawChart('line')">lineplot</button>
+                        <button onclick="drawChart('scatter')">scatterplot</button>
+                    </div>
+                    <div class="demo-canvas-wrap">
+                        <canvas id="chartCanvas" width="560" height="280"></canvas>
+                    </div>
+                    <div class="demo-result" id="chartResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: heatmap (Issiqlik Xaritasi)</h2>
+                <div class="description">
+                    heatmap raqamli jadvalni <strong>ranglar</strong> bilan ko'rsatadi: katta son —
+                    iliq (qizil) rang, kichik son — sovuq (ko'k) rang. Tugmani bosib yangi jadval
+                    yarating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="drawHeatmap()">Yangi heatmap yarat</button>
+                    </div>
+                    <div class="demo-canvas-wrap">
+                        <canvas id="heatCanvas" width="420" height="320"></canvas>
+                    </div>
+                    <div class="demo-result" id="heatResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: boxplot (Quti Grafik)</h2>
+                <div class="description">
+                    boxplot ma'lumotning <strong>medianasi</strong>, o'rtacha tarqalishi va chetga
+                    chiqqan qiymatlarini bitta qutida ko'rsatadi. Tugma bilan yangi to'plam yarating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="drawBoxplot()">Yangi boxplot yarat</button>
+                    </div>
+                    <div class="demo-canvas-wrap">
+                        <canvas id="boxCanvas" width="480" height="280"></canvas>
+                    </div>
+                    <div class="demo-result" id="boxResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Kutubxonalarni import qiling</strong>
+                            <p>seaborn as sns, matplotlib.pyplot as plt va pandas as pd ni chaqiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>DataFrame yarating</strong>
+                            <p>"oy" va "savdo" ustunlari bilan kichik jadval tuzing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>barplot chizing</strong>
+                            <p>sns.barplot(data=..., x="oy", y="savdo") va palette bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Grafikni ko'rsating</strong>
+                            <p>plt.show() bilan natijani chiqaring va ranglarni o'zgartirib ko'ring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 137: Machine Learning'ga Kirish</p>
+                    <p style="opacity: 0.9;">
+                        seaborn bilan chiroyli grafiklar chizishni o'rgandingiz!<br>
+                        Endi ma'lumotlardan model o'rgatish — Machine Learning dunyosiga kiramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const oylar = ["Yan", "Fev", "Mar", "Apr", "May"];
+        const savdo = [120, 200, 150, 280, 230];
+
+        function drawAxes(ctx, w, h, pad, grid, gridColor) {
+            ctx.strokeStyle = "#9ca3af";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(pad, 10);
+            ctx.lineTo(pad, h - pad);
+            ctx.lineTo(w - 10, h - pad);
+            ctx.stroke();
+            if (grid) {
+                ctx.strokeStyle = gridColor || "#e5e7eb";
+                ctx.lineWidth = 1;
+                for (let g = 1; g <= 4; g++) {
+                    const y = (h - pad) - g * ((h - pad - 20) / 4);
+                    ctx.beginPath();
+                    ctx.moveTo(pad, y);
+                    ctx.lineTo(w - 10, y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawStyle(kind) {
+            const canvas = document.getElementById('cmpCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height, pad = 40;
+            ctx.clearRect(0, 0, w, h);
+
+            const maxV = Math.max(...savdo);
+            const barW = (w - pad - 30) / oylar.length;
+
+            if (kind === 'seaborn') {
+                ctx.fillStyle = "#eef2f7";
+                ctx.fillRect(pad, 10, w - pad - 10, h - pad - 10);
+                drawAxes(ctx, w, h, pad, true, "#ffffff");
+            } else {
+                drawAxes(ctx, w, h, pad, false);
+            }
+
+            const palette = ["#440154", "#3b528b", "#21918c", "#5ec962", "#fde725"];
+            oylar.forEach((oy, i) => {
+                const bh = (savdo[i] / maxV) * (h - pad - 30);
+                const x = pad + 12 + i * barW;
+                ctx.fillStyle = kind === 'seaborn' ? palette[i] : "#9ca3af";
+                ctx.fillRect(x, h - pad - bh, barW - 16, bh);
+                ctx.fillStyle = "#374151";
+                ctx.font = "12px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(oy, x + (barW - 16) / 2, h - pad + 16);
+            });
+
+            const result = document.getElementById('cmpResult');
+            result.classList.add('show');
+            if (kind === 'seaborn') {
+                result.innerHTML = '>>> sns.barplot(data=data, x="oy", y="savdo", palette="viridis")<br>>>> Chiroyli ranglar, fon va to\'r avtomatik (kam kod)';
+            } else {
+                result.innerHTML = '>>> plt.bar(data["oy"], data["savdo"], color="gray")<br>>>> Oddiy kulrang ustunlar, bezaklar yo\'q (ko\'p kod kerak)';
+            }
+        }
+
+        function drawChart(kind) {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height, pad = 40;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = "#eef2f7";
+            ctx.fillRect(pad, 10, w - pad - 10, h - pad - 10);
+            drawAxes(ctx, w, h, pad, true, "#ffffff");
+
+            const maxV = Math.max(...savdo);
+            const plotW = w - pad - 30;
+            const palette = ["#440154", "#3b528b", "#21918c", "#5ec962", "#fde725"];
+            const pts = oylar.map((oy, i) => {
+                const x = pad + 20 + i * (plotW / (oylar.length - 1));
+                const y = (h - pad) - (savdo[i] / maxV) * (h - pad - 30);
+                return { x, y, oy };
+            });
+
+            if (kind === 'bar') {
+                const barW = plotW / oylar.length;
+                oylar.forEach((oy, i) => {
+                    const bh = (savdo[i] / maxV) * (h - pad - 30);
+                    const x = pad + 12 + i * barW;
+                    ctx.fillStyle = palette[i];
+                    ctx.fillRect(x, h - pad - bh, barW - 16, bh);
+                });
+            } else if (kind === 'line') {
+                ctx.strokeStyle = "#21918c";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+                ctx.fillStyle = "#440154";
+                pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill(); });
+            } else if (kind === 'scatter') {
+                pts.forEach((p, i) => {
+                    ctx.fillStyle = palette[i];
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            ctx.fillStyle = "#374151";
+            ctx.font = "12px monospace";
+            ctx.textAlign = "center";
+            pts.forEach(p => ctx.fillText(p.oy, p.x, h - pad + 16));
+
+            const names = { bar: "sns.barplot", line: "sns.lineplot", scatter: "sns.scatterplot" };
+            const result = document.getElementById('chartResult');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + names[kind] + '(data=data, x="oy", y="savdo")';
+        }
+
+        function drawHeatmap() {
+            const canvas = document.getElementById('heatCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const rows = 4, cols = 4, pad = 50;
+            const cellW = (w - pad - 10) / cols;
+            const cellH = (h - pad - 10) / rows;
+            const labels = ["A", "B", "C", "D"];
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const v = Math.floor(Math.random() * 100);
+                    const t = v / 100;
+                    const red = Math.round(40 + t * 200);
+                    const blue = Math.round(200 - t * 180);
+                    ctx.fillStyle = `rgb(${red}, ${Math.round(60 + (1 - Math.abs(t - 0.5) * 2) * 80)}, ${blue})`;
+                    const x = pad + c * cellW;
+                    const y = 10 + r * cellH;
+                    ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
+                    ctx.fillStyle = t > 0.5 ? "#ffffff" : "#1f2937";
+                    ctx.font = "13px monospace";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(v, x + cellW / 2, y + cellH / 2);
+                }
+            }
+            ctx.fillStyle = "#374151";
+            ctx.font = "12px monospace";
+            ctx.textBaseline = "middle";
+            for (let c = 0; c < cols; c++) {
+                ctx.textAlign = "center";
+                ctx.fillText(labels[c], pad + c * cellW + cellW / 2, 10 + rows * cellH + 16);
+            }
+            for (let r = 0; r < rows; r++) {
+                ctx.textAlign = "right";
+                ctx.fillText(labels[r], pad - 8, 10 + r * cellH + cellH / 2);
+            }
+
+            const result = document.getElementById('heatResult');
+            result.classList.add('show');
+            result.innerHTML = '>>> sns.heatmap(data, annot=True, cmap="coolwarm")<br>>>> Katta son — iliq, kichik son — sovuq rang';
+        }
+
+        function drawBoxplot() {
+            const canvas = document.getElementById('boxCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height, pad = 40;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = "#eef2f7";
+            ctx.fillRect(pad, 10, w - pad - 10, h - pad - 10);
+            drawAxes(ctx, w, h, pad, true, "#ffffff");
+
+            const groups = ["A", "B", "C"];
+            const palette = ["#3b528b", "#21918c", "#5ec962"];
+            const groupW = (w - pad - 30) / groups.length;
+
+            groups.forEach((g, i) => {
+                const data = Array.from({ length: 9 }, () => 10 + Math.random() * 80);
+                data.sort((a, b) => a - b);
+                const min = data[0], max = data[data.length - 1];
+                const q1 = data[2], med = data[4], q3 = data[6];
+                const toY = (v) => (h - pad) - (v / 100) * (h - pad - 30);
+                const cx = pad + 30 + i * groupW;
+                const boxW = 50;
+
+                ctx.strokeStyle = "#374151";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(cx, toY(min)); ctx.lineTo(cx, toY(q1));
+                ctx.moveTo(cx, toY(q3)); ctx.lineTo(cx, toY(max));
+                ctx.moveTo(cx - 12, toY(min)); ctx.lineTo(cx + 12, toY(min));
+                ctx.moveTo(cx - 12, toY(max)); ctx.lineTo(cx + 12, toY(max));
+                ctx.stroke();
+
+                ctx.fillStyle = palette[i];
+                ctx.fillRect(cx - boxW / 2, toY(q3), boxW, toY(q1) - toY(q3));
+                ctx.strokeStyle = "#1f2937";
+                ctx.strokeRect(cx - boxW / 2, toY(q3), boxW, toY(q1) - toY(q3));
+
+                ctx.strokeStyle = "#fde725";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(cx - boxW / 2, toY(med));
+                ctx.lineTo(cx + boxW / 2, toY(med));
+                ctx.stroke();
+
+                ctx.fillStyle = "#374151";
+                ctx.font = "12px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(g, cx, h - pad + 16);
+            });
+
+            const result = document.getElementById('boxResult');
+            result.classList.add('show');
+            result.innerHTML = '>>> sns.boxplot(data=data, x="guruh", y="qiymat")<br>>>> Sariq chiziq — mediana, quti — o\'rtacha tarqalish';
+        }
+
+        // dastlabki ko'rinish
+        drawStyle('seaborn');
+        drawChart('bar');
+        drawHeatmap();
+        drawBoxplot();
+    </script>
+</body>
+</html>

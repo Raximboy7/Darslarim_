@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 56: Branch (Tarmoqlar)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BRANCH DIAGRAM */
+        .branch-diagram {
+            background: #1f2937;
+            border-radius: 10px;
+            padding: 22px 18px;
+            margin: 18px 0;
+            overflow-x: auto;
+        }
+        .branch-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 8px 0;
+            min-width: 460px;
+        }
+        .branch-label {
+            width: 90px;
+            flex-shrink: 0;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.85em;
+            color: #d4d4d4;
+        }
+        .branch-label.main { color: #34d399; }
+        .branch-label.feature { color: #fbbf24; }
+        .commit-dot {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7em; font-weight: bold; color: var(--white);
+            flex-shrink: 0;
+        }
+        .commit-dot.main { background: #10b981; }
+        .commit-dot.feature { background: #f59e0b; }
+        .commit-dot.merge { background: #0891b2; }
+        .commit-line {
+            height: 4px;
+            width: 44px;
+            flex-shrink: 0;
+        }
+        .commit-line.main { background: #10b981; }
+        .commit-line.feature { background: #f59e0b; }
+        .commit-line.dashed { background: repeating-linear-gradient(90deg, #6b7280 0 6px, transparent 6px 12px); }
+        .branch-legend {
+            display: flex; gap: 18px; flex-wrap: wrap;
+            margin-top: 14px; font-size: 0.8em; color: #d4d4d4;
+            font-family: monospace;
+        }
+        .branch-legend span { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_55_commit.html">← Oldingi</a>
+        <span class="nav-center">Modul 10 — Git va Version Control · Dars 56 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_57_remote.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Branch (Tarmoqlar)</h1>
+                <p>Modul 10 — Git va Version Control | Dars 56</p>
+            </header>
+
+            <div class="section">
+                <h2>Branch (Tarmoq) Nima?</h2>
+                <div class="description">
+                    <strong>Branch (tarmoq)</strong> — bu loyihangizning <strong>parallel ish yo'nalishi</strong>.
+                    U asosiy kodni buzmasdan yangi narsalarni sinab ko'rish imkonini beradi.
+                    Tarmoqda ishlaganingizda, siz asosiy koddan alohida nusxada ishlaysiz —
+                    xato qilsangiz ham, asosiy kod butun va xavfsiz qoladi.
+                </div>
+                <div class="description">
+                    Buni daraxtga o'xshatish mumkin: asosiy tana — bu
+                    <span class="highlight-var">main</span> tarmog'i, undan chiqqan shoxchalar esa —
+                    yangi xususiyatlar ustida ishlaydigan tarmoqlar. Ish tugagach, shoxchani
+                    yana asosiy tanaga qaytarib qo'shasiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nega Branch Kerak?</h2>
+                <div class="description">
+                    Tasavvur qiling: dasturingiz ishlayapti, lekin siz yangi xususiyat qo'shmoqchisiz.
+                    Agar to'g'ridan-to'g'ri asosiy kodda ishlasangiz va xato qilsangiz — butun dastur
+                    ishdan chiqishi mumkin. Branch buni hal qiladi.
+                </div>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">✓</div>
+                        <div class="step-content">
+                            <strong>Xavfsiz tajriba</strong>
+                            <p>Yangi g'oyalarni asosiy kodni buzmasdan sinab ko'rasiz</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">✓</div>
+                        <div class="step-content">
+                            <strong>Alohida xususiyatlar</strong>
+                            <p>Har bir yangi xususiyatni o'z tarmog'ida ishlab chiqasiz</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">✓</div>
+                        <div class="step-content">
+                            <strong>Jamoa bilan ishlash</strong>
+                            <p>Har bir dasturchi o'z tarmog'ida ishlaydi, bir-biriga xalaqit bermaydi</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">✓</div>
+                        <div class="step-content">
+                            <strong>Tayyor bo'lganda qo'shish</strong>
+                            <p>Xususiyat tayyor bo'lgach, uni asosiy kodga birlashtirasiz</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Tarmoq Daraxti — Vizual</h2>
+                <div class="description">
+                    Quyida <span class="highlight-var">main</span> tarmog'idan
+                    <span class="highlight-var">feature</span> tarmog'i ajralib, keyin yana
+                    asosiyga birlashishi ko'rsatilgan. Har bir doira — bu bitta commit.
+                </div>
+                <div class="branch-diagram">
+                    <div class="branch-row">
+                        <div class="branch-label feature">feature</div>
+                        <div class="commit-line dashed"></div>
+                        <div class="commit-dot feature">C3</div>
+                        <div class="commit-line feature"></div>
+                        <div class="commit-dot feature">C4</div>
+                        <div class="commit-line dashed"></div>
+                    </div>
+                    <div class="branch-row">
+                        <div class="branch-label main">main</div>
+                        <div class="commit-dot main">C1</div>
+                        <div class="commit-line main"></div>
+                        <div class="commit-dot main">C2</div>
+                        <div class="commit-line main"></div>
+                        <div class="commit-dot merge">M</div>
+                    </div>
+                    <div class="branch-legend">
+                        <span><i class="legend-dot" style="background:#10b981;"></i> main tarmoq</span>
+                        <span><i class="legend-dot" style="background:#f59e0b;"></i> feature tarmoq</span>
+                        <span><i class="legend-dot" style="background:#0891b2;"></i> merge (birlashish)</span>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>O'qish tartibi</strong>
+                    <p>
+                        C2 da yangi <span class="highlight-var">feature</span> tarmog'i ochildi →
+                        unda C3 va C4 commitlar qilindi → ish tugagach
+                        <span class="highlight-var">M</span> nuqtada main ga birlashtirildi (merge).
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git branch — Tarmoqlar Ro'yxati va Yaratish</h2>
+                <div class="description">
+                    <span class="highlight-var">git branch</span> buyrug'i barcha tarmoqlarni ko'rsatadi.
+                    Joriy (hozir turgan) tarmog'ingiz oldida <span class="highlight-var">*</span> belgisi turadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git branch<br>
+                        git branch yangi-xususiyat
+                    </div>
+                    <div class="comment-part">
+                        # 1-qator: tarmoqlar ro'yxatini ko'rsatadi<br>
+                        # 2-qator: "yangi-xususiyat" nomli yangi tarmoq yaratadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> git branch<br>
+                    * main<br>
+                    &nbsp;&nbsp;yangi-xususiyat
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git checkout / git switch — Tarmoqqa O'tish</h2>
+                <div class="description">
+                    Tarmoq yaratganingizdan keyin unga <strong>o'tish</strong> kerak. Buning ikki yo'li bor:
+                    eski <span class="highlight-var">git checkout</span> va yangi, qulayroq
+                    <span class="highlight-var">git switch</span>.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git switch yangi-xususiyat<br>
+                        git switch -c boshqa-tarmoq
+                    </div>
+                    <div class="comment-part">
+                        # 1-qator: "yangi-xususiyat" tarmog'iga o'tadi<br>
+                        # 2-qator: -c yangi tarmoq YARATADI va darrov unga O'TADI
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git checkout yangi-xususiyat<br>
+                        git checkout -b boshqa-tarmoq
+                    </div>
+                    <div class="comment-part">
+                        # Eski usul: switch bilan bir xil ishni bajaradi<br>
+                        # -b yangi tarmoq yaratib, unga o'tadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Maslahat</strong>
+                    <p>
+                        Yangi loyihalarda <span class="highlight-var">git switch</span> dan foydalaning —
+                        u faqat tarmoqlar uchun ishlaydi va chalkashlik kamroq bo'ladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>git merge — Tarmoqni Birlashtirish</h2>
+                <div class="description">
+                    Tarmoqdagi ish tugagach, uni asosiy tarmoqqa qaytarib qo'shasiz. Bu jarayon
+                    <strong>merge (birlashtirish)</strong> deyiladi. Avval asosiy tarmoqqa o'ting,
+                    keyin ustiga boshqa tarmoqni birlashtiring.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        git switch main<br>
+                        git merge yangi-xususiyat
+                    </div>
+                    <div class="comment-part">
+                        # 1-qator: avval main (asosiy) tarmoqqa o'tamiz<br>
+                        # 2-qator: "yangi-xususiyat" dagi o'zgarishlarni main ga qo'shamiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> git merge yangi-xususiyat<br>
+                    Updating a1b2c3d..e4f5g6h<br>
+                    Fast-forward<br>
+                    &nbsp;&nbsp;app.py | 12 ++++++++++++
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>main / master Tarmoq</h2>
+                <div class="description">
+                    Har bir Git loyihasida bitta <strong>asosiy tarmoq</strong> bo'ladi. Avval u
+                    <span class="highlight-var">master</span> deb nomlanardi, hozir esa ko'pincha
+                    <span class="highlight-var">main</span> deyiladi. Bu — loyihaning ishonchli,
+                    asosiy versiyasi. Yangi xususiyatlar boshqa tarmoqlarda ishlanib, tayyor bo'lgach
+                    main ga birlashtiriladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Buyruq</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>git branch</code></td><td>Tarmoqlar ro'yxatini ko'rsatadi</td></tr>
+                        <tr><td><code>git branch nom</code></td><td>Yangi tarmoq yaratadi</td></tr>
+                        <tr><td><code>git switch nom</code></td><td>Tarmoqqa o'tadi</td></tr>
+                        <tr><td><code>git switch -c nom</code></td><td>Yaratadi va o'tadi</td></tr>
+                        <tr><td><code>git merge nom</code></td><td>Tarmoqni joriy tarmoqqa birlashtiradi</td></tr>
+                        <tr><td><code>git branch -d nom</code></td><td>Tarmoqni o'chiradi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Merge Conflict (Ziddiyat) Nima?</h2>
+                <div class="description">
+                    Ba'zan ikki tarmoqda <strong>bir xil qatorni</strong> turlicha o'zgartirsangiz,
+                    Git qaysi birini olishni bilmay qoladi. Bu — <strong>merge conflict</strong> (ziddiyat).
+                    Bunda Git sizdan qaysi versiyani saqlashni so'raydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD<br>
+                        salom = <span class="string">"Salom dunyo"</span><br>
+                        =======<br>
+                        salom = <span class="string">"Assalomu alaykum"</span><br>
+                        &gt;&gt;&gt;&gt;&gt;&gt;&gt; yangi-xususiyat
+                    </div>
+                    <div class="comment-part">
+                        # HEAD = joriy tarmoqdagi versiya<br>
+                        # pastdagi = qo'shilayotgan tarmoqdagi versiya<br>
+                        # Siz keraksiz qatorni o'chirib, birini qoldirasiz
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Qo'rqmang</strong>
+                    <p>
+                        Conflict — bu xato emas, oddiy holat. Siz shunchaki to'g'ri versiyani tanlab,
+                        belgilarni (<span class="highlight-var">&lt;&lt;&lt;</span>,
+                        <span class="highlight-var">===</span>,
+                        <span class="highlight-var">&gt;&gt;&gt;</span>) o'chirasiz,
+                        so'ng faylni saqlab yana commit qilasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Branch</span> — parallel, xavfsiz ish yo'nalishi<br>
+                    • <span class="highlight-var">git branch</span> ro'yxat, <span class="highlight-var">git switch</span> o'tish<br>
+                    • <span class="highlight-var">git merge</span> tarmoqlarni birlashtiradi<br>
+                    • <span class="highlight-var">main</span> — asosiy, ishonchli tarmoq<br>
+                    • Conflict — qo'rqinchli emas, qo'lda hal qilinadi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Tarmoq Yaratish va O'tish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="branchName" placeholder="Tarmoq nomi" value="yangi-xususiyat">
+                        <button onclick="demoCreate()">Yarat va o't</button>
+                    </div>
+                    <div class="demo-result" id="resultCreate"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Tarmoqlarni Birlashtirish (merge)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="mergeFrom" placeholder="Qaysi tarmoq" value="yangi-xususiyat">
+                        <button onclick="demoMerge()">main ga merge qil</button>
+                    </div>
+                    <div class="branch-diagram" id="mergeDiagram" style="display:none;">
+                        <div class="branch-row">
+                            <div class="branch-label feature" id="mLabel">feature</div>
+                            <div class="commit-line dashed"></div>
+                            <div class="commit-dot feature">C3</div>
+                            <div class="commit-line dashed"></div>
+                        </div>
+                        <div class="branch-row">
+                            <div class="branch-label main">main</div>
+                            <div class="commit-dot main">C1</div>
+                            <div class="commit-line main"></div>
+                            <div class="commit-dot main">C2</div>
+                            <div class="commit-line main"></div>
+                            <div class="commit-dot merge">M</div>
+                        </div>
+                    </div>
+                    <div class="demo-result" id="resultMerge"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Tarmoqlar Ro'yxati (git branch)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="newBranchList" placeholder="Yangi tarmoq qo'shing" value="login-sahifa">
+                        <button onclick="demoAddBranch()">Tarmoq qo'sh</button>
+                        <button onclick="demoListBranch()">git branch</button>
+                    </div>
+                    <div class="demo-result" id="resultList"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Yangi tarmoq yarating</strong>
+                            <p>git switch -c yangi-xususiyat bilan tarmoq oching va unga o'ting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>O'zgarish kiriting va commit qiling</strong>
+                            <p>Faylni tahrirlang, git add . va git commit -m "yangi xususiyat" qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>main ga qayting</strong>
+                            <p>git switch main buyrug'i bilan asosiy tarmoqqa o'ting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Birlashtiring</strong>
+                            <p>git merge yangi-xususiyat bilan o'zgarishlarni main ga qo'shing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 57: Remote (Masofaviy ombor)</p>
+                    <p style="opacity: 0.9;">
+                        Tarmoqlar bilan ishlashni o'rgandingiz!<br>
+                        Endi kodni GitHub kabi masofaviy omborlarga yuborishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoCreate() {
+            let name = document.getElementById('branchName').value.trim() || "yangi-tarmoq";
+            name = name.replace(/\s+/g, '-');
+            const result = document.getElementById('resultCreate');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> git switch -c ${name}<br>` +
+                `Switched to a new branch '${name}'<br><br>` +
+                `>>> git branch<br>` +
+                `&nbsp;&nbsp;main<br>` +
+                `* ${name}&nbsp;&nbsp;&nbsp;<span style="color:#fbbf24;">&lt;- hozir shu tarmoqdasiz</span>`;
+        }
+
+        function demoMerge() {
+            let from = document.getElementById('mergeFrom').value.trim() || "yangi-xususiyat";
+            from = from.replace(/\s+/g, '-');
+            document.getElementById('mLabel').textContent = from;
+            document.getElementById('mergeDiagram').style.display = 'block';
+            const result = document.getElementById('resultMerge');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> git switch main<br>` +
+                `Switched to branch 'main'<br><br>` +
+                `>>> git merge ${from}<br>` +
+                `Updating a1b2c3d..e4f5g6h<br>` +
+                `Fast-forward<br>` +
+                `<span style="color:#34d399;">'${from}' tarmog'i main ga birlashtirildi! ✓</span>`;
+        }
+
+        let branchList = ["main", "yangi-xususiyat"];
+        let currentBranch = "main";
+
+        function demoAddBranch() {
+            let name = document.getElementById('newBranchList').value.trim();
+            name = name.replace(/\s+/g, '-');
+            const result = document.getElementById('resultList');
+            result.classList.add('show');
+            if (!name) {
+                result.innerHTML = `>>> Tarmoq nomini kiriting!`;
+                return;
+            }
+            if (branchList.includes(name)) {
+                result.innerHTML = `>>> "${name}" tarmog'i allaqachon mavjud.`;
+                return;
+            }
+            branchList.push(name);
+            result.innerHTML = `>>> git branch ${name}<br><span style="color:#34d399;">"${name}" tarmog'i yaratildi. Ro'yxatni ko'rish uchun "git branch" tugmasini bosing.</span>`;
+        }
+
+        function demoListBranch() {
+            const result = document.getElementById('resultList');
+            result.classList.add('show');
+            let lines = `>>> git branch<br>`;
+            branchList.forEach(b => {
+                if (b === currentBranch) {
+                    lines += `<span style="color:#fbbf24;">* ${b}</span><br>`;
+                } else {
+                    lines += `&nbsp;&nbsp;${b}<br>`;
+                }
+            });
+            result.innerHTML = lines;
+        }
+    </script>
+</body>
+</html>

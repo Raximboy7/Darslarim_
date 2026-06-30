@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 3: print() Funksiyasi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 150px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .parameter-box {
+            background: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .parameter-box strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .parameter-box p {
+            color: var(--dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+                border-radius: 10px;
+            }
+            .comment-part {
+                border-radius: 10px;
+                margin-top: 5px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_2_ornatish.html">← Oldingi</a>
+        <span class="nav-center">Modul 1 — Asoslar · Dars 3 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_4_types.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>print() Funksiyasi</h1>
+                <p>Modul 1 — Asoslar | Dars 3</p>
+            </header>
+
+            <div class="section">
+                <h2>print() Nima?</h2>
+                <div class="description">
+                    <strong>print()</strong> — bu ekranga matn yoki ma'lumot chiqarish uchun ishlatiladi. 
+                    Dasturchining eng ko'p ishlatiladigan funksiyalaridan biri. Natijalarni ko'rish uchun lozim!
+                </div>
+
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
+                    Sodda qo'llanma:
+                </p>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"Salom!"</span>)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom!
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>print() ning Turli Usullari</h2>
+
+                <h3>1. Matnni Chiqarish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"Assalomu alaikum"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Matnni chiqar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Assalomu alaikum
+                </div>
+
+                <h3>2. Raqamni Chiqarish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="number">42</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Raqamni chiqar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 42
+                </div>
+
+                <h3>3. Bir Nechta Narsani Chiqarish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"Ism:"</span>, <span class="string">"Ali"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Ikkita narsani virgul bilan
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ism: Ali
+                </div>
+
+                <h3>4. O'zgaruvchi Bilan</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ism = <span class="string">"Bobur"</span><br>
+                        <span class="function">print</span>(ism)
+                    </div>
+                    <div class="comment-part">
+                        # O'zgaruvchini chiqar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Bobur
+                </div>
+
+                <h3>5. Hisoblash Natijasini Chiqarish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="number">5</span> + <span class="number">3</span>)
+                    </div>
+                    <div class="comment-part">
+                        # 5 + 3 = 8 chiqadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 8
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>print() Parametrlari</h2>
+                <div class="description">
+                    print() funksiyasida qo'shimcha parametrlar mavjud. Bular natijaning qanday ko'rinishini boshqaradi.
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Parametr</th>
+                            <th>Ma'nosi</th>
+                            <th>Misol</th>
+                            <th>Natija</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="highlight-var">sep</span></td>
+                            <td>Ajratuvchi belgisi</td>
+                            <td><span class="highlight-var">print("a", "b", sep="-")</span></td>
+                            <td>a-b</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-var">end</span></td>
+                            <td>Oxirgi belgi</td>
+                            <td><span class="highlight-var">print("Salom", end="!")</span></td>
+                            <td>Salom!</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>sep Parametri Misollar:</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Standart: bo'sh joy
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> A B C
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>, sep=<span class="string">"-"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Ajratuvchi: "-"
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> A-B-C
+                </div>
+
+                <h3>end Parametri Misollar:</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"Salom"</span>)<br>
+                        <span class="function">print</span>(<span class="string">"Dunyo"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Har biri yangi qatorida
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom<br>
+                    >>> Dunyo
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(<span class="string">"A"</span>, end=<span class="string">""</span>)<br>
+                        <span class="function">print</span>(<span class="string">"B"</span>, end=<span class="string">""</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Yangi qatorga o'tmaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> AB
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>print() Xatolaridan Qutulish</h2>
+
+                <div class="example-box">
+                    <div class="example-title">❌ Xato 1: Tirnoqsiz String</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(Salom)  <span style="color: #f87171;"># XATO!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Xato: String tirnoq ichida bo'lishi kerak!<br>
+                        To'g'ri: <span class="highlight-var">print("Salom")</span>
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">❌ Xato 2: Qavsni Unutib Qoldirish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span> <span class="string">"Salom"</span>  <span style="color: #f87171;"># XATO!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Xato: print() qavslari kerak!<br>
+                        To'g'ri: <span class="highlight-var">print("Salom")</span>
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">❌ Xato 3: Tirnoq Turi</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>('Salom"')  <span style="color: #f87171;"># XATO!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Xato: Ochuvchi va yopuvchi tirnoq bir xil bo'lishi kerak!<br>
+                        To'g'ri: <span class="highlight-var">print("Salom")</span> yoki <span class="highlight-var">print('Salom')</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslaydigan Narsa</strong>
+                <p>
+                    print() — ekranga chiqarish uchun.<br>
+                    String — tirnoq ichida.<br>
+                    Raqam — tirnoqsiz.<br>
+                    Parametrlar — qavs ichida.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Oddiy Matn</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="text1" placeholder="Biror matn yozing" value="Assalomu alaikum">
+                        <button onclick="demo1()">Bajarish</button>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Bir Nechta Narsani Qo'shish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="text2a" placeholder="Birinchi" value="Ism:">
+                        <input type="text" id="text2b" placeholder="Ikkinchi" value="Muhammad">
+                        <button onclick="demo2()">Bajarish</button>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Raqamlarni Qo'shish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="num1" placeholder="Son 1" value="5">
+                        <input type="number" id="num2" placeholder="Son 2" value="3">
+                        <button onclick="demo3()">Qo'sh</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: sep Parametri</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="sep" placeholder="Ajratuvchi" value="-">
+                        <button onclick="demo4()">Bajarish</button>
+                    </div>
+                    <div class="demo-result" id="result4"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em; margin-top: 10px;">
+                    Misol: A, B, C ni kiritilgan ajratuvchi bilan chiqaradi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Ko'p Qatorli print()</h2>
+                <div class="example-box">
+                    <div class="example-title">Namuna 1: Har biri alohida qator</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="string">"Qator 1"</span>)<br>
+                            <span class="function">print</span>(<span class="string">"Qator 2"</span>)<br>
+                            <span class="function">print</span>(<span class="string">"Qator 3"</span>)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> Qator 1<br>
+                        >>> Qator 2<br>
+                        >>> Qator 3
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">Namuna 2: Bir qatorga</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="string">"A"</span>, end=<span class="string">""</span>)<br>
+                            <span class="function">print</span>(<span class="string">"B"</span>, end=<span class="string">""</span>)<br>
+                            <span class="function">print</span>(<span class="string">"C"</span>)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> ABC
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Koding Mashqi</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Kod Yozish</strong>
+                            <p>VS Code da yangi fayl: <span class="highlight-var">print3.py</span></p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Yuqoridagi Misollarni Yozish</strong>
+                            <p>Har bir misolni O'z print() buyruqlari bilan yozing</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Bajarish</strong>
+                            <p>Terminal'da: <span class="highlight-var">python print3.py</span></p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Natija</strong>
+                            <p>Ekranda barcha natijalarni ko'ring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 4: O'zgaruvchilar va Turlar</p>
+                    <p style="opacity: 0.9;">
+                        print() ni bildingiz!<br>
+                        Endi o'zgaruvchilar bilan ishlashni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demo1() {
+            const text = document.getElementById('text1').value;
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${text}`;
+        }
+
+        function demo2() {
+            const text1 = document.getElementById('text2a').value;
+            const text2 = document.getElementById('text2b').value;
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${text1} ${text2}`;
+        }
+
+        function demo3() {
+            const num1 = parseInt(document.getElementById('num1').value) || 0;
+            const num2 = parseInt(document.getElementById('num2').value) || 0;
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${num1 + num2}`;
+        }
+
+        function demo4() {
+            const sep = document.getElementById('sep').value || ' ';
+            const result = document.getElementById('result4');
+            result.classList.add('show');
+            result.innerHTML = `>>> A${sep}B${sep}C`;
+        }
+    </script>
+</body>
+</html>

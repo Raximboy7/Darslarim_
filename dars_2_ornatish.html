@@ -30,11 +30,8 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
         }
 
         .panel {
@@ -42,23 +39,7 @@
             border-radius: 16px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            animation: slideInLeft 0.8s ease-out;
-            max-height: 95vh;
-            overflow-y: auto;
-        }
-
-        .panel.right {
-            animation: slideInRight 0.8s ease-out;
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(50px); }
-            to { opacity: 1; transform: translateX(0); }
+            animation: slideUp 0.8s ease-out;
         }
 
         header {
@@ -78,13 +59,15 @@
         }
 
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
         h2 {
             font-size: 1.35em;
             color: var(--dark);
             margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--light);
         }
 
         h3 {
@@ -186,32 +169,6 @@
         .string { color: #fbbf24; }
         .number { color: #34d399; }
         .function { color: #a78bfa; }
-
-        .comparison-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .comparison-item {
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary);
-            background: var(--light);
-        }
-
-        .comparison-item strong {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--primary-dark);
-        }
-
-        .comparison-item p {
-            color: var(--dark);
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
 
         .download-box {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -331,15 +288,6 @@
             font-size: 0.9em;
         }
 
-        @media (max-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .comparison-box {
-                grid-template-columns: 1fr;
-            }
-        }
-
         @media (max-width: 768px) {
             .panel {
                 padding: 20px;
@@ -348,11 +296,63 @@
                 font-size: 1.5em;
             }
         }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
     </style>
 </head>
 <body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_1_complete.html">← Oldingi</a>
+        <span class="nav-center">Modul 1 — Asoslar · Dars 2 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_3_print.html">Keyingi →</a>
+    </nav>
     <div class="container">
-        <!-- LEFT PANEL -->
         <div class="panel">
             <header>
                 <h1>O'rnatish va Muhit</h1>
@@ -362,7 +362,7 @@
             <div class="section">
                 <h2>Python Nima?</h2>
                 <div class="description">
-                    <strong>Python</strong> — bu oson, tushunishi oson va kuchli dasturlash tili. 
+                    <strong>Python</strong> — bu oddiy, tushunarli va kuchli dasturlash tili.
                     Google, Instagram, Netflix, Spotify va boshqa katta kompaniyalar Python-dan foydalanadilar.
                 </div>
 
@@ -372,8 +372,8 @@
                 <ul style="margin-left: 20px; color: var(--dark); line-height: 1.8; margin-bottom: 15px;">
                     <li><strong>Oson:</strong> Sintaksisi ingliz tiliga o'xshash</li>
                     <li><strong>Tez:</strong> Tez yozish va o'rganish mumkin</li>
-                    <li><strong>Kuchli:</strong> Web, AI, Data Science uchun ishlatiladilar</li>
-                    <li><strong>Bepul:</strong> Taqdim etiladi va ochiq kodga ega</li>
+                    <li><strong>Kuchli:</strong> Web, AI, Data Science uchun ishlatiladi</li>
+                    <li><strong>Bepul:</strong> Tekin va ochiq kodli (open source)</li>
                 </ul>
             </div>
 
@@ -388,7 +388,7 @@
                         <div class="step-icon">1</div>
                         <div class="step-content">
                             <strong>Python.org saytiga kiring</strong>
-                            <p><span class="highlight-code">python.org</span> shu yerga boring Python o'rnatish programmasini yuklab oling</p>
+                            <p><span class="highlight-code">python.org</span> saytiga kirib, Python o'rnatuvchi dasturini yuklab oling</p>
                         </div>
                     </div>
 
@@ -435,110 +435,6 @@
             </div>
 
             <div class="section">
-                <h2>Kod Yozish Uchun Editor</h2>
-                <div class="description">
-                    Python kodini yozish uchun maxsus editor kerak. Quyidagi variantlardan birini tanlang:
-                </div>
-
-                <div class="editor-option">
-                    <strong>VS Code (Tavsiya etiladi)</strong>
-                    <p>Eng mashxur, bepul, va quvvatlı editor. Binafsha belgisi bilan!</p>
-                </div>
-
-                <div class="editor-option">
-                    <strong>PyCharm</strong>
-                    <p>Python uchun maxsus editor. Katta proyektlar uchun yaxshi.</p>
-                </div>
-
-                <div class="editor-option">
-                    <strong>Thonny</strong>
-                    <p>Yangi dasturchilari uchun eng oson editor. Animatsiyali bajarilish!</p>
-                </div>
-
-                <div class="editor-option">
-                    <strong>IDLE</strong>
-                    <p>Python-ga kimdir keladi. Sodda lekin foydali.</p>
-                </div>
-
-                <div class="info-box">
-                    <strong>Shunga O'xshash:</strong>
-                    <p>
-                        Notepod++ yoki sodda text editor FAQAT bo'sh matnlar uchun. 
-                        Python uchun maxsus editor kerak! (Rang belgilash, xatolarni ko'rsatish uchun)
-                    </p>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2>Birinchi Kod Yozish</h2>
-                <div class="description">
-                    Python o'rnatildi va editor tayyor. Endi birinchi kodni yozamiz!
-                </div>
-
-                <h3>Qadam 1: Yangi Fayl Yaratish</h3>
-                <p style="color: var(--dark); margin-bottom: 15px; line-height: 1.7;">
-                    Editorni ochib, yangi fayl yaratish. Fayl nomi: <span class="highlight-code">hello.py</span>
-                </p>
-
-                <h3>Qadam 2: Kodni Yozish</h3>
-                <div class="code-block">
-                    <span class="function">print</span>(<span class="string">"Assalomu alaikum, Dunyo!"</span>)
-                </div>
-
-                <h3>Qadam 3: Faylni Saqlash</h3>
-                <p style="color: var(--dark); margin-bottom: 15px; line-height: 1.7;">
-                    Fayl saqlanadi: <strong>Ctrl + S</strong> yoki <strong>File → Save</strong>
-                </p>
-
-                <h3>Qadam 4: Kodni Bajarun</h3>
-                <p style="color: var(--dark); margin-bottom: 15px; line-height: 1.7;">
-                    Terminal/CMD da: <span class="highlight-code">python hello.py</span> yozib Enter bosing
-                </p>
-
-                <div class="info-box">
-                    <strong>Natija:</strong>
-                    <p>Ekranda ko'rinadi: <span class="highlight-code">Assalomu alaikum, Dunyo!</span></p>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2>Terminal/CMD Bilan Ishlash</h2>
-                <div class="description">
-                    Terminal — bu kompyuterga buyruq beradigan joy. Bunda Python-ni ishga tushiramiz.
-                </div>
-
-                <h3>Muhim Buyruqlar:</h3>
-                <div class="code-block">
-                    <span style="color: #34d399;"># Faylni bajarish</span><br>
-                    python fayl_nomi.py<br><br>
-                    <span style="color: #34d399;"># Hozirgi joyni bilish</span><br>
-                    pwd<br><br>
-                    <span style="color: #34d399;"># Fayllarni ro'yxat ko'rish</span><br>
-                    dir (Windows) yoki ls (Mac/Linux)<br><br>
-                    <span style="color: #34d399;"># Joyni o'zgartirish</span><br>
-                    cd Desktop
-                </div>
-
-                <div class="info-box">
-                    <strong>Terminal Maslahat:</strong>
-                    <p>
-                        Python faylini bajarish uchun, avval Terminal/CMD da faylning joyiga boring. 
-                        Masalan, Desktop'da hello.py fayl bo'lsa:<br>
-                        <span class="highlight-code">cd Desktop</span> → 
-                        <span class="highlight-code">python hello.py</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="panel right">
-            <header>
-                <h1>Amaliy Darsh</h1>
-                <p>Python Tekshirish va Birinchi Kod</p>
-            </header>
-
-            <div class="section">
                 <h2>Tekshiruv: Python O'rnatildimi?</h2>
                 <div class="description">
                     Python-ni o'rnatganingizdan keyin, Terminal/CMD da quyidagini yozib Enter bosing:
@@ -558,48 +454,38 @@
             </div>
 
             <div class="section">
-                <h2>Birinchi Kod Misollar</h2>
+                <h2>Kod Yozish Uchun Editor</h2>
                 <div class="description">
-                    Quyida birinchi kod misollarini ko'rasiz. Siz ham shunday yozib sinab ko'rasiz!
+                    Python kodini yozish uchun maxsus editor kerak. Quyidagi variantlardan birini tanlang:
                 </div>
 
-                <h3>Misol 1: Salom Chap Qilish</h3>
-                <div class="demo-editor">
-                    <div class="editor-header">📄 hello.py</div>
-                    <div class="editor-content">
-                        <span class="function">print</span>(<span class="string">"Salom!"</span>)
-                    </div>
+                <div class="editor-option">
+                    <strong>VS Code (Tavsiya etiladi)</strong>
+                    <p>Eng mashhur, bepul va kuchli muharrir (editor).</p>
                 </div>
-                <p style="color: var(--primary-dark); margin: 10px 0; font-weight: bold;">
-                    Natija: Salom!
-                </p>
 
-                <h3>Misol 2: Raqamlarni Chap Qilish</h3>
-                <div class="demo-editor">
-                    <div class="editor-header">📄 numbers.py</div>
-                    <div class="editor-content">
-                        <span class="function">print</span>(<span class="number">5</span>)<br>
-                        <span class="function">print</span>(<span class="number">10</span>)<br>
-                        <span class="function">print</span>(<span class="number">15</span>)
-                    </div>
+                <div class="editor-option">
+                    <strong>PyCharm</strong>
+                    <p>Python uchun maxsus editor. Katta proyektlar uchun yaxshi.</p>
                 </div>
-                <p style="color: var(--primary-dark); margin: 10px 0; font-weight: bold;">
-                    Natija:<br>
-                    5<br>
-                    10<br>
-                    15
-                </p>
 
-                <h3>Misol 3: Qo'shish</h3>
-                <div class="demo-editor">
-                    <div class="editor-header">📄 add.py</div>
-                    <div class="editor-content">
-                        <span class="function">print</span>(<span class="number">5</span> + <span class="number">3</span>)
-                    </div>
+                <div class="editor-option">
+                    <strong>Thonny</strong>
+                    <p>Yangi dasturchilar uchun eng oson muharrir. Kod bajarilishini animatsiya qiladi!</p>
                 </div>
-                <p style="color: var(--primary-dark); margin: 10px 0; font-weight: bold;">
-                    Natija: 8
-                </p>
+
+                <div class="editor-option">
+                    <strong>IDLE</strong>
+                    <p>Python bilan birga o'rnatiladi. Sodda, lekin foydali.</p>
+                </div>
+
+                <div class="info-box">
+                    <strong>Eslatma:</strong>
+                    <p>
+                        Notepad++ yoki oddiy matn muharriri FAQAT oddiy matnlar uchun.
+                        Python uchun maxsus editor kerak! (Rang belgilash, xatolarni ko'rsatish uchun)
+                    </p>
+                </div>
             </div>
 
             <div class="section">
@@ -640,13 +526,17 @@
             </div>
 
             <div class="section">
-                <h2>Kod Yozib Bajarish (Qadamlar)</h2>
+                <h2>Birinchi Kod Yozish</h2>
+                <div class="description">
+                    Python o'rnatildi va editor tayyor. Endi birinchi kodni yozamiz!
+                </div>
+
                 <div class="step-list">
                     <div class="step-item">
                         <div class="step-icon">1</div>
                         <div class="step-content">
-                            <strong>VS Code ochib, yangi fayl yaratish</strong>
-                            <p>File → New File → hello.py</p>
+                            <strong>Yangi fayl yaratish</strong>
+                            <p>Editorni ochib, yangi fayl yarating. Fayl nomi: <span class="highlight-code">hello.py</span></p>
                         </div>
                     </div>
 
@@ -654,7 +544,7 @@
                         <div class="step-icon">2</div>
                         <div class="step-content">
                             <strong>Kodni yozish</strong>
-                            <p><span class="highlight-code">print("Salom")</span> yozish</p>
+                            <p><span class="highlight-code">print("Assalomu alaikum, Dunyo!")</span></p>
                         </div>
                     </div>
 
@@ -662,7 +552,7 @@
                         <div class="step-icon">3</div>
                         <div class="step-content">
                             <strong>Faylni saqlash</strong>
-                            <p>Ctrl + S yoki File → Save</p>
+                            <p><strong>Ctrl + S</strong> yoki <strong>File → Save</strong></p>
                         </div>
                     </div>
 
@@ -670,26 +560,104 @@
                         <div class="step-icon">4</div>
                         <div class="step-content">
                             <strong>Kodni bajarish</strong>
-                            <p>VS Code'da Run tugmasini bosing yoki Terminal'da <span class="highlight-code">python hello.py</span></p>
+                            <p>Terminal/CMD da <span class="highlight-code">python hello.py</span> yozib Enter bosing</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="info-box">
+                    <strong>Natija:</strong>
+                    <p>Ekranda ko'rinadi: <span class="highlight-code">Assalomu alaikum, Dunyo!</span></p>
+                </div>
+
+                <div class="info-box">
                     <strong>Eslatma!</strong>
                     <p>
-                        Fayl nomi <span class="highlight-code">.py</span> bilan tugashi kerak. 
+                        Fayl nomi <span class="highlight-code">.py</span> bilan tugashi kerak.
                         Masalan: hello.py, my_code.py, program.py
                     </p>
                 </div>
             </div>
 
             <div class="section">
+                <h2>Birinchi Kod Misollar</h2>
+                <div class="description">
+                    Quyida birinchi kod misollarini ko'rasiz. Siz ham shunday yozib sinab ko'ring!
+                </div>
+
+                <h3>Misol 1: Salomni Chiqarish</h3>
+                <div class="demo-editor">
+                    <div class="editor-header">📄 hello.py</div>
+                    <div class="editor-content">
+                        <span class="function">print</span>(<span class="string">"Salom!"</span>)
+                    </div>
+                </div>
+                <p style="color: var(--primary-dark); margin: 10px 0; font-weight: bold;">
+                    Natija: Salom!
+                </p>
+
+                <h3>Misol 2: Raqamlarni Chiqarish</h3>
+                <div class="demo-editor">
+                    <div class="editor-header">📄 numbers.py</div>
+                    <div class="editor-content">
+                        <span class="function">print</span>(<span class="number">5</span>)<br>
+                        <span class="function">print</span>(<span class="number">10</span>)<br>
+                        <span class="function">print</span>(<span class="number">15</span>)
+                    </div>
+                </div>
+                <p style="color: var(--primary-dark); margin: 10px 0; font-weight: bold;">
+                    Natija:<br>
+                    5<br>
+                    10<br>
+                    15
+                </p>
+
+                <h3>Misol 3: Qo'shish</h3>
+                <div class="demo-editor">
+                    <div class="editor-header">📄 add.py</div>
+                    <div class="editor-content">
+                        <span class="function">print</span>(<span class="number">5</span> + <span class="number">3</span>)
+                    </div>
+                </div>
+                <p style="color: var(--primary-dark); margin: 10px 0; font-weight: bold;">
+                    Natija: 8
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Terminal/CMD Bilan Ishlash</h2>
+                <div class="description">
+                    Terminal — bu kompyuterga buyruq beradigan joy. Bunda Python-ni ishga tushiramiz.
+                </div>
+
+                <h3>Muhim Buyruqlar:</h3>
+                <div class="code-block">
+                    <span style="color: #34d399;"># Faylni bajarish</span><br>
+                    python fayl_nomi.py<br><br>
+                    <span style="color: #34d399;"># Hozirgi joyni bilish</span><br>
+                    pwd<br><br>
+                    <span style="color: #34d399;"># Fayllarni ro'yxat ko'rish</span><br>
+                    dir (Windows) yoki ls (Mac/Linux)<br><br>
+                    <span style="color: #34d399;"># Joyni o'zgartirish</span><br>
+                    cd Desktop
+                </div>
+
+                <div class="info-box">
+                    <strong>Terminal Maslahat:</strong>
+                    <p>
+                        Python faylini bajarish uchun, avval Terminal/CMD da faylning joyiga boring.
+                        Masalan, Desktop'da hello.py fayl bo'lsa:<br>
+                        <span class="highlight-code">cd Desktop</span> →
+                        <span class="highlight-code">python hello.py</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
                 <h2>Endi Siz Tayyorsiz!</h2>
-                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
-                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
-                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 3: print() Funksiyasi</p>
-                    <p style="opacity: 0.9;">
+                <div class="download-box">
+                    <strong>Keyingi Dars: Dars 3 — print() Funksiyasi</strong>
+                    <p>
                         Python o'rnatildi, muharrir tayyor.<br>
                         Endi print() funksiyasini chuqur o'rganamiz!
                     </p>
@@ -701,9 +669,10 @@
     <script>
         function checkPython() {
             const result = document.getElementById('pythonResult');
+            result.classList.add('success');
             result.innerHTML = `
-                <strong style="color: var(--primary-dark);">✓ Tavallud!</strong><br>
-                Terminal/CMD da <span style="font-family: monospace; background: #f0fdf4; padding: 2px 6px; border-radius: 3px;">python --version</span> 
+                <strong style="color: var(--primary-dark);">✓ Tabriklaymiz!</strong><br>
+                Terminal/CMD da <span style="font-family: monospace; background: #f0fdf4; padding: 2px 6px; border-radius: 3px;">python --version</span>
                 yozib Enter bosang, Python versiyasi chiqadi.
             `;
         }

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 112: Dokumentatsiya</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, textarea {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        textarea { width: 100%; background: var(--white); resize: vertical; min-height: 90px; font-family: 'Monaco', monospace; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 15px 0; }
+        .compare-card { border-radius: 10px; padding: 16px; line-height: 1.6; }
+        .compare-bad { background: #fef2f2; border: 2px solid #f87171; }
+        .compare-good { background: #f0fdf4; border: 2px solid var(--primary); }
+        .compare-card .tag { font-weight: bold; margin-bottom: 8px; display: block; }
+        .compare-bad .tag { color: #dc2626; }
+        .compare-good .tag { color: var(--primary-dark); }
+        .compare-card code { font-family: 'Monaco', monospace; font-size: 0.85em; display: block; color: var(--dark); background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; }
+        @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #d1d5db; color: #9ca3af; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_111_pip.html">← Oldingi</a>
+        <span class="nav-center">Modul 17 — Qo'shimcha Mavzular · Dars 112 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_113_best_practices.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Dokumentatsiya</h1>
+                <p>Modul 17 — Qo'shimcha Mavzular | Dars 112</p>
+            </header>
+
+            <div class="section">
+                <h2>Dokumentatsiya Nima va Nega Muhim?</h2>
+                <div class="description">
+                    <strong>Dokumentatsiya</strong> — bu kodning <strong>nima qilishini</strong> va
+                    <strong>qanday ishlatilishini</strong> tushuntiruvchi yozma izohlar. Kod faqat kompyuter uchun emas,
+                    balki <strong>odamlar uchun</strong> ham yoziladi. Oradan bir oy o'tib, o'z kodingizni qaytadan ochsangiz,
+                    "bu yerda nima qilmoqchi edim?" deb savol berasiz. Yaxshi dokumentatsiya shu savolga javob beradi.
+                </div>
+                <div class="info-box">
+                    <strong>Nega muhim?</strong>
+                    <p>
+                        • Boshqalar (va kelajakdagi siz) kodni tezroq tushunadi<br>
+                        • Funksiyani qanday chaqirishni eslab qolish shart emas<br>
+                        • Jamoada birga ishlash osonlashadi<br>
+                        • Xatolarni topish va tuzatish tezlashadi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Docstring — Kod Ichidagi Izoh</h2>
+                <div class="description">
+                    <strong>Docstring</strong> — bu funksiya, klass yoki modul ichidagi maxsus izoh matni.
+                    U uchta qo'shtirnoq <span class="highlight-var">"""..."""</span> ichida yoziladi va
+                    funksiyaning <strong>birinchi qatorida</strong> turadi. Oddiy <code>#</code> izohdan farqi —
+                    docstring kod bilan birga saqlanadi va <code>help()</code> orqali o'qish mumkin.
+                </div>
+
+                <h3>Funksiya docstring</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">salomlash</span>(ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"""Berilgan ism bilan salom matnini qaytaradi."""</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Salom, "</span> <span class="operator">+</span> ism
+                    </div>
+                    <div class="comment-part">
+                        # Docstring funksiyaning birinchi qatorida, """...""" ichida
+                    </div>
+                </div>
+
+                <h3>Klass docstring</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Mashina</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"""Mashina haqidagi ma'lumotni saqlaydigan klass."""</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, rang):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.rang <span class="operator">=</span> rang
+                    </div>
+                    <div class="comment-part">
+                        # Klass nomidan keyin docstring yoziladi
+                    </div>
+                </div>
+
+                <h3>Modul docstring</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="string">"""Bu modul matematik yordamchi funksiyalarni saqlaydi."""</span><br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">qoshish</span>(a, b):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> a <span class="operator">+</span> b
+                    </div>
+                    <div class="comment-part">
+                        # Modul docstring fayl eng tepasida, birinchi qatorda turadi
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Ko'p qatorli docstring</strong>
+                    <p>
+                        Murakkab funksiya uchun docstring bir necha qatordan iborat bo'lishi mumkin:
+                        birinchi qatorda qisqa tavsif, keyin parametrlar va qaytaradigan qiymat tushuntiriladi.
+                    </p>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">yuza</span>(eni, boyi):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"""To'rtburchak yuzasini hisoblaydi.</span><br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">eni: to'rtburchak eni (son)</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">boyi: to'rtburchak bo'yi (son)</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">Natija: yuza qiymati (son)</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"""</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> eni <span class="operator">*</span> boyi
+                    </div>
+                    <div class="comment-part">
+                        # Birinchi qator qisqa tavsif, keyin batafsil tushuntirish
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>help() bilan Docstring O'qish</h2>
+                <div class="description">
+                    <span class="highlight-var">help(funksiya)</span> chaqirilganda Python o'sha funksiyaning
+                    docstringini ekranga chiqaradi. Shuning uchun yaxshi docstring yozsangiz, boshqalar
+                    funksiyani <strong>ishga tushirmasdan</strong> uning vazifasini bilib oladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">salomlash</span>(ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"""Berilgan ism bilan salom matnini qaytaradi."""</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Salom, "</span> <span class="operator">+</span> ism<br>
+                        <br>
+                        <span class="function">help</span>(salomlash)
+                    </div>
+                    <div class="comment-part">
+                        # help() funksiya docstringini ko'rsatadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Help on function salomlash:<br>
+                    >>><br>
+                    >>> salomlash(ism)<br>
+                    >>> &nbsp;&nbsp;&nbsp;&nbsp;Berilgan ism bilan salom matnini qaytaradi.
+                </div>
+                <div class="info-box">
+                    <strong>Maslahat</strong>
+                    <p>
+                        Docstringga to'g'ridan-to'g'ri <span class="highlight-var">funksiya.__doc__</span> orqali ham
+                        kirish mumkin. Masalan <code>print(salomlash.__doc__)</code> docstring matnini chiqaradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Comment (#) Yozish Qoidalari</h2>
+                <div class="description">
+                    <strong>Comment (izoh)</strong> <span class="highlight-var">#</span> belgisi bilan boshlanadi va
+                    Python uni e'tiborsiz qoldiradi. Comment kodning <strong>NEGA</strong> shunday yozilganini
+                    tushuntirishi kerak — <strong>NIMA</strong> qilayotgani odatda kodning o'zidan ko'rinib turadi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qachon yozish kerak</th><th>Qachon kerak emas</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Murakkab mantiq sababini tushuntirish</td><td>Aniq kodni takrorlash</td></tr>
+                        <tr><td>Nostandart yechim sababi</td><td>Har bir qatorga izoh</td></tr>
+                        <tr><td>Kelajakdagi ogohlantirish (eslatma)</td><td>Eski, o'zgargan izohlar</td></tr>
+                        <tr><td>Murakkab formula manbasi</td><td>x = 5  # x ga 5 berildi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Oltin qoida</strong>
+                    <p>
+                        Yaxshi nom qo'yilgan o'zgaruvchi va funksiya ko'p izohga ehtiyojni kamaytiradi.
+                        <span class="highlight-var">narx</span> deb nomlangan o'zgaruvchi <code># narx</code> izohini talab qilmaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>README Fayl — Loyiha Haqida</h2>
+                <div class="description">
+                    <strong>README</strong> — bu loyihaning "tashrif qog'ozi". Odatda <span class="highlight-var">README.md</span>
+                    nomi bilan loyiha papkasining tepasida turadi. Yangi odam loyihani ochganda eng birinchi shuni o'qiydi:
+                    loyiha nima qiladi, qanday o'rnatiladi va qanday ishlatiladi.
+                </div>
+                <div class="example-box">
+                    <div class="example-title">Tipik README tuzilmasi</div>
+                    <p style="line-height: 1.9;">
+                        <strong>1. Loyiha nomi</strong> — qisqa va aniq sarlavha<br>
+                        <strong>2. Tavsif</strong> — loyiha nima qiladi, bir-ikki jumla<br>
+                        <strong>3. O'rnatish</strong> — qanday o'rnatish (pip install ...)<br>
+                        <strong>4. Foydalanish</strong> — qanday ishga tushirish, misol kod<br>
+                        <strong>5. Misollar</strong> — natijalar va namunalar<br>
+                        <strong>6. Muallif / Litsenziya</strong> — kim yozgan, qanday foydalanish mumkin
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Kodni Toza Tashkil Qilish</h2>
+                <div class="description">
+                    Toza dokumentatsiya toza tuzilma bilan boshlanadi. Quyidagi tartib kodni o'qishni osonlashtiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="string">"""Modul tavsifi — eng tepada."""</span><br>
+                        <span class="keyword">import</span> math&nbsp;&nbsp;<span class="comment"># importlar tepada</span><br>
+                        <br>
+                        PI <span class="operator">=</span> <span class="number">3.14159</span>&nbsp;&nbsp;<span class="comment"># o'zgarmaslar (konstantalar)</span><br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">aylana_yuzasi</span>(r):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"""Aylana yuzasini qaytaradi."""</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> PI <span class="operator">*</span> r <span class="operator">*</span> r
+                    </div>
+                    <div class="comment-part">
+                        # Tartib: modul docstring → importlar → konstantalar → funksiyalar
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: help() va Docstring</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom: 12px; color: var(--dark);">
+                        Funksiyaga docstring yozing, so'ng <code>help()</code> qanday natija berishini ko'ring:
+                    </p>
+                    <div class="demo-input">
+                        <input type="text" id="docFn" placeholder="funksiya nomi" value="salomlash">
+                        <input type="text" id="docText" placeholder="docstring matni" value="Salom matnini qaytaradi.">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoHelp()">help() ishlat</button>
+                        <button onclick="demoDoc()">.__doc__ o'qi</button>
+                    </div>
+                    <div class="demo-result" id="resultHelp"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Yaxshi va Yomon Izoh</h2>
+                <div class="compare-grid">
+                    <div class="compare-card compare-bad">
+                        <span class="tag">✗ Yomon izoh</span>
+                        <code>soni = soni + 1  # soni ga 1 qo'shildi</code>
+                        <p style="margin-top:8px; font-size:0.85em; color:var(--gray);">Kod o'zi aytib turibdi. Izoh ortiqcha.</p>
+                    </div>
+                    <div class="compare-card compare-good">
+                        <span class="tag">✓ Yaxshi izoh</span>
+                        <code>soni += 1  # foydalanuvchi urinishini sanaymiz</code>
+                        <p style="margin-top:8px; font-size:0.85em; color:var(--gray);">NEGA shunday qilinayotgani tushuntirilgan.</p>
+                    </div>
+                </div>
+                <div class="interactive-demo">
+                    <p style="margin-bottom: 12px; color: var(--dark);">Izohni tekshiring — u "nima" ni takrorlaydimi yoki "nega" ni tushuntiradimi?</p>
+                    <div class="btn-row">
+                        <button onclick="checkComment('bad')">x = 0  # x nol</button>
+                        <button onclick="checkComment('good')"># vaqtinchalik xato, keyin tuzatamiz</button>
+                        <button onclick="checkComment('good2')"># Soliq 12% deb hisoblanadi</button>
+                    </div>
+                    <div class="demo-result" id="resultComment"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: README Tuzuvchi</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom: 12px; color: var(--dark);">
+                        Loyiha ma'lumotlarini kiriting va tayyor README tuzilmasini oling:
+                    </p>
+                    <div class="demo-input">
+                        <input type="text" id="rmName" placeholder="loyiha nomi" value="Kalkulyator">
+                    </div>
+                    <div class="demo-input">
+                        <input type="text" id="rmDesc" placeholder="qisqa tavsif" value="Oddiy hisob-kitob dasturi">
+                    </div>
+                    <div class="demo-input">
+                        <input type="text" id="rmRun" placeholder="ishga tushirish buyrug'i" value="python main.py">
+                    </div>
+                    <button onclick="buildReadme()" style="width:100%;">README yarat</button>
+                    <div class="demo-result" id="resultReadme"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Docstring Yozuvchi</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom: 12px; color: var(--dark);">
+                        Funksiya ma'lumotini kiriting va to'g'ri shakllangan docstring oling:
+                    </p>
+                    <div class="demo-input">
+                        <input type="text" id="dsFn" placeholder="funksiya nomi" value="yuza">
+                        <input type="text" id="dsParams" placeholder="parametrlar (vergul bilan)" value="eni, boyi">
+                    </div>
+                    <div class="demo-input">
+                        <input type="text" id="dsTask" placeholder="funksiya nima qiladi" value="To'rtburchak yuzasini hisoblaydi">
+                    </div>
+                    <button onclick="buildDocstring()" style="width:100%;">Docstring yarat</button>
+                    <div class="demo-result" id="resultDoc"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Docstring — <span class="highlight-var">"""..."""</span> ichida, funksiya/klass/modul birinchi qatorida<br>
+                    • <span class="highlight-var">help()</span> docstringni o'qib ko'rsatadi<br>
+                    • Comment NEGA ni tushuntiradi, NIMA ni emas<br>
+                    • <span class="highlight-var">README.md</span> loyiha haqida birinchi ma'lumot beradi<br>
+                    • Toza tuzilma: docstring → importlar → konstantalar → funksiyalar
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Funksiya yozing</strong>
+                            <p>Ikki sonni qo'shadigan kichik funksiya yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Docstring qo'shing</strong>
+                            <p>Funksiya birinchi qatoriga """...""" izohini yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>help() bilan o'qing</strong>
+                            <p>help(funksiya) chaqirib, docstring chiqishini tekshiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>README yozing</strong>
+                            <p>Loyihangiz uchun nomi, tavsifi va ishlatish bo'limlari bilan README.md tuzing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 113: Best Practices (Yaxshi Amaliyotlar)</p>
+                    <p style="opacity: 0.9;">
+                        Endi kodingizni hujjatlashni bilasiz!<br>
+                        Keyingi darsda toza va sifatli kod yozish qoidalarini o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoHelp() {
+            const fn = document.getElementById('docFn').value || "funksiya";
+            const doc = document.getElementById('docText').value || "(docstring yo'q)";
+            const result = document.getElementById('resultHelp');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> help(${fn})\n` +
+                `\n` +
+                `Help on function ${fn}:\n` +
+                `\n` +
+                `${fn}(...)\n` +
+                `    ${doc}`;
+        }
+
+        function demoDoc() {
+            const fn = document.getElementById('docFn').value || "funksiya";
+            const doc = document.getElementById('docText').value || "None";
+            const result = document.getElementById('resultHelp');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> print(${fn}.__doc__)\n` +
+                `${doc}`;
+        }
+
+        function checkComment(kind) {
+            const result = document.getElementById('resultComment');
+            result.classList.add('show');
+            if (kind === 'bad') {
+                result.innerHTML =
+                    `✗ YOMON izoh\n` +
+                    `Bu izoh kodning aynan o'zini takrorlaydi.\n` +
+                    `"x = 0" allaqachon "x nol" ekanini ko'rsatib turibdi.`;
+            } else if (kind === 'good') {
+                result.innerHTML =
+                    `✓ YAXSHI izoh\n` +
+                    `Bu izoh kelajakdagi niyatni tushuntiradi.\n` +
+                    `Kodda ko'rinmaydigan ma'lumot beradi.`;
+            } else {
+                result.innerHTML =
+                    `✓ YAXSHI izoh\n` +
+                    `Bu izoh raqamning sababini tushuntiradi.\n` +
+                    `Nega aynan 12% ekanini izohlaydi.`;
+            }
+        }
+
+        function buildReadme() {
+            const name = document.getElementById('rmName').value || "Loyiha";
+            const desc = document.getElementById('rmDesc').value || "Loyiha tavsifi";
+            const run = document.getElementById('rmRun').value || "python main.py";
+            const result = document.getElementById('resultReadme');
+            result.classList.add('show');
+            result.innerHTML =
+                `# ${name}\n` +
+                `\n` +
+                `${desc}\n` +
+                `\n` +
+                `## O'rnatish\n` +
+                `git clone ...\n` +
+                `\n` +
+                `## Foydalanish\n` +
+                `${run}\n` +
+                `\n` +
+                `## Muallif\n` +
+                `Sizning ismingiz`;
+        }
+
+        function buildDocstring() {
+            const fn = document.getElementById('dsFn').value || "funksiya";
+            const params = document.getElementById('dsParams').value || "";
+            const task = document.getElementById('dsTask').value || "Funksiya vazifasi";
+            const result = document.getElementById('resultDoc');
+            result.classList.add('show');
+            let lines =
+                `def ${fn}(${params}):\n` +
+                `    """${task}.\n`;
+            const plist = params.split(',').map(p => p.trim()).filter(p => p.length > 0);
+            if (plist.length > 0) {
+                lines += `\n`;
+                plist.forEach(p => {
+                    lines += `    ${p}: tavsif\n`;
+                });
+            }
+            lines += `    Natija: tavsif\n`;
+            lines += `    """\n`;
+            lines += `    ...`;
+            result.innerHTML = lines;
+        }
+    </script>
+</body>
+</html>

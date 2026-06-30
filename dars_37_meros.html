@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 37: Meros (Inheritance)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* MEROS DIAGRAMMASI */
+        .tree { text-align: center; margin: 20px 0; }
+        .tree-node {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 6px;
+            box-shadow: 0 4px 10px rgba(16,185,129,0.25);
+        }
+        .tree-node.child {
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 2px solid var(--primary);
+        }
+        .tree-arrow { font-size: 1.6em; color: var(--primary); margin: 4px 0; }
+        .tree-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_36_str_repr.html">← Oldingi</a>
+        <span class="nav-center">Modul 7 — OOP (Obyektga asoslangan dasturlash) · Dars 37 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_38_polimorfizm.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Meros (Inheritance)</h1>
+                <p>Modul 7 — OOP (Obyektga asoslangan dasturlash) | Dars 37</p>
+            </header>
+
+            <div class="section">
+                <h2>Meros Nima?</h2>
+                <div class="description">
+                    <strong>Meros</strong> — bu bitta klass o'zining xususiyat va metodlarini boshqa klassga
+                    <strong>uzatishi</strong>. Ya'ni yangi klass eskisidan barcha imkoniyatlarni
+                    <strong>tayyor holda oladi</strong> va ustiga yangilarini qo'shadi.
+                    Buni hayotdan misol bilan tasavvur qiling: bola ota-onadan ko'z rangi,
+                    bo'yi kabi xususiyatlarni meros oladi.
+                </div>
+                <div class="info-box">
+                    <strong>Real analogiya: Hayvon → It / Mushuk</strong>
+                    <p>
+                        Hamma hayvonlar <b>nafas oladi</b> va <b>ovqatlanadi</b>. It ham, Mushuk ham
+                        hayvon — demak ular ham nafas oladi va ovqatlanadi. Bizga buni har bir hayvon uchun
+                        qaytadan yozish shart emas — <b>Hayvon</b> klassida bir marta yozamiz, It va Mushuk esa
+                        undan <b>meros oladi</b>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Ota Klass va Bola Klass</h2>
+                <div class="description">
+                    Xususiyatlarni <strong>beruvchi</strong> klass — <span class="highlight-var">ota klass</span>
+                    (parent / asosiy klass). Xususiyatlarni <strong>oluvchi</strong> klass —
+                    <span class="highlight-var">bola klass</span> (child / voris klass).
+                </div>
+                <div class="tree">
+                    <div class="tree-node">Kishi (ota klass)</div>
+                    <div class="tree-arrow">↓</div>
+                    <div class="tree-row">
+                        <div class="tree-node child">Talaba (bola klass)</div>
+                        <div class="tree-node child">O'qituvchi (bola klass)</div>
+                    </div>
+                </div>
+                <p style="color: var(--gray); text-align:center;">
+                    Talaba va O'qituvchi — ikkalasi ham Kishi. Demak ular Kishi klassidan meros oladi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sintaksis: class Talaba(Kishi)</h2>
+                <div class="description">
+                    Bola klass nomidan keyin qavs ichida <strong>ota klass nomi</strong> yoziladi:
+                    <span class="highlight-var">class Bola(Ota):</span>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Kishi</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">salomlash</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(<span class="string">"Salom, men"</span>, self.ism)<br>
+                        <br>
+                        <span class="keyword">class</span> <span class="function">Talaba</span>(<span class="function">Kishi</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">pass</span>
+                    </div>
+                    <div class="comment-part">
+                        # Talaba klassi Kishi'dan meros oladi.<br>
+                        # pass = "hozircha yangi narsa qo'shma".<br>
+                        # Lekin salomlash() metodi allaqachon ishlaydi!
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        t <span class="operator">=</span> <span class="function">Talaba</span>(<span class="string">"Ali"</span>)<br>
+                        t.<span class="function">salomlash</span>()
+                    </div>
+                    <div class="comment-part">
+                        # salomlash() Talaba'da yozilmagan,<br>
+                        # lekin Kishi'dan meros olingan.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom, men Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>super() — Ota Klass __init__ ni Chaqirish</h2>
+                <div class="description">
+                    Agar bola klassga <strong>yangi xususiyat</strong> qo'shmoqchi bo'lsak, o'z
+                    <span class="highlight-var">__init__</span> ini yozamiz. Lekin otaning xususiyatlari ham
+                    kerak. <span class="highlight-var">super().__init__()</span> — bu ota klassning
+                    <span class="highlight-var">__init__</span> ini chaqiradi va eski ishni takrorlamaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>(<span class="function">Kishi</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism, guruh):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">super</span>().<span class="function">__init__</span>(ism)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.guruh <span class="operator">=</span> guruh
+                    </div>
+                    <div class="comment-part">
+                        # super().__init__(ism) → Kishi self.ism ni o'rnatadi.<br>
+                        # Keyin biz yangi self.guruh ni qo'shamiz.
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        t <span class="operator">=</span> <span class="function">Talaba</span>(<span class="string">"Vali"</span>, <span class="string">"IT-21"</span>)<br>
+                        <span class="keyword">print</span>(t.ism, t.guruh)
+                    </div>
+                    <div class="comment-part">
+                        # ism — ota klassdan, guruh — bola klassdan.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Vali IT-21
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Metodni Qayta Ta'riflash (Override)</h2>
+                <div class="description">
+                    <strong>Override</strong> — bola klass otadan olgan metodni
+                    <strong>o'ziga moslab qaytadan yozishi</strong>. Bola klassda bir xil nomli metod bo'lsa,
+                    otaning metodi o'rniga <b>bolaning metodi</b> ishlaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Hayvon</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">ovoz</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(<span class="string">"Qandaydir ovoz"</span>)<br>
+                        <br>
+                        <span class="keyword">class</span> <span class="function">It</span>(<span class="function">Hayvon</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">ovoz</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(<span class="string">"Vov-vov!"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # It klassi ovoz() ni qayta ta'rifladi (override).<br>
+                        # Endi It uchun otaning ovoz() i emas, o'ziniki ishlaydi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Hayvon().ovoz()  →  Qandaydir ovoz<br>
+                    >>> It().ovoz()      →  Vov-vov!
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Meros Nega Kodni Qisqartiradi (DRY)</h2>
+                <div class="description">
+                    <strong>DRY</strong> = <i>Don't Repeat Yourself</i> ("O'zingni takrorlama").
+                    Bir xil kodni qayta-qayta yozish o'rniga, umumiy qismni
+                    <b>ota klassda bir marta</b> yozamiz, bolalar esa undan meros oladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Merossiz</th><th>Meros bilan</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Har klassda ism, yosh, salomlash() qayta yoziladi</td><td>Faqat Kishi'da bir marta yoziladi</td></tr>
+                        <tr><td>Xato topish qiyin — kod ko'p joyda</td><td>Bir joyni tuzatsang, hammasiga ta'sir qiladi</td></tr>
+                        <tr><td>Kod uzun va takroriy</td><td>Kod qisqa va toza</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">class Bola(Ota):</span> — meros sintaksisi<br>
+                    • Bola otaning barcha metod va xususiyatlarini oladi<br>
+                    • <span class="highlight-var">super().__init__()</span> — otaning __init__ ini chaqiradi<br>
+                    • Override — bola metodni qaytadan yozsa, o'ziniki ishlaydi<br>
+                    • Meros kodni qisqartiradi (DRY)
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Meros Olingan Metod</h2>
+                <div class="description">
+                    Kishi klassida <span class="highlight-var">salomlash()</span> bor. Talaba undan meros oladi —
+                    o'zida yozmasa ham ishlaydi. Ismni kiriting va ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="ism1" placeholder="Ism" value="Ali">
+                        <button onclick="demoInherit()">salomlash()</button>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Override — Bola Metodni O'zgartiradi</h2>
+                <div class="description">
+                    Hayvon turini tanlang. Har bir bola klass <span class="highlight-var">ovoz()</span> metodini
+                    o'ziga moslab qayta ta'riflagan (override).
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="hayvon2" style="flex:1;">
+                            <option value="Hayvon">Hayvon (ota klass)</option>
+                            <option value="It">It (bola klass)</option>
+                            <option value="Mushuk">Mushuk (bola klass)</option>
+                            <option value="Sigir">Sigir (bola klass)</option>
+                        </select>
+                        <button onclick="demoOverride()">ovoz()</button>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: super() Qadamma-Qadam</h2>
+                <div class="description">
+                    Talaba yaratganda <span class="highlight-var">super().__init__(ism)</span> qanday ishlashini
+                    qadamlab kuzating. Ism va guruhni kiriting.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="ism3" placeholder="Ism" value="Vali">
+                        <input type="text" id="guruh3" placeholder="Guruh" value="IT-21" style="min-width:90px;">
+                        <button onclick="demoSuper()">Ishga tushir</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ota klass yarating</strong>
+                            <p>class Kishi: yozing, __init__ da self.ism o'rnating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Bola klass yarating</strong>
+                            <p>class Talaba(Kishi): yozib, Kishi'dan meros oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>super() ishlating</strong>
+                            <p>Talaba __init__ ida super().__init__(ism) chaqiring va self.guruh qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Metodni override qiling</strong>
+                            <p>Talaba'da salomlash() ni qayta yozib, guruhni ham chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 38: Polimorfizm</p>
+                    <p style="opacity: 0.9;">
+                        Merosni o'rgandingiz!<br>
+                        Endi bir metod turli klasslarda turlicha ishlashini — polimorfizmni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoInherit() {
+            const ism = document.getElementById('ism1').value || "Ali";
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> t = Talaba("${ism}")<br>` +
+                `>>> t.salomlash()   # Kishi'dan meros<br>` +
+                `>>> Salom, men ${ism}`;
+        }
+
+        function demoOverride() {
+            const tur = document.getElementById('hayvon2').value;
+            const ovozlar = {
+                "Hayvon": "Qandaydir ovoz",
+                "It": "Vov-vov!",
+                "Mushuk": "Miyov!",
+                "Sigir": "Mu-uu!"
+            };
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            const izoh = tur === "Hayvon"
+                ? "# ota klassning o'z metodi"
+                : "# override qilingan bola metodi";
+            result.innerHTML =
+                `>>> h = ${tur}()<br>` +
+                `>>> h.ovoz()   ${izoh}<br>` +
+                `>>> ${ovozlar[tur]}`;
+        }
+
+        function demoSuper() {
+            const ism = document.getElementById('ism3').value || "Vali";
+            const guruh = document.getElementById('guruh3').value || "IT-21";
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> t = Talaba("${ism}", "${guruh}")<br>` +
+                `1) Talaba.__init__ chaqirildi<br>` +
+                `2) super().__init__("${ism}") → Kishi self.ism = "${ism}"<br>` +
+                `3) self.guruh = "${guruh}" qo'shildi<br>` +
+                `>>> print(t.ism, t.guruh)<br>` +
+                `>>> ${ism} ${guruh}`;
+        }
+    </script>
+</body>
+</html>

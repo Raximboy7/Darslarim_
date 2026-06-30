@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 124: NumPy — Array Asoslari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ARRAY VISUALIZER */
+        .arr-viz { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+        .cell-wrap { text-align: center; }
+        .arr-cell {
+            min-width: 46px; height: 44px; padding: 0 8px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #34d399;
+            border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 1.05em;
+            border: 2px solid var(--primary);
+        }
+        .arr-idx { font-size: 0.72em; color: var(--gray); margin-top: 4px; font-family: monospace; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_123_gui_proyekt.html">← Oldingi</a>
+        <span class="nav-center">Modul 19 — NumPy va Pandas · Dars 124 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_125_numpy_amallar.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>NumPy — Array Asoslari</h1>
+                <p>Modul 19 — NumPy va Pandas | Dars 124</p>
+            </header>
+
+            <div class="section">
+                <h2>NumPy Nima?</h2>
+                <div class="description">
+                    <strong>NumPy</strong> (Numerical Python) — bu Python uchun raqamli hisoblar
+                    kutubxonasi. Uning yuragida <span class="highlight-var">array</span> (massiv)
+                    deb ataladigan maxsus ma'lumotlar turi yotadi. Array oddiy list'ga o'xshaydi,
+                    lekin u <strong>juda tez</strong> ishlaydi va minglab raqamlar ustida bir
+                    vaqtda amal bajara oladi.
+                </div>
+                <div class="description">
+                    NumPy ilm-fan, sun'iy intellekt, ma'lumotlar tahlili va muhandislik
+                    hisoblarining asosidir. Pandas, scikit-learn, TensorFlow kabi mashhur
+                    kutubxonalar ham ichida NumPy'dan foydalanadi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>O'rnatish va Import</h2>
+                <div class="description">
+                    NumPy Python bilan birga kelmaydi — uni alohida o'rnatish lozim.
+                    Terminalda quyidagi buyruqni yozing:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        pip install numpy
+                    </div>
+                    <div class="comment-part">
+                        # Terminalda yoziladi (bir marta o'rnatiladi)
+                    </div>
+                </div>
+                <div class="description">
+                    Dasturda esa uni import qilamiz. An'anaga ko'ra NumPy doim
+                    <span class="highlight-var">np</span> qisqartmasi bilan import qilinadi:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> numpy <span class="keyword">as</span> np
+                    </div>
+                    <div class="comment-part">
+                        # Endi numpy o'rniga qisqacha np yozamiz
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Array Yaratish</h2>
+                <div class="description">
+                    Eng oddiy usul — oddiy list'ni <span class="highlight-var">np.array()</span>
+                    ichiga berish:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br>
+                        <br>
+                        a = np.<span class="function">array</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])<br>
+                        <span class="function">print</span>(a)<br>
+                        <span class="function">print</span>(<span class="function">type</span>(a))
+                    </div>
+                    <div class="comment-part">
+                        # List'dan array yasadik
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1 2 3 4]<br>
+                    >>> &lt;class 'numpy.ndarray'&gt;
+                </div>
+                <div class="description">
+                    E'tibor bering: array chop etilganda elementlar orasida vergul
+                    <strong>bo'lmaydi</strong> — faqat bo'sh joy bor. Uning turi esa
+                    <span class="highlight-var">ndarray</span> (n-o'lchovli array).
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>List vs Array — Asosiy Farq</h2>
+                <div class="description">
+                    Tashqaridan o'xshasa-da, list va array ichida juda farq qiladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>List</th><th>NumPy Array</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tezlik</td><td>Sekinroq</td><td>Juda tez</td></tr>
+                        <tr><td>Element turi</td><td>Aralash bo'lishi mumkin</td><td>Bir xil tur (masalan, hammasi son)</td></tr>
+                        <tr><td>Matematik amal</td><td>Qo'lda sikl kerak</td><td>Butun arrayga birdan</td></tr>
+                        <tr><td>Xotira</td><td>Ko'proq</td><td>Kamroq, ixcham</td></tr>
+                    </tbody>
+                </table>
+                <div class="description">
+                    Eng kuchli farq — matematik amal. List'ni 2 ga ko'paytirsangiz u
+                    <strong>cho'ziladi</strong>, array esa <strong>har bir elementni</strong>
+                    2 ga ko'paytiradi:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ro'yxat = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]<br>
+                        massiv = np.<span class="function">array</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])<br>
+                        <br>
+                        <span class="function">print</span>(ro'yxat <span class="operator">*</span> <span class="number">2</span>)<br>
+                        <span class="function">print</span>(massiv <span class="operator">*</span> <span class="number">2</span>)
+                    </div>
+                    <div class="comment-part">
+                        # List cho'ziladi, array elementlari ko'payadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1, 2, 3, 1, 2, 3]<br>
+                    >>> [2 4 6]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Array Xususiyatlari</h2>
+                <div class="description">
+                    Har bir array o'zi haqida ma'lumot beradi. Bular metod emas —
+                    qavssiz yoziladigan <strong>atributlar</strong>:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Atribut</th><th>Vazifasi</th><th>Misol natija</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>.shape</code></td><td>Shakli (qator, ustun)</td><td>(2, 3)</td></tr>
+                        <tr><td><code>.ndim</code></td><td>O'lchamlar soni</td><td>2</td></tr>
+                        <tr><td><code>.size</code></td><td>Jami elementlar soni</td><td>6</td></tr>
+                        <tr><td><code>.dtype</code></td><td>Elementlar turi</td><td>int64</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        m = np.<span class="function">array</span>([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]])<br>
+                        <br>
+                        <span class="function">print</span>(m.shape)<br>
+                        <span class="function">print</span>(m.ndim)<br>
+                        <span class="function">print</span>(m.size)<br>
+                        <span class="function">print</span>(m.dtype)
+                    </div>
+                    <div class="comment-part">
+                        # 2 qator, 3 ustunli array haqida ma'lumot
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> (2, 3)<br>
+                    >>> 2<br>
+                    >>> 6<br>
+                    >>> int64
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Tayyor Array'lar Yaratish</h2>
+                <div class="description">
+                    NumPy'da array'ni qo'lda yozmasdan, tez yaratuvchi funksiyalar bor:
+                </div>
+                <h3>np.zeros() — nollardan array</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(np.<span class="function">zeros</span>(<span class="number">4</span>))
+                    </div>
+                    <div class="comment-part">
+                        # 4 ta noldan iborat array
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [0. 0. 0. 0.]
+                </div>
+
+                <h3>np.ones() — birlardan array</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(np.<span class="function">ones</span>(<span class="number">3</span>))
+                    </div>
+                    <div class="comment-part">
+                        # 3 ta birdan iborat array
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1. 1. 1.]
+                </div>
+
+                <h3>np.arange() — oraliqdagi sonlar</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(np.<span class="function">arange</span>(<span class="number">0</span>, <span class="number">10</span>, <span class="number">2</span>))
+                    </div>
+                    <div class="comment-part">
+                        # 0 dan 10 gacha, 2 qadam bilan (10 kirmaydi)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [0 2 4 6 8]
+                </div>
+
+                <h3>np.linspace() — teng bo'lingan sonlar</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(np.<span class="function">linspace</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">5</span>))
+                    </div>
+                    <div class="comment-part">
+                        # 0 dan 1 gacha teng 5 ta son (chetlari kiradi)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [0.   0.25 0.5  0.75 1.  ]
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Import: <span class="highlight-var">import numpy as np</span><br>
+                    • Array yaratish: <span class="highlight-var">np.array([1, 2, 3])</span><br>
+                    • Array tez ishlaydi va elementlari <strong>bir xil tur</strong> bo'ladi<br>
+                    • <span class="highlight-var">.shape</span>, <span class="highlight-var">.dtype</span>, <span class="highlight-var">.ndim</span>, <span class="highlight-var">.size</span> — atributlar (qavssiz)<br>
+                    • <span class="highlight-var">zeros</span>, <span class="highlight-var">ones</span>, <span class="highlight-var">arange</span>, <span class="highlight-var">linspace</span> — tez yaratuvchilar
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: List vs Array</h2>
+                <div class="description">
+                    Quyida list va array bir xil amalga qanday turlicha javob berishini ko'ring.
+                    Sonni va ko'paytuvchini kiriting:
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="cmpVals" placeholder="sonlar (vergul bilan)" value="1, 2, 3">
+                        <input type="number" id="cmpMul" placeholder="ko'paytuvchi" value="2" style="min-width:90px;">
+                        <button onclick="demoCompare()">Solishtir</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Array Yaratish Usullari</h2>
+                <div class="description">
+                    Tugmani bosing — har bir funksiya qanday array yaratishini ko'ring:
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="makeN" placeholder="n" value="5" style="min-width:90px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoMake('zeros')">zeros(n)</button>
+                        <button onclick="demoMake('ones')">ones(n)</button>
+                        <button onclick="demoMake('arange')">arange(n)</button>
+                        <button onclick="demoMake('linspace')">linspace(0,1,n)</button>
+                    </div>
+                    <div class="arr-viz" id="makeViz"></div>
+                    <div class="demo-result" id="resultMake"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Array Xususiyatlari (shape, dtype)</h2>
+                <div class="description">
+                    Sonlarni kiriting — array'ning shape, dtype, ndim va size atributlarini
+                    hisoblab beramiz:
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="propVals" placeholder="sonlar (vergul bilan)" value="10, 20, 30, 40">
+                        <button onclick="demoProps()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultProps"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>NumPy'ni import qiling</strong>
+                            <p>import numpy as np yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Array yarating</strong>
+                            <p>np.array([5, 10, 15, 20]) bilan massiv yasang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Atributlarni chiqaring</strong>
+                            <p>.shape, .dtype va .size ni print() bilan ko'ring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Tez yaratuvchini sinab ko'ring</strong>
+                            <p>np.arange(0, 20, 5) natijasini chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 125: NumPy — Array Amallari</p>
+                    <p style="opacity: 0.9;">
+                        Array yaratishni o'rgandingiz!<br>
+                        Endi array'lar ustida matematik amallar bajarishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseNums(str) {
+            return str.split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '')
+                .map(Number)
+                .filter(n => !isNaN(n));
+        }
+
+        function demoCompare() {
+            const nums = parseNums(document.getElementById('cmpVals').value);
+            let mul = parseInt(document.getElementById('cmpMul').value);
+            if (isNaN(mul)) mul = 2;
+            const listOut = [];
+            for (let k = 0; k < mul; k++) listOut.push(...nums);
+            const arrOut = nums.map(n => n * mul);
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> ro'yxat = [${nums.join(', ')}]<br>` +
+                `>>> massiv = np.array([${nums.join(', ')}])<br>` +
+                `>>> ro'yxat * ${mul}  ->  [${listOut.join(', ')}]<br>` +
+                `>>> massiv * ${mul}  ->  [${arrOut.join(' ')}]`;
+        }
+
+        function demoMake(kind) {
+            let n = parseInt(document.getElementById('makeN').value);
+            if (isNaN(n) || n < 1) n = 5;
+            if (n > 12) n = 12;
+            let arr = [];
+            let code = '';
+            if (kind === 'zeros') {
+                arr = Array(n).fill('0.');
+                code = `np.zeros(${n})`;
+            } else if (kind === 'ones') {
+                arr = Array(n).fill('1.');
+                code = `np.ones(${n})`;
+            } else if (kind === 'arange') {
+                for (let i = 0; i < n; i++) arr.push(String(i));
+                code = `np.arange(${n})`;
+            } else if (kind === 'linspace') {
+                for (let i = 0; i < n; i++) {
+                    arr.push((n === 1 ? 0 : i / (n - 1)).toFixed(2));
+                }
+                code = `np.linspace(0, 1, ${n})`;
+            }
+            const box = document.getElementById('makeViz');
+            box.innerHTML = '';
+            arr.forEach((v, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'cell-wrap';
+                wrap.innerHTML = `<div class="arr-cell">${v}</div><div class="arr-idx">${i}</div>`;
+                box.appendChild(wrap);
+            });
+            const result = document.getElementById('resultMake');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${code}<br>>>> [${arr.join(' ')}]`;
+        }
+
+        function demoProps() {
+            const nums = parseNums(document.getElementById('propVals').value);
+            const result = document.getElementById('resultProps');
+            result.classList.add('show');
+            if (nums.length === 0) {
+                result.innerHTML = ">>> Iltimos, kamida bitta son kiriting!";
+                return;
+            }
+            const allInt = nums.every(n => Number.isInteger(n));
+            const dtype = allInt ? 'int64' : 'float64';
+            result.innerHTML =
+                `>>> a = np.array([${nums.join(', ')}])<br>` +
+                `>>> a.shape  ->  (${nums.length},)<br>` +
+                `>>> a.ndim   ->  1<br>` +
+                `>>> a.size   ->  ${nums.length}<br>` +
+                `>>> a.dtype  ->  ${dtype}`;
+        }
+
+        // dastlabki ko'rinish
+        demoMake('arange');
+    </script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 149: View va URL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FLOW VISUALIZER */
+        .flow-viz { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 15px 0; justify-content: center; }
+        .flow-node {
+            background: #1f2937; color: #d4d4d4;
+            border: 2px solid transparent;
+            border-radius: 10px; padding: 12px 16px;
+            font-family: monospace; font-size: 0.9em; text-align: center;
+            transition: all 0.4s ease; min-width: 110px;
+        }
+        .flow-node small { display: block; color: var(--gray); font-size: 0.78em; margin-top: 4px; }
+        .flow-node.lit { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .flow-node.lit small { color: rgba(255,255,255,0.85); }
+        .flow-arrow { color: var(--primary); font-size: 1.4em; font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #9ca3af; cursor: not-allowed; pointer-events: none; opacity: 0.6; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_148_django_model.html">← Oldingi</a>
+        <span class="nav-center">Modul 21 — Django · Dars 149 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_150_django_template.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>View va URL</h1>
+                <p>Modul 21 — Django | Dars 149</p>
+            </header>
+
+            <div class="section">
+                <h2>View Nima?</h2>
+                <div class="description">
+                    <strong>View</strong> — bu foydalanuvchi so'roviga (request) <strong>javob qaytaruvchi funksiya</strong>.
+                    Brauzer biror manzilga (URL) kirsa, Django o'sha manzilga bog'langan view funksiyasini chaqiradi.
+                    View ishini bajaradi va <span class="highlight-var">javob (response)</span> qaytaradi —
+                    brauzer shu javobni ekranga ko'rsatadi.
+                </div>
+                <div class="info-box">
+                    <strong>Sodda qilib aytganda</strong>
+                    <p>View = "agar shu manzilga kirilsa, mana shu javobni ber" degan ko'rsatma.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Function-Based View (FBV)</h2>
+                <div class="description">
+                    Eng oddiy view — bu oddiy Python funksiyasi. U doim birinchi argument sifatida
+                    <span class="highlight-var">request</span> ni qabul qiladi va javob qaytaradi.
+                    Bunday view <strong>function-based view</strong> (funksiyaga asoslangan view) deyiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># views.py</span><br>
+                        <span class="keyword">from</span> django.http <span class="keyword">import</span> HttpResponse<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">home</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">HttpResponse</span>(<span class="string">"Salom, dunyo!"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # request — so'rov; HttpResponse — oddiy matnli javob
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Brauzerda: Salom, dunyo!
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>HttpResponse va render()</h2>
+                <div class="description">
+                    <span class="highlight-var">HttpResponse</span> — to'g'ridan-to'g'ri matn qaytaradi.
+                    <span class="highlight-var">render()</span> esa HTML shabloni (template) ni va ma'lumotlarni
+                    birlashtirib chiroyli sahifa qaytaradi. Aksariyat hollarda biz <strong>render()</strong> dan foydalanamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">salom</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ism = <span class="string">"Ali"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">render</span>(request, <span class="string">"salom.html"</span>, {<span class="string">"ism"</span>: ism})
+                    </div>
+                    <div class="comment-part">
+                        # render(request, shablon nomi, ma'lumotlar lug'ati)
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Vosita</th><th>Vazifasi</th><th>Qachon</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>HttpResponse()</code></td><td>Oddiy matn qaytaradi</td><td>Tez sinash, oddiy javob</td></tr>
+                        <tr><td><code>render()</code></td><td>HTML shablon + ma'lumot</td><td>Haqiqiy sahifalar uchun</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>URL Routing — urls.py</h2>
+                <div class="description">
+                    Django qaysi manzilga qaysi view bog'langanini <span class="highlight-var">urls.py</span>
+                    faylidagi <span class="highlight-var">urlpatterns</span> ro'yxatidan biladi.
+                    Har bir manzil <span class="highlight-var">path()</span> orqali bitta view ga ulanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># urls.py</span><br>
+                        <span class="keyword">from</span> django.urls <span class="keyword">import</span> path<br>
+                        <span class="keyword">from</span> . <span class="keyword">import</span> views<br>
+                        <br>
+                        urlpatterns = [<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">path</span>(<span class="string">""</span>, views.home),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">path</span>(<span class="string">"salom/"</span>, views.salom),<br>
+                        ]
+                    </div>
+                    <div class="comment-part">
+                        # path(manzil, view) — "" bo'sh manzil bosh sahifa
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>URL → view bog'lanishi</strong>
+                    <p>
+                        Brauzer <span class="highlight-var">/salom/</span> ga kirsa → Django urlpatterns ni qatorma-qator tekshiradi →
+                        moslik topgan <span class="highlight-var">views.salom</span> ni chaqiradi → javob qaytadi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>URL Parametrlar</h2>
+                <div class="description">
+                    Manzil ichida o'zgaruvchi qism bo'lishi mumkin. Masalan har bir foydalanuvchi uchun
+                    <span class="highlight-var">/user/1/</span>, <span class="highlight-var">/user/2/</span> ...
+                    Buni <span class="highlight-var">&lt;int:id&gt;</span> ko'rinishida yozamiz va view ga argument bo'lib uzatiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># urls.py</span><br>
+                        <span class="function">path</span>(<span class="string">"user/&lt;int:id&gt;/"</span>, views.profil),<br>
+                        <br>
+                        <span class="comment"># views.py</span><br>
+                        <span class="keyword">def</span> <span class="function">profil</span>(request, id):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">HttpResponse</span>(<span class="string">f"Foydalanuvchi: {id}"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # &lt;int:id&gt; — manzildagi raqam id nomli argumentga tushadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> /user/5/  →  Foydalanuvchi: 5
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Pattern</th><th>Turi</th><th>Mosligi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>&lt;int:id&gt;</code></td><td>Butun son</td><td>/user/7/</td></tr>
+                        <tr><td><code>&lt;str:nom&gt;</code></td><td>Matn</td><td>/user/ali/</td></tr>
+                        <tr><td><code>&lt;slug:s&gt;</code></td><td>slug (matn-raqam)</td><td>/post/yangi-maqola/</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • View — <span class="highlight-var">request</span> oladi, javob qaytaradi<br>
+                    • <span class="highlight-var">HttpResponse</span> — matn, <span class="highlight-var">render()</span> — HTML shablon<br>
+                    • <span class="highlight-var">urls.py</span> manzilni view ga bog'laydi (<span class="highlight-var">path()</span>)<br>
+                    • <span class="highlight-var">&lt;int:id&gt;</span> — manzildan parametr olish
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: URL → View → Javob Oqimi</h2>
+                <div class="description">
+                    Manzilni tanlang va so'rovni "yuboring". Django uni qanday qayta ishlashini qadamma-qadam ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="runFlow('')">/</button>
+                        <button onclick="runFlow('salom/')">/salom/</button>
+                        <button onclick="runFlow('user/5/')">/user/5/</button>
+                    </div>
+                    <div class="flow-viz" id="flowViz">
+                        <div class="flow-node" id="fn-0">Brauzer<small>so'rov yuboradi</small></div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-node" id="fn-1">urls.py<small>moslik qidiradi</small></div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-node" id="fn-2">views.py<small>view ishlaydi</small></div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-node" id="fn-3">Javob<small>ekranga chiqadi</small></div>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: URL Pattern Mosligi</h2>
+                <div class="description">
+                    Manzil yozing va u qaysi <span class="highlight-var">path()</span> ga mos kelishini tekshiring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="matchUrl" placeholder="masalan: salom/  yoki  user/5/" value="user/12/">
+                        <button onclick="demoMatch()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultMatch"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: URL Parametr Olish</h2>
+                <div class="description">
+                    <span class="highlight-var">path("user/&lt;int:id&gt;/")</span> manziliga raqam kiriting —
+                    Django uni view ga <span class="highlight-var">id</span> argument qilib uzatadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="paramId" placeholder="id raqami" value="7" style="min-width:90px;">
+                        <button onclick="demoParam()">So'rov yubor</button>
+                    </div>
+                    <div class="demo-result" id="resultParam"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>view yarating</strong>
+                            <p>views.py da home(request) funksiyasi yozing va HttpResponse qaytaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>URL ga bog'lang</strong>
+                            <p>urls.py da path("", views.home) qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Parametrli view qo'shing</strong>
+                            <p>path("user/&lt;int:id&gt;/", views.profil) va profil(request, id) yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Brauzerda sinab ko'ring</strong>
+                            <p>runserver ishga tushiring va /user/1/ manziliga kiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 150: Django Template</p>
+                    <p style="opacity: 0.9;">
+                        View va URL ni o'rgandingiz!<br>
+                        Endi javobni chiroyli HTML shabloni bilan ko'rsatishni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const routes = [
+            { pattern: '', view: 'home', param: false },
+            { pattern: 'salom/', view: 'salom', param: false },
+            { pattern: 'user/<int:id>/', view: 'profil', param: true }
+        ];
+
+        function matchRoute(url) {
+            // bosh "/" ni olib tashlash
+            url = url.replace(/^\//, '');
+            for (const r of routes) {
+                if (!r.param) {
+                    if (url === r.pattern) return { route: r, id: null };
+                } else {
+                    const m = url.match(/^user\/(\d+)\/$/);
+                    if (m) return { route: r, id: m[1] };
+                }
+            }
+            return null;
+        }
+
+        function runFlow(url) {
+            const nodes = [0, 1, 2, 3].map(i => document.getElementById('fn-' + i));
+            nodes.forEach(n => n.classList.remove('lit'));
+            const result = document.getElementById('resultFlow');
+            const found = matchRoute(url);
+            let response;
+            if (!found) {
+                response = '404 — bunday manzil topilmadi';
+            } else if (found.route.view === 'home') {
+                response = 'Salom, dunyo!';
+            } else if (found.route.view === 'salom') {
+                response = 'Salom, Ali!';
+            } else {
+                response = 'Foydalanuvchi: ' + found.id;
+            }
+            // qadamma-qadam yoritish
+            nodes.forEach((n, i) => {
+                setTimeout(() => n.classList.add('lit'), i * 450);
+            });
+            result.classList.add('show');
+            const viewName = found ? found.route.view : '—';
+            result.innerHTML =
+                '>>> So\'rov: /' + url + '<br>' +
+                '>>> urls.py: ' + (found ? 'moslik topildi (' + found.route.pattern + ')' : 'moslik yo\'q') + '<br>' +
+                '>>> views.py: ' + viewName + '(request' + (found && found.id ? ', id=' + found.id : '') + ')<br>' +
+                '>>> Javob: ' + response;
+        }
+
+        function demoMatch() {
+            const url = document.getElementById('matchUrl').value.trim();
+            const result = document.getElementById('resultMatch');
+            const found = matchRoute(url);
+            result.classList.add('show');
+            if (found) {
+                result.innerHTML =
+                    '>>> path("' + found.route.pattern + '")  ✅ mos keldi<br>' +
+                    '>>> view: ' + found.route.view +
+                    (found.id ? '<br>>>> olingan parametr: id = ' + found.id : '');
+            } else {
+                result.innerHTML =
+                    '>>> "' + url + '" hech bir path() ga mos kelmadi<br>' +
+                    '>>> Django 404 (topilmadi) qaytaradi';
+            }
+        }
+
+        function demoParam() {
+            let id = parseInt(document.getElementById('paramId').value);
+            const result = document.getElementById('resultParam');
+            result.classList.add('show');
+            if (isNaN(id)) {
+                result.innerHTML =
+                    '>>> /user/abc/  ❌<br>' +
+                    '>>> &lt;int:id&gt; faqat raqam qabul qiladi → 404';
+            } else {
+                result.innerHTML =
+                    '>>> So\'rov: /user/' + id + '/<br>' +
+                    '>>> path("user/&lt;int:id&gt;/") → profil(request, id=' + id + ')<br>' +
+                    '>>> Javob: Foydalanuvchi: ' + id;
+            }
+        }
+    </script>
+</body>
+</html>

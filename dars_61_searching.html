@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 61: Qidiruv Algoritmlari (Searching)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* QIDIRUV VIZUALIZATORI */
+        .search-viz { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+        .num-cell { text-align: center; }
+        .num-box {
+            width: 44px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #fbbf24;
+            border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 1.05em;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .num-box.checking { border-color: var(--secondary); background: var(--secondary); color: var(--white); transform: translateY(-4px); }
+        .num-box.found { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .num-box.dropped { opacity: 0.25; }
+        .num-box.mid { border-color: #fbbf24; }
+        .num-idx { font-size: 0.72em; color: var(--gray); margin-top: 4px; font-family: monospace; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_60_sorting.html">← Oldingi</a>
+        <span class="nav-center">Modul 11 — Algoritmlar · Dars 61 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_62_big_o.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Qidiruv Algoritmlari (Searching)</h1>
+                <p>Modul 11 — Algoritmlar | Dars 61</p>
+            </header>
+
+            <div class="section">
+                <h2>Qidiruv Nima?</h2>
+                <div class="description">
+                    <strong>Qidiruv (searching)</strong> — bu ro'yxat (list) ichidan kerakli elementni
+                    topish jarayoni. Masalan, telefon kontaktlaringizdan bitta ismni topish, yoki
+                    sonlar ro'yxatidan <span class="highlight-var">42</span> raqami bor-yo'qligini
+                    aniqlash — bularning hammasi qidiruvdir.
+                </div>
+                <div class="description">
+                    Biz ikkita asosiy qidiruv algoritmini o'rganamiz:
+                    <strong>Linear search</strong> (chiziqli qidiruv) va
+                    <strong>Binary search</strong> (ikkilik qidiruv). Ular bir xil vazifani bajaradi,
+                    lekin tezligi juda farq qiladi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Linear Search (Chiziqli Qidiruv)</h2>
+                <div class="description">
+                    Eng sodda usul: elementlarni <strong>birma-bir, boshidan oxirigacha</strong>
+                    tekshiramiz. Kerakli son topilsa — uning indeksini qaytaramiz. Hech qayerda
+                    bo'lmasa — topilmadi.
+                </div>
+                <div class="info-box">
+                    <strong>Asosiy g'oya</strong>
+                    <p>Har bir elementni navbat bilan ko'rib chiqamiz. Ro'yxat saralanmagan
+                    (tartiblanmagan) bo'lsa ham ishlaydi — bu uning katta afzalligi.</p>
+                </div>
+
+                <h3>Python kodi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">linear_search</span>(royxat, nishon):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="function">len</span>(royxat)):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> royxat[i] <span class="operator">==</span> nishon:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> i<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="operator">-</span><span class="number">1</span><br>
+                        <br>
+                        sonlar = [<span class="number">5</span>, <span class="number">3</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">9</span>]<br>
+                        <span class="function">print</span>(<span class="function">linear_search</span>(sonlar, <span class="number">8</span>))
+                    </div>
+                    <div class="comment-part">
+                        # Birma-bir tekshiramiz<br>
+                        # Topilsa indeksni qaytaramiz<br>
+                        # Topilmasa -1 qaytaramiz<br>
+                        # Natija: 2 (8 raqami 2-indeksda)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 2
+                </div>
+
+                <div class="info-box">
+                    <strong>Tezligi: O(n)</strong>
+                    <p>Eng yomon holatda — kerakli element oxirida bo'lsa yoki umuman bo'lmasa —
+                    <strong>barcha n ta elementni</strong> tekshirishga to'g'ri keladi. Ro'yxat
+                    2 barobar uzaysa, ish ham taxminan 2 barobar ko'payadi.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Binary Search (Ikkilik Qidiruv)</h2>
+                <div class="description">
+                    Ancha aqlli usul. Lekin bitta shart bor:
+                    <strong>ro'yxat oldindan saralangan (tartiblangan) bo'lishi shart!</strong>
+                    Har qadamda ro'yxatning <span class="highlight-var">o'rtasiga</span> qaraymiz va
+                    yarmini butunlay tashlab yuboramiz.
+                </div>
+
+                <h3>Qanday ishlaydi? (qadamma-qadam)</h3>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>O'rtani topamiz</strong>
+                            <p>Ro'yxatning o'rta elementiga qaraymiz.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Taqqoslaymiz</strong>
+                            <p>O'rta element nishonga teng bo'lsa — topdik!</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Yarmini tashlaymiz</strong>
+                            <p>Nishon o'rtadan kichik bo'lsa — chap yarmida qidiramiz; katta bo'lsa — o'ng yarmida.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Takrorlaymiz</strong>
+                            <p>Qolgan yarmida yana o'rtani topib, shu jarayonni davom ettiramiz.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Python kodi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">binary_search</span>(royxat, nishon):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;chap = <span class="number">0</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ong = <span class="function">len</span>(royxat) <span class="operator">-</span> <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span> chap <span class="operator">&lt;=</span> ong:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orta = (chap <span class="operator">+</span> ong) <span class="operator">//</span> <span class="number">2</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> royxat[orta] <span class="operator">==</span> nishon:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> orta<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">elif</span> royxat[orta] <span class="operator">&lt;</span> nishon:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chap = orta <span class="operator">+</span> <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ong = orta <span class="operator">-</span> <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="operator">-</span><span class="number">1</span><br>
+                        <br>
+                        sonlar = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>]<br>
+                        <span class="function">print</span>(<span class="function">binary_search</span>(sonlar, <span class="number">8</span>))
+                    </div>
+                    <div class="comment-part">
+                        # chap va ong chegaralar<br>
+                        # to'xtash sharti<br>
+                        # o'rtani topamiz (butun bo'lish)<br>
+                        # o'rta == nishon bo'lsa topdik<br>
+                        # nishon kattaroq -> o'ng yarmga o'tamiz<br>
+                        # nishon kichikroq -> chap yarmga o'tamiz<br>
+                        # ro'yxat SARALANGAN bo'lishi shart!<br>
+                        # Natija: 3
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 3
+                </div>
+
+                <div class="info-box">
+                    <strong>Tezligi: O(log n)</strong>
+                    <p>Har qadamda ro'yxatning yarmi tashlanadi! 1000 ta elementdan kerakligini topish
+                    uchun atigi ~10 qadam yetadi. 1 million elementdan esa atigi ~20 qadam. Bu juda tez.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Ikkisini Taqqoslash</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>Linear Search</th><th>Binary Search</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tezligi</td><td><code>O(n)</code> sekin</td><td><code>O(log n)</code> tez</td></tr>
+                        <tr><td>Saralash kerakmi?</td><td>Yo'q</td><td>Ha, shart!</td></tr>
+                        <tr><td>Usuli</td><td>Birma-bir tekshirish</td><td>Yarmini tashlab borish</td></tr>
+                        <tr><td>1000 ta element</td><td>~1000 qadam</td><td>~10 qadam</td></tr>
+                        <tr><td>Murakkabligi</td><td>Juda oddiy</td><td>Biroz murakkab</td></tr>
+                        <tr><td>Qachon ishlatiladi</td><td>Kichik yoki tartibsiz ro'yxat</td><td>Katta saralangan ro'yxat</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Muhim eslatma</strong>
+                    <p>Binary search faqat <strong>saralangan ro'yxatda</strong> ishlaydi. Agar ro'yxat
+                    tartibsiz bo'lsa, u noto'g'ri natija beradi! Avval saralash kerak (Dars 60),
+                    yoki linear search ishlating.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Linear Search Vizual</h2>
+                <div class="description">
+                    Pastdagi tugmani bosing — algoritm har bir sonni <strong>birma-bir</strong>
+                    tekshirib boradi. Qancha qadam ketishini sanab boring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="linTarget" placeholder="Qidiriladigan son" value="9">
+                        <button onclick="linearSearchViz()">Linear qidir</button>
+                    </div>
+                    <div class="search-viz" id="linViz"></div>
+                    <div class="demo-result" id="linResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Binary Search Vizual</h2>
+                <div class="description">
+                    Bu yerda ro'yxat <strong>saralangan</strong>. Tugmani bosing — algoritm o'rtani
+                    topib, kerak bo'lmagan yarmini <strong>o'chirib (xira qilib)</strong> tashlaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="binTarget" placeholder="Qidiriladigan son" value="23">
+                        <button onclick="binarySearchViz()">Binary qidir</button>
+                    </div>
+                    <div class="search-viz" id="binViz"></div>
+                    <div class="demo-result" id="binResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Qadamlarni Taqqoslash</h2>
+                <div class="description">
+                    Bitta sonni ikkala algoritm bilan qidiramiz va <strong>kim necha qadamda</strong>
+                    topishini ko'ramiz. Saralangan ro'yxat ustida ishlaymiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="cmpTarget" placeholder="Qidiriladigan son" value="42">
+                        <button onclick="compareSearch()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="cmpResult"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Linear search — birma-bir, har xil ro'yxatda ishlaydi, <span class="highlight-var">O(n)</span><br>
+                    • Binary search — yarmini tashlab boradi, faqat saralanganda, <span class="highlight-var">O(log n)</span><br>
+                    • Topilmasa ikkalasi ham <span class="highlight-var">-1</span> qaytaradi<br>
+                    • Katta saralangan ro'yxat uchun binary search ancha tez
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ro'yxat tayyorlang</strong>
+                            <p>sonlar = [4, 8, 15, 16, 23, 42] ro'yxatini yarating (saralangan)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>linear_search yozing</strong>
+                            <p>23 raqamini birma-bir qidirib, indeksini chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>binary_search yozing</strong>
+                            <p>Xuddi shu 23 raqamini ikkilik qidiruv bilan toping</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Bo'lmagan sonni sinang</strong>
+                            <p>100 ni qidiring — ikkalasi ham -1 qaytarishini tekshiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 62: Big O Notatsiyasi</p>
+                    <p style="opacity: 0.9;">
+                        O(n) va O(log n) ni ko'rdingiz!<br>
+                        Endi algoritm tezligini o'lchashni chuqurroq o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LIN_LIST = [5, 3, 8, 1, 9, 4, 7];
+        const SORTED_LIST = [3, 7, 12, 18, 23, 31, 42, 56, 67, 88];
+
+        function buildViz(boxId, arr) {
+            const box = document.getElementById(boxId);
+            box.innerHTML = '';
+            arr.forEach((val, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'num-cell';
+                cell.innerHTML = `
+                    <div class="num-box" id="${boxId}-${i}">${val}</div>
+                    <div class="num-idx">${i}</div>`;
+                box.appendChild(cell);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function linearSearchViz() {
+            const target = parseInt(document.getElementById('linTarget').value);
+            const arr = LIN_LIST;
+            buildViz('linViz', arr);
+            const result = document.getElementById('linResult');
+            result.classList.add('show');
+            result.innerHTML = '>>> Qidiruv boshlandi...';
+            let steps = 0;
+            let foundIdx = -1;
+            for (let i = 0; i < arr.length; i++) {
+                steps++;
+                const cb = document.getElementById('linViz-' + i);
+                cb.classList.add('checking');
+                await sleep(450);
+                if (arr[i] === target) {
+                    cb.classList.remove('checking');
+                    cb.classList.add('found');
+                    foundIdx = i;
+                    break;
+                }
+                cb.classList.remove('checking');
+                cb.classList.add('dropped');
+            }
+            if (foundIdx !== -1) {
+                result.innerHTML = `>>> ${target} topildi! Indeks = ${foundIdx}<br>>>> Qadamlar soni: ${steps}`;
+            } else {
+                result.innerHTML = `>>> ${target} topilmadi (-1)<br>>>> Qadamlar soni: ${steps}`;
+            }
+        }
+
+        async function binarySearchViz() {
+            const target = parseInt(document.getElementById('binTarget').value);
+            const arr = SORTED_LIST;
+            buildViz('binViz', arr);
+            const result = document.getElementById('binResult');
+            result.classList.add('show');
+            result.innerHTML = '>>> Saralangan ro\'yxatda qidiramiz...';
+            let chap = 0;
+            let ong = arr.length - 1;
+            let steps = 0;
+            let foundIdx = -1;
+            while (chap <= ong) {
+                steps++;
+                const orta = Math.floor((chap + ong) / 2);
+                // tashlanganlarni xira qilamiz
+                for (let i = 0; i < arr.length; i++) {
+                    const cb = document.getElementById('binViz-' + i);
+                    cb.classList.remove('checking', 'mid');
+                    if (i < chap || i > ong) cb.classList.add('dropped');
+                }
+                const midBox = document.getElementById('binViz-' + orta);
+                midBox.classList.add('checking');
+                await sleep(700);
+                if (arr[orta] === target) {
+                    midBox.classList.remove('checking');
+                    midBox.classList.add('found');
+                    foundIdx = orta;
+                    break;
+                } else if (arr[orta] < target) {
+                    midBox.classList.add('dropped');
+                    chap = orta + 1;
+                } else {
+                    midBox.classList.add('dropped');
+                    ong = orta - 1;
+                }
+            }
+            if (foundIdx !== -1) {
+                result.innerHTML = `>>> ${target} topildi! Indeks = ${foundIdx}<br>>>> Qadamlar soni: ${steps}`;
+            } else {
+                result.innerHTML = `>>> ${target} topilmadi (-1)<br>>>> Qadamlar soni: ${steps}`;
+            }
+        }
+
+        function countLinear(arr, target) {
+            let steps = 0;
+            for (let i = 0; i < arr.length; i++) {
+                steps++;
+                if (arr[i] === target) return { idx: i, steps };
+            }
+            return { idx: -1, steps };
+        }
+
+        function countBinary(arr, target) {
+            let chap = 0, ong = arr.length - 1, steps = 0;
+            while (chap <= ong) {
+                steps++;
+                const orta = Math.floor((chap + ong) / 2);
+                if (arr[orta] === target) return { idx: orta, steps };
+                else if (arr[orta] < target) chap = orta + 1;
+                else ong = orta - 1;
+            }
+            return { idx: -1, steps };
+        }
+
+        function compareSearch() {
+            const target = parseInt(document.getElementById('cmpTarget').value);
+            const arr = SORTED_LIST;
+            const lin = countLinear(arr, target);
+            const bin = countBinary(arr, target);
+            const result = document.getElementById('cmpResult');
+            result.classList.add('show');
+            const linTxt = lin.idx !== -1 ? `indeks ${lin.idx}` : 'topilmadi';
+            const binTxt = bin.idx !== -1 ? `indeks ${bin.idx}` : 'topilmadi';
+            result.innerHTML =
+                `>>> Ro'yxat: [${arr.join(', ')}]<br>` +
+                `>>> Qidirilayotgan son: ${target}<br><br>` +
+                `>>> Linear search: ${lin.steps} qadam (${linTxt})<br>` +
+                `>>> Binary search: ${bin.steps} qadam (${binTxt})<br><br>` +
+                `>>> Binary search ${lin.steps - bin.steps >= 0 ? (lin.steps - bin.steps) : 0} qadam kam ishladi!`;
+        }
+
+        // dastlabki ko'rinish
+        buildViz('linViz', LIN_LIST);
+        buildViz('binViz', SORTED_LIST);
+    </script>
+</body>
+</html>

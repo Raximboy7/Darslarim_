@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 132: Pandas — Amaliy Tahlil</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flow-steps { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
+        .flow-step {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--light); border-radius: 8px; padding: 12px 15px;
+            border-left: 4px solid var(--primary);
+        }
+        .flow-num {
+            background: var(--primary); color: var(--white);
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; flex-shrink: 0;
+        }
+        .flow-step span.arrow { color: var(--primary-dark); font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1; color: #94a3b8; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_131_merge.html">← Oldingi</a>
+        <span class="nav-center">Modul 19 — NumPy va Pandas · Dars 132 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_133_pandas_proyekt.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Pandas — Amaliy Tahlil</h1>
+                <p>Modul 19 — NumPy va Pandas | Dars 132</p>
+            </header>
+
+            <div class="section">
+                <h2>Tahlil Nima?</h2>
+                <div class="description">
+                    <strong>Ma'lumot tahlili</strong> — bu xom ma'lumotdan foydali xulosa chiqarish jarayoni.
+                    Pandas bilan biz ma'lumotni <strong>o'qiymiz</strong>, <strong>tozalaymiz</strong>,
+                    <strong>filtrlaymiz</strong>, <strong>guruhlaymiz</strong> va oxirida
+                    <strong>xulosa</strong> chiqaramiz. Har bir bosqich keyingisiga tayyorgarlik.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq Tahlil Oqimi</h2>
+                <div class="description">
+                    Har qanday tahlil quyidagi 5 bosqichdan iborat. Bu tartibni eslab qoling — u har doim bir xil.
+                </div>
+                <div class="flow-steps">
+                    <div class="flow-step"><div class="flow-num">1</div><div><strong>O'qish</strong> — fayldan ma'lumotni yuklab olamiz (<span class="highlight-var">read_csv()</span>)</div></div>
+                    <div class="flow-step"><div class="flow-num">2</div><div><strong>Tozalash</strong> — bo'sh va xato qatorlarni olib tashlaymiz (<span class="highlight-var">dropna()</span>)</div></div>
+                    <div class="flow-step"><div class="flow-num">3</div><div><strong>Filtrlash</strong> — kerakli qatorlarni ajratamiz (<span class="highlight-var">df[shart]</span>)</div></div>
+                    <div class="flow-step"><div class="flow-num">4</div><div><strong>Guruhlash</strong> — toifalar bo'yicha hisoblaymiz (<span class="highlight-var">groupby()</span>)</div></div>
+                    <div class="flow-step"><div class="flow-num">5</div><div><strong>Xulosa</strong> — natijani saralaymiz va o'qiymiz (<span class="highlight-var">sort_values()</span>)</div></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. O'qish va Ko'rish</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> pandas <span class="keyword">as</span> pd<br>
+                        <br>
+                        df = pd.<span class="function">read_csv</span>(<span class="string">"sotuvlar.csv"</span>)<br>
+                        <span class="function">print</span>(df.<span class="function">head</span>())&nbsp;&nbsp;&nbsp;<span class="comment"># dastlabki 5 qator</span><br>
+                        <span class="function">print</span>(df.<span class="function">info</span>())&nbsp;&nbsp;&nbsp;<span class="comment"># ustunlar va turlar</span>
+                    </div>
+                    <div class="comment-part">
+                        # Avval ma'lumotni o'qib, qanday ko'rinishda ekanini tekshiramiz
+                    </div>
+                </div>
+                <div class="output-demo">>>> mahsulot   narx   soni
+0   Olma      5000     3
+1   Banan     8000     2
+2   Olma      5000     5</div>
+            </div>
+
+            <div class="section">
+                <h2>2. Tozalash</h2>
+                <div class="description">
+                    Real ma'lumotda ko'pincha bo'sh kataklar (<span class="highlight-var">NaN</span>) yoki takror qatorlar bo'ladi.
+                    Tahlildan oldin ularni tozalaymiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        df = df.<span class="function">dropna</span>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># bo'sh qatorlarni o'chir</span><br>
+                        df = df.<span class="function">drop_duplicates</span>()&nbsp;<span class="comment"># takrorlarni o'chir</span><br>
+                        df[<span class="string">"narx"</span>] = df[<span class="string">"narx"</span>].<span class="function">astype</span>(<span class="function">int</span>)
+                    </div>
+                    <div class="comment-part">
+                        # dropna() bo'sh kataklarni, drop_duplicates() takror qatorlarni olib tashlaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Filtrlash</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        qimmat = df[df[<span class="string">"narx"</span>] <span class="operator">&gt;</span> <span class="number">6000</span>]<br>
+                        <span class="function">print</span>(qimmat)
+                    </div>
+                    <div class="comment-part">
+                        # Faqat narxi 6000 dan yuqori mahsulotlarni ajratamiz
+                    </div>
+                </div>
+                <div class="output-demo">>>> mahsulot   narx   soni
+1   Banan     8000     2</div>
+            </div>
+
+            <div class="section">
+                <h2>4. Guruhlash va Xulosa</h2>
+                <div class="description">
+                    <span class="highlight-var">groupby()</span> bir xil toifadagi qatorlarni birlashtiradi.
+                    Keyin <span class="highlight-var">sum()</span>, <span class="highlight-var">mean()</span> kabi funksiyalar bilan hisoblaymiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        natija = df.<span class="function">groupby</span>(<span class="string">"mahsulot"</span>)[<span class="string">"soni"</span>].<span class="function">sum</span>()<br>
+                        natija = natija.<span class="function">sort_values</span>(ascending=<span class="boolean">False</span>)<br>
+                        <span class="function">print</span>(natija)
+                    </div>
+                    <div class="comment-part">
+                        # Har mahsulot bo'yicha jami sotilgan sonni hisoblab, kamayish tartibida saralaymiz
+                    </div>
+                </div>
+                <div class="output-demo">>>> mahsulot
+Olma     8
+Banan    2
+Name: soni</div>
+            </div>
+
+            <div class="section">
+                <h2>Foydali Metodlar</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>sort_values()</code></td><td>Qiymat bo'yicha saralash</td><td>df.sort_values("narx")</td></tr>
+                        <tr><td><code>value_counts()</code></td><td>Har qiymat necha marta uchraydi</td><td>df["mahsulot"].value_counts()</td></tr>
+                        <tr><td><code>groupby()</code></td><td>Toifaga bo'lib hisoblash</td><td>df.groupby("mahsulot").sum()</td></tr>
+                        <tr><td><code>apply()</code></td><td>Har qiymatga funksiya qo'llash</td><td>df["narx"].apply(lambda x: x*2)</td></tr>
+                        <tr><td><code>mean()</code></td><td>O'rtacha qiymat</td><td>df["narx"].mean()</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>value_counts() — Sanab Chiqish</h2>
+                <div class="description">
+                    <span class="highlight-var">value_counts()</span> ustundagi har bir qiymat necha marta uchraganini sanaydi.
+                    Eng ko'p sotilgan mahsulotni topish uchun ideal.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(df[<span class="string">"mahsulot"</span>].<span class="function">value_counts</span>())
+                    </div>
+                    <div class="comment-part">
+                        # Qaysi mahsulot eng ko'p marta sotilganini ko'rsatadi (kamayish tartibida)
+                    </div>
+                </div>
+                <div class="output-demo">>>> Olma     2
+Banan    1
+Name: mahsulot</div>
+            </div>
+
+            <div class="section">
+                <h2>apply() — Har Qiymatga Funksiya</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Har bir narxga 12% soliq qo'shamiz</span><br>
+                        df[<span class="string">"soliqli"</span>] = df[<span class="string">"narx"</span>].<span class="function">apply</span>(<span class="keyword">lambda</span> x: x <span class="operator">*</span> <span class="number">1.12</span>)
+                    </div>
+                    <div class="comment-part">
+                        # apply() ustundagi har bir qiymatni berilgan funksiyadan o'tkazadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Tahlil tartibi: o'qish → tozalash → filtrlash → guruhlash → xulosa<br>
+                    • <span class="highlight-var">dropna()</span> bo'sh, <span class="highlight-var">drop_duplicates()</span> takror qatorlarni o'chiradi<br>
+                    • <span class="highlight-var">value_counts()</span> — qaysi qiymat eng ko'p uchraganini topadi<br>
+                    • <span class="highlight-var">groupby()</span> + <span class="highlight-var">sum()</span> — toifa bo'yicha jamlaydi<br>
+                    • <span class="highlight-var">sort_values()</span> bilan natijani saralab xulosa chiqaramiz
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: To'liq Tahlil Oqimi</h2>
+                <div class="description">
+                    Quyidagi tugmani bosing — tahlil bosqichma-bosqich (o'qish → tozalash → guruhlash) bajariladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="runFlow()">Tahlilni boshlash</button>
+                        <button onclick="resetFlow()">Qayta</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: sort_values va value_counts</h2>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoSort()">sort_values("narx")</button>
+                        <button onclick="demoCounts()">value_counts()</button>
+                    </div>
+                    <div class="demo-result" id="resultSort"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Sotuvlar Tahlili</h2>
+                <div class="description">
+                    Mahsulot nomini tanlang yoki eng ko'p sotilganni toping.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoTopSeller()">Eng ko'p sotilgan</button>
+                        <button onclick="demoTotal()">Jami daromad</button>
+                    </div>
+                    <div class="demo-result" id="resultSales"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: O'quvchilar Baholari</h2>
+                <div class="description">
+                    O'tish balini kiriting — undan yuqori baho olgan o'quvchilarni va o'rtacha bahoni ko'ramiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="passScore" placeholder="o'tish bali" value="60" style="min-width:90px;">
+                        <button onclick="demoGrades()">Tahlil qil</button>
+                    </div>
+                    <div class="demo-result" id="resultGrades"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ma'lumotni o'qing</strong>
+                            <p>read_csv() bilan sotuvlar faylini yuklang va head() ko'ring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Tozalang</strong>
+                            <p>dropna() va drop_duplicates() bilan bo'sh va takror qatorlarni o'chiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Guruhlang</strong>
+                            <p>groupby("mahsulot")["soni"].sum() bilan jami sotuvni hisoblang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Xulosa chiqaring</strong>
+                            <p>sort_values(ascending=False) bilan eng ko'p sotilganni toping</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 133: Pandas — Yakuniy Proyekt</p>
+                    <p style="opacity: 0.9;">
+                        Tahlil oqimini to'liq o'rgandingiz!<br>
+                        Endi haqiqiy proyektda barchasini birlashtiramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Namuna ma'lumot: sotuvlar
+        const sotuvlar = [
+            { mahsulot: "Olma",  narx: 5000, soni: 3 },
+            { mahsulot: "Banan", narx: 8000, soni: 2 },
+            { mahsulot: "Olma",  narx: 5000, soni: 5 },
+            { mahsulot: "Uzum",  narx: 12000, soni: 4 },
+            { mahsulot: "Banan", narx: 8000, soni: 1 }
+        ];
+
+        function runFlow() {
+            const r = document.getElementById('resultFlow');
+            r.classList.add('show');
+            r.innerHTML =
+                ">>> 1-qadam: O'qish (read_csv)\n" +
+                "    5 qator yuklandi\n\n" +
+                ">>> 2-qadam: Tozalash (dropna + drop_duplicates)\n" +
+                "    Bo'sh va takror qatorlar olib tashlandi\n\n" +
+                ">>> 3-qadam: Guruhlash (groupby + sum)\n" +
+                "    Olma   -> 8 dona\n" +
+                "    Uzum   -> 4 dona\n" +
+                "    Banan  -> 3 dona\n\n" +
+                ">>> Xulosa: Eng ko'p sotilgan -> Olma";
+        }
+
+        function resetFlow() {
+            const r = document.getElementById('resultFlow');
+            r.classList.remove('show');
+            r.innerHTML = '';
+        }
+
+        function demoSort() {
+            const sorted = [...sotuvlar].sort((a, b) => a.narx - b.narx);
+            let out = ">>> df.sort_values(\"narx\")\n";
+            out += "mahsulot   narx   soni\n";
+            sorted.forEach(s => {
+                out += s.mahsulot.padEnd(9) + String(s.narx).padEnd(7) + s.soni + "\n";
+            });
+            const r = document.getElementById('resultSort');
+            r.classList.add('show');
+            r.innerHTML = out.trim();
+        }
+
+        function demoCounts() {
+            const counts = {};
+            sotuvlar.forEach(s => counts[s.mahsulot] = (counts[s.mahsulot] || 0) + 1);
+            const pairs = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            let out = ">>> df[\"mahsulot\"].value_counts()\n";
+            pairs.forEach(([k, v]) => out += k.padEnd(8) + v + "\n");
+            const r = document.getElementById('resultSort');
+            r.classList.add('show');
+            r.innerHTML = out.trim();
+        }
+
+        function demoTopSeller() {
+            const sums = {};
+            sotuvlar.forEach(s => sums[s.mahsulot] = (sums[s.mahsulot] || 0) + s.soni);
+            const pairs = Object.entries(sums).sort((a, b) => b[1] - a[1]);
+            let out = ">>> df.groupby(\"mahsulot\")[\"soni\"].sum().sort_values(ascending=False)\n";
+            pairs.forEach(([k, v]) => out += k.padEnd(8) + v + " dona\n");
+            out += "\n>>> Eng ko'p sotilgan: " + pairs[0][0] + " (" + pairs[0][1] + " dona)";
+            const r = document.getElementById('resultSales');
+            r.classList.add('show');
+            r.innerHTML = out;
+        }
+
+        function demoTotal() {
+            let total = 0;
+            sotuvlar.forEach(s => total += s.narx * s.soni);
+            let out = ">>> (df[\"narx\"] * df[\"soni\"]).sum()\n";
+            out += "Jami daromad: " + total.toLocaleString('ru-RU') + " so'm";
+            const r = document.getElementById('resultSales');
+            r.classList.add('show');
+            r.innerHTML = out;
+        }
+
+        // Namuna ma'lumot: o'quvchilar baholari
+        const baholar = [
+            { ism: "Ali",  ball: 85 },
+            { ism: "Vali", ball: 45 },
+            { ism: "Guli", ball: 72 },
+            { ism: "Hasan", ball: 58 },
+            { ism: "Lola", ball: 90 }
+        ];
+
+        function demoGrades() {
+            let pass = parseInt(document.getElementById('passScore').value);
+            if (isNaN(pass)) pass = 60;
+            const otganlar = baholar.filter(b => b.ball >= pass);
+            const ortacha = (baholar.reduce((s, b) => s + b.ball, 0) / baholar.length).toFixed(1);
+            let out = ">>> df[df[\"ball\"] >= " + pass + "]\n";
+            otganlar.forEach(b => out += b.ism.padEnd(7) + b.ball + "\n");
+            out += "\n>>> O'tganlar soni: " + otganlar.length + " / " + baholar.length + "\n";
+            out += ">>> df[\"ball\"].mean() = " + ortacha;
+            const r = document.getElementById('resultGrades');
+            r.classList.add('show');
+            r.innerHTML = out;
+        }
+    </script>
+</body>
+</html>

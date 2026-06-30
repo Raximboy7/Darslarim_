@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 138: scikit-learn Asoslari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* WORKFLOW STEPS VIZUALIZATOR */
+        .flow-viz { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; align-items: stretch; }
+        .flow-step {
+            flex: 1; min-width: 110px;
+            background: #1f2937; color: #d4d4d4;
+            border-radius: 8px; padding: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .flow-step.active { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .flow-step .fs-title { font-weight: bold; font-size: 0.95em; margin-bottom: 4px; }
+        .flow-step .fs-code { font-family: monospace; font-size: 0.78em; opacity: 0.85; }
+        .flow-arrow { display: flex; align-items: center; color: var(--primary); font-weight: bold; font-size: 1.2em; }
+
+        /* DATA TABLE (X / y) */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+        .data-table th, .data-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+        .data-table th.x-col { background: var(--primary-light); color: var(--primary-dark); }
+        .data-table th.y-col { background: #cffafe; color: var(--secondary); }
+        .data-table td.x-cell { background: rgba(16, 185, 129, 0.06); }
+        .data-table td.y-cell { background: rgba(8, 145, 178, 0.08); font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_137_ml_kirish.html">← Oldingi</a>
+        <span class="nav-center">Modul 20 — Vizualizatsiya va ML · Dars 138 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_139_train_test.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>scikit-learn Asoslari</h1>
+                <p>Modul 20 — Vizualizatsiya va ML | Dars 138</p>
+            </header>
+
+            <div class="section">
+                <h2>scikit-learn Nima?</h2>
+                <div class="description">
+                    <strong>scikit-learn</strong> (qisqacha <span class="highlight-var">sklearn</span>) — bu
+                    Python uchun eng mashhur <strong>mashinaviy o'rganish (ML)</strong> kutubxonasi.
+                    U yordamida kompyuterga ma'lumotlardan <strong>qoidalarni o'rgatamiz</strong> va keyin
+                    yangi holatlar uchun <strong>bashorat</strong> qildiramiz — masalan uy o'lchamiga qarab narxini taxmin qilish.
+                </div>
+                <div class="info-box">
+                    <strong>Nima uchun sklearn?</strong>
+                    <p>
+                        • Yuzlab tayyor modellar (regressiya, klassifikatsiya, klasterlash)<br>
+                        • Hamma modellar bir xil sodda <span class="highlight-var">API</span> (interfeys) bilan ishlaydi<br>
+                        • Bepul, ochiq kodli va juda yaxshi hujjatlangan
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>O'rnatish</h2>
+                <div class="description">
+                    scikit-learn standart Pythonda yo'q, uni <span class="highlight-var">pip</span> orqali o'rnatamiz.
+                    Buyruqni terminalga (komandalar qatoriga) yozasiz:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        pip install scikit-learn
+                    </div>
+                    <div class="comment-part">
+                        # Terminalga yoziladi (Python ichiga emas)
+                    </div>
+                </div>
+                <div class="description">
+                    Kodda esa nomi <span class="highlight-var">sklearn</span> bo'ladi. Tekshirish:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> sklearn<br>
+                        <span class="function">print</span>(sklearn.__version__)
+                    </div>
+                    <div class="comment-part">
+                        # Versiya chiqsa — o'rnatildi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1.5.0
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>ML Ish Oqimi (4 bosqich)</h2>
+                <div class="description">
+                    Deyarli har qanday ML masalasi bir xil tartibda yechiladi. Buni
+                    <strong>ish oqimi</strong> (workflow) deymiz:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Bosqich</th><th>Nima qilamiz</th><th>Kod</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1. Ma'lumot</td><td>X (belgilar) va y (javob) tayyorlaymiz</td><td><code>X, y</code></td></tr>
+                        <tr><td>2. Model tanlash</td><td>Mos model klassini olamiz</td><td><code>model = ModelClass()</code></td></tr>
+                        <tr><td>3. O'rgatish (fit)</td><td>Modelga ma'lumotni ko'rsatamiz</td><td><code>model.fit(X, y)</code></td></tr>
+                        <tr><td>4. Bashorat (predict)</td><td>Yangi ma'lumot uchun javob olamiz</td><td><code>model.predict(X_new)</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Umumiy API (eng muhim qism)</h2>
+                <div class="description">
+                    sklearn ning go'zalligi shundaki — <strong>barcha modellar bir xil 3 ta amaldan</strong>
+                    iborat. Modelni o'zgartirsangiz ham kod deyarli o'zgarmaydi:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression<br>
+                        <br>
+                        model = <span class="function">LinearRegression</span>()&nbsp;&nbsp;<span class="comment"># 1) model yaratish</span><br>
+                        model.<span class="function">fit</span>(X, y)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 2) o'rgatish</span><br>
+                        natija = model.<span class="function">predict</span>(X_new)&nbsp;<span class="comment"># 3) bashorat</span>
+                    </div>
+                    <div class="comment-part">
+                        # fit() o'rgatadi, predict() bashorat qiladi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Sehrli formula</strong>
+                    <p>
+                        <span class="highlight-var">model = ModelClass()</span> → yarat<br>
+                        <span class="highlight-var">model.fit(X, y)</span> → o'rgat<br>
+                        <span class="highlight-var">model.predict(X_new)</span> → bashorat qil
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>X va y Formati</h2>
+                <div class="description">
+                    sklearn ikki narsa kutadi:<br>
+                    • <span class="highlight-var">X</span> — <strong>belgilar (features)</strong>: kirish ma'lumotlari, har doim
+                    <strong>2 o'lchovli</strong> jadval (qatorlar = misollar, ustunlar = belgilar).<br>
+                    • <span class="highlight-var">y</span> — <strong>javob (label/target)</strong>: biz bashorat qilmoqchi bo'lgan natija, 1 o'lchovli ro'yxat.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Uy o'lchami (m2) -> narx (ming $)</span><br>
+                        X = [[<span class="number">50</span>], [<span class="number">80</span>], [<span class="number">120</span>]]&nbsp;&nbsp;<span class="comment"># 3 misol, 1 belgi</span><br>
+                        y = [<span class="number">100</span>, <span class="number">160</span>, <span class="number">240</span>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># har biriga narx</span>
+                    </div>
+                    <div class="comment-part">
+                        # X — ichma-ich ro'yxat (2D), y — oddiy ro'yxat (1D)
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        X har doim <strong>ikki kvadrat qavs</strong> bilan: <span class="highlight-var">[[50], [80]]</span>.
+                        Bitta misol ham 2 o'lchovli bo'lishi kerak: <span class="highlight-var">[[100]]</span>, oddiy <span class="highlight-var">[100]</span> emas!
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq Misol: O'lcham → Narx</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression<br>
+                        <br>
+                        X = [[<span class="number">50</span>], [<span class="number">80</span>], [<span class="number">120</span>]]&nbsp;<span class="comment"># o'lcham</span><br>
+                        y = [<span class="number">100</span>, <span class="number">160</span>, <span class="number">240</span>]&nbsp;&nbsp;&nbsp;<span class="comment"># narx</span><br>
+                        <br>
+                        model = <span class="function">LinearRegression</span>()<br>
+                        model.<span class="function">fit</span>(X, y)<br>
+                        <br>
+                        <span class="function">print</span>(model.<span class="function">predict</span>([[<span class="number">100</span>]]))
+                    </div>
+                    <div class="comment-part">
+                        # 100 m2 uy uchun narx bashorati
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [200.]
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">pip install scikit-learn</span> — o'rnatish, kodda nomi <span class="highlight-var">sklearn</span><br>
+                    • Ish oqimi: ma'lumot → model → <span class="highlight-var">fit</span> → <span class="highlight-var">predict</span><br>
+                    • <span class="highlight-var">X</span> — belgilar (2D), <span class="highlight-var">y</span> — javob (1D)<br>
+                    • Hamma modellar bir xil API: <span class="highlight-var">fit()</span> va <span class="highlight-var">predict()</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: fit → predict Oqimi</h2>
+                <div class="description">
+                    Tugmalarni tartib bilan bosing va har bosqichda nima sodir bo'lishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-viz" id="flowViz">
+                        <div class="flow-step" id="flow0">
+                            <div class="fs-title">1. Ma'lumot</div>
+                            <div class="fs-code">X, y</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step" id="flow1">
+                            <div class="fs-title">2. Model</div>
+                            <div class="fs-code">= ModelClass()</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step" id="flow2">
+                            <div class="fs-title">3. fit</div>
+                            <div class="fs-code">model.fit(X, y)</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step" id="flow3">
+                            <div class="fs-title">4. predict</div>
+                            <div class="fs-code">model.predict(...)</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="flowStep()">Keyingi bosqich</button>
+                        <button onclick="flowReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: X / y Ma'lumot Formati</h2>
+                <div class="description">
+                    Quyiga belgi (X) va javob (y) qiymatlarini kiriting. Kod jadvalga aylanib,
+                    sklearn kutadigan format ko'rinadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="xVals" placeholder="X (vergul bilan)" value="50, 80, 120">
+                        <input type="text" id="yVals" placeholder="y (vergul bilan)" value="100, 160, 240">
+                        <button onclick="demoData()">Ko'rsat</button>
+                    </div>
+                    <div id="dataTableBox"></div>
+                    <div class="demo-result" id="resultData"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Oddiy Bashorat (O'lcham → Narx)</h2>
+                <div class="description">
+                    Model bizning ma'lumotdan oddiy qoidani o'rgangan:
+                    <span class="highlight-var">narx = 2 × o'lcham</span>. O'lchamni kiriting va
+                    <span class="highlight-var">predict</span> natijasini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="sizeInput" placeholder="o'lcham (m2)" value="100">
+                        <button onclick="demoPredict()">Bashorat qil</button>
+                    </div>
+                    <div class="demo-result" id="resultPredict"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Model Almashtirish</h2>
+                <div class="description">
+                    API bir xil bo'lgani uchun model klassini almashtirsangiz, qolgan kod o'zgarmaydi.
+                    Modelni tanlang va kod qanday ko'rinishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoModel('LinearRegression')">LinearRegression</button>
+                        <button onclick="demoModel('KNeighborsClassifier')">KNeighbors</button>
+                        <button onclick="demoModel('DecisionTreeClassifier')">DecisionTree</button>
+                    </div>
+                    <div class="demo-result" id="resultModel"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Kutubxonani import qiling</strong>
+                            <p>from sklearn.linear_model import LinearRegression</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>X va y tayyorlang</strong>
+                            <p>X = [[1], [2], [3]] va y = [10, 20, 30] (2D va 1D)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Model yaratib o'rgating</strong>
+                            <p>model = LinearRegression() so'ng model.fit(X, y)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Bashorat qiling</strong>
+                            <p>model.predict([[5]]) natijasini chop eting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 139: train_test_split — Ma'lumotni Bo'lish</p>
+                    <p style="opacity: 0.9;">
+                        scikit-learn API sini o'rgandingiz!<br>
+                        Endi ma'lumotni o'rgatish va sinov qismlariga bo'lishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- Misol 1: fit -> predict oqimi ----
+        const flowMessages = [
+            ">>> X = [[50],[80],[120]]; y = [100,160,240]<br>>>> Ma'lumot tayyor: 3 misol, har birida 1 belgi",
+            ">>> model = LinearRegression()<br>>>> Bo'sh model yaratildi (hali hech narsa o'rganmagan)",
+            ">>> model.fit(X, y)<br>>>> Model X va y dan qoidani o'rgandi: narx = 2 * o'lcham",
+            ">>> model.predict([[100]])<br>>>> [200.]  # 100 m2 uchun bashorat"
+        ];
+        let flowIdx = -1;
+        function flowStep() {
+            flowIdx++;
+            if (flowIdx > 3) flowIdx = 3;
+            for (let i = 0; i < 4; i++) {
+                document.getElementById('flow' + i).classList.toggle('active', i <= flowIdx);
+            }
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = flowMessages[flowIdx];
+        }
+        function flowReset() {
+            flowIdx = -1;
+            for (let i = 0; i < 4; i++) document.getElementById('flow' + i).classList.remove('active');
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = ">>> Boshidan. 'Keyingi bosqich' tugmasini bosing.";
+        }
+
+        // ---- Misol 2: X / y formati ----
+        function demoData() {
+            const xRaw = document.getElementById('xVals').value.split(',').map(s => s.trim()).filter(s => s !== '');
+            const yRaw = document.getElementById('yVals').value.split(',').map(s => s.trim()).filter(s => s !== '');
+            const n = Math.min(xRaw.length, yRaw.length);
+            let rows = '';
+            for (let i = 0; i < n; i++) {
+                rows += `<tr><td class="x-cell">[${xRaw[i]}]</td><td class="y-cell">${yRaw[i]}</td></tr>`;
+            }
+            document.getElementById('dataTableBox').innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th class="x-col">X (belgi, 2D)</th><th class="y-col">y (javob, 1D)</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+            const xCode = '[' + xRaw.slice(0, n).map(v => '[' + v + ']').join(', ') + ']';
+            const yCode = '[' + yRaw.slice(0, n).join(', ') + ']';
+            const result = document.getElementById('resultData');
+            result.classList.add('show');
+            result.innerHTML = `>>> X = ${xCode}<br>>>> y = ${yCode}<br>>>> ${n} ta misol tayyor`;
+        }
+
+        // ---- Misol 3: oddiy bashorat ----
+        function demoPredict() {
+            let size = parseFloat(document.getElementById('sizeInput').value);
+            if (isNaN(size)) size = 0;
+            const price = size * 2;
+            const result = document.getElementById('resultPredict');
+            result.classList.add('show');
+            result.innerHTML = `>>> model.predict([[${size}]])<br>>>> [${price.toFixed(1)}]  # narx = 2 * ${size} = ${price} ming $`;
+        }
+
+        // ---- Misol 4: model almashtirish ----
+        const modelImports = {
+            'LinearRegression': 'sklearn.linear_model',
+            'KNeighborsClassifier': 'sklearn.neighbors',
+            'DecisionTreeClassifier': 'sklearn.tree'
+        };
+        function demoModel(name) {
+            const mod = modelImports[name];
+            const result = document.getElementById('resultModel');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> from ${mod} import ${name}<br>` +
+                `>>> model = ${name}()<br>` +
+                `>>> model.fit(X, y)&nbsp;&nbsp;# bir xil!<br>` +
+                `>>> model.predict(X_new)&nbsp;&nbsp;# bir xil!`;
+        }
+
+        // dastlabki ko'rinish
+        flowReset();
+        demoData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 19: Set (To'plam)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SET ELEMENT VISUALIZER */
+        .set-viz { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; align-items: center; }
+        .set-brace { font-family: monospace; font-size: 1.6em; color: var(--primary-dark); font-weight: bold; }
+        .set-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 38px; height: 40px; padding: 0 12px;
+            background: var(--primary); color: var(--white);
+            border-radius: 20px; font-family: monospace; font-weight: bold; font-size: 1em;
+            border: 2px solid var(--primary-dark);
+            animation: slideUp 0.35s ease-out;
+        }
+        .set-chip.dup { background: #fbbf24; color: var(--dark); border-color: #d97706; opacity: 0.55; text-decoration: line-through; }
+        .set-chip.empty { background: var(--light); color: var(--gray); border-color: #d1d5db; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <a class="nav-btn" href="dars_18_dictionary.html">← Oldingi</a>
+        <span class="nav-center">Modul 4 — Ma'lumot tuzilmalari · Dars 19 · <a href="index.html">🏠 Barcha darslar</a></span>
+        <a class="nav-btn" href="dars_20_list_comprehension.html">Keyingi →</a>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Set (To'plam)</h1>
+                <p>Modul 4 — Ma'lumot tuzilmalari | Dars 19</p>
+            </header>
+
+            <div class="section">
+                <h2>Set Nima?</h2>
+                <div class="description">
+                    <strong>Set (to'plam)</strong> — bu <strong>takrorlanmaydigan</strong> elementlar
+                    to'plami. Ya'ni bir xil qiymat to'plamda faqat <strong>bir marta</strong> saqlanadi.
+                    Set <span class="highlight-var">{ }</span> qavslar ichida, elementlar vergul bilan
+                    yoziladi. Elementlar <strong>tartibsiz</strong> saqlanadi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sonlar = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>}<br>
+                        <span class="function">print</span>(sonlar)
+                    </div>
+                    <div class="comment-part">
+                        # Takrorlanmas elementlar to'plami
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> {1, 2, 3, 4, 5}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Takror Avtomatik O'chiriladi</h2>
+                <div class="description">
+                    Agar to'plamga bir xil qiymat bir necha marta yozsangiz, Python uni
+                    <strong>bittaga qoldiradi</strong> — takrorlar o'zi o'chiriladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        s = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>}<br>
+                        <span class="function">print</span>(s)
+                    </div>
+                    <div class="comment-part">
+                        # 2 ikki marta yozildi, lekin bitta qoldi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> {1, 2, 3}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Bo'sh To'plam Yaratish</h2>
+                <div class="warning-box">
+                    <strong>⚠️ Diqqat: {} bo'sh to'plam EMAS!</strong>
+                    <p>
+                        Bo'sh <span class="highlight-var">{}</span> — bu to'plam emas, balki
+                        <strong>dictionary</strong> (lug'at). Bo'sh to'plam yaratish uchun
+                        <span class="highlight-var">set()</span> dan foydalaning.
+                    </p>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        a = <span class="function">set</span>()<br>
+                        b = {}<br>
+                        <span class="function">print</span>(<span class="function">type</span>(a), <span class="function">type</span>(b))
+                    </div>
+                    <div class="comment-part">
+                        # a — to'plam, b — dictionary
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> &lt;class 'set'&gt; &lt;class 'dict'&gt;
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy Metodlar</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>.add(x)</code></td><td>Element qo'shadi</td><td>{1,2}.add(3) → {1,2,3}</td></tr>
+                        <tr><td><code>.remove(x)</code></td><td>O'chiradi (yo'q bo'lsa xato beradi)</td><td>{1,2,3}.remove(2) → {1,3}</td></tr>
+                        <tr><td><code>.discard(x)</code></td><td>O'chiradi (yo'q bo'lsa xatosiz)</td><td>{1,2}.discard(9) → {1,2}</td></tr>
+                        <tr><td><code>.clear()</code></td><td>Hammasini tozalaydi</td><td>{1,2,3}.clear() → set()</td></tr>
+                        <tr><td><code>len(s)</code></td><td>Elementlar sonini beradi</td><td>len({1,2,3}) → 3</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>remove() va discard() farqi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        s = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}<br>
+                        s.<span class="function">discard</span>(<span class="number">9</span>)  <span style="color:#6b7280;"># xatosiz</span><br>
+                        s.<span class="function">remove</span>(<span class="number">9</span>)   <span style="color:#f87171;"># KeyError!</span>
+                    </div>
+                    <div class="comment-part">
+                        # discard() — xavfsiz, remove() — yo'q bo'lsa xato
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'plamlar Ustida Amallar</h2>
+                <div class="description">
+                    To'plamlarni xuddi matematikadagi kabi <strong>birlashtirish</strong>,
+                    <strong>kesishma</strong> va <strong>farq</strong> amallari bilan ishlatish mumkin.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Amal</th><th>Belgi</th><th>Metod</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Birlashma</td><td><code>|</code></td><td><code>.union()</code></td><td>Ikkalasining barcha elementlari</td></tr>
+                        <tr><td>Kesishma</td><td><code>&amp;</code></td><td><code>.intersection()</code></td><td>Faqat umumiy elementlar</td></tr>
+                        <tr><td>Farq</td><td><code>-</code></td><td><code>.difference()</code></td><td>Birinchisida bor, ikkinchisida yo'q</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        a = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}<br>
+                        b = {<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>}<br>
+                        <span class="function">print</span>(a <span class="operator">|</span> b)<br>
+                        <span class="function">print</span>(a <span class="operator">&amp;</span> b)<br>
+                        <span class="function">print</span>(a <span class="operator">-</span> b)
+                    </div>
+                    <div class="comment-part">
+                        # birlashma<br># kesishma<br># farq
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> {1, 2, 3, 4, 5}<br>
+                    >>> {3}<br>
+                    >>> {1, 2}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Ro'yxatdan Takrorlarni Olib Tashlash</h2>
+                <div class="description">
+                    Set ning eng foydali amaliy ishi — ro'yxatdagi (list) takror qiymatlarni
+                    tezda yo'qotish. <span class="highlight-var">set()</span> ga aylantirib, keyin yana
+                    <span class="highlight-var">list()</span> ga qaytaramiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ismlar = [<span class="string">"Ali"</span>, <span class="string">"Vali"</span>, <span class="string">"Ali"</span>, <span class="string">"Guli"</span>]<br>
+                        noyob = <span class="function">list</span>(<span class="function">set</span>(ismlar))<br>
+                        <span class="function">print</span>(noyob)
+                    </div>
+                    <div class="comment-part">
+                        # Takror "Ali" olib tashlandi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ['Ali', 'Vali', 'Guli']
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: bo'sh to'plamni {} bilan yaratish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            s = {}<br>
+                            s.<span class="function">add</span>(<span class="number">5</span>)  <span style="color:#f87171;"># XATO! {} — dictionary</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        <span class="highlight-var">{}</span> dictionary bo'lgani uchun unda
+                        <span class="highlight-var">.add()</span> metodi ishlamaydi.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: set() bilan yarating</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            s = <span class="function">set</span>()<br>
+                            s.<span class="function">add</span>(<span class="number">5</span>)<br>
+                            <span class="function">print</span>(s)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> {5}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Set — <span class="highlight-var">takrorlanmaydigan</span> elementlar to'plami<br>
+                    • Bo'sh to'plam: <span class="highlight-var">set()</span>, <span class="highlight-var">{}</span> emas (u dictionary)<br>
+                    • Qo'shish <span class="highlight-var">.add()</span>, xavfsiz o'chirish <span class="highlight-var">.discard()</span><br>
+                    • Amallar: <span class="highlight-var">|</span> birlashma, <span class="highlight-var">&amp;</span> kesishma, <span class="highlight-var">-</span> farq
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: To'plamga Element Qo'shish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="addVal" placeholder="Qiymat" value="3">
+                        <button onclick="demoAdd()">add()</button>
+                        <button onclick="demoReset()" style="background:linear-gradient(135deg,#6b7280,#4b5563);">Tozalash</button>
+                    </div>
+                    <div class="set-viz" id="addViz"></div>
+                    <div class="demo-result" id="resultAdd"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Mavjud qiymat qo'shilsa, to'plam o'zgarmaydi — takror saqlanmaydi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Birlashma / Kesishma / Farq</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="setA" placeholder="A (vergul bilan)" value="1,2,3">
+                        <input type="text" id="setB" placeholder="B (vergul bilan)" value="3,4,5">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoOp('union')">A | B</button>
+                        <button onclick="demoOp('inter')">A &amp; B</button>
+                        <button onclick="demoOp('diff')">A - B</button>
+                    </div>
+                    <div class="demo-result" id="resultOp"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Ro'yxatdan Takrorlarni Olib Tashlash</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="dupList" placeholder="Ro'yxat (vergul bilan)" value="Ali,Vali,Ali,Guli,Vali">
+                        <button onclick="demoUnique()">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultUnique"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">list(set(royxat))</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: O'chirish — remove() va discard()</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="delSet" placeholder="To'plam" value="1,2,3,4">
+                        <input type="text" id="delVal" placeholder="o'chiriladigan" value="9" style="min-width:90px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoDel('remove')">remove()</button>
+                        <button onclick="demoDel('discard')">discard()</button>
+                    </div>
+                    <div class="demo-result" id="resultDel"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: Element Bormi? (in)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="memSet" placeholder="To'plam" value="olma,nok,uzum">
+                        <input type="text" id="memVal" placeholder="qidiruv" value="nok" style="min-width:90px;">
+                        <button onclick="demoMember()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultMember"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">"nok" in mevalar</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Bo'sh to'plam yarating</strong>
+                            <p><span class="highlight-var">mevalar = set()</span></p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Bir nechta meva qo'shing</strong>
+                            <p>.add() bilan "olma", "nok", "olma" qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Natijani chiqaring</strong>
+                            <p>print() bilan — takror "olma" bitta qolganiga ishonch hosil qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Ikki to'plamni solishtiring</strong>
+                            <p>| va &amp; bilan birlashma va kesishmani chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 20: List Comprehension</p>
+                    <p style="opacity: 0.9;">
+                        To'plamlar bilan ishlashni o'rgandingiz!<br>
+                        Endi ro'yxatlarni bir qatorda chiroyli yaratishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Misol 1: add() ---
+        let currentSet = [1, 2];
+
+        function renderAddViz(highlightIdx, isDup) {
+            const box = document.getElementById('addViz');
+            box.innerHTML = '';
+            const open = document.createElement('span');
+            open.className = 'set-brace';
+            open.textContent = '{';
+            box.appendChild(open);
+            if (currentSet.length === 0) {
+                const chip = document.createElement('span');
+                chip.className = 'set-chip empty';
+                chip.textContent = 'bo‘sh';
+                box.appendChild(chip);
+            } else {
+                currentSet.forEach((v, i) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'set-chip';
+                    if (i === highlightIdx) chip.style.transform = 'translateY(-4px)';
+                    chip.textContent = v;
+                    box.appendChild(chip);
+                });
+            }
+            const close = document.createElement('span');
+            close.className = 'set-brace';
+            close.textContent = '}';
+            box.appendChild(close);
+        }
+
+        function demoAdd() {
+            const raw = document.getElementById('addVal').value.trim();
+            if (raw === '') return;
+            const val = isNaN(Number(raw)) ? raw : Number(raw);
+            const result = document.getElementById('resultAdd');
+            result.classList.add('show');
+            const exists = currentSet.some(x => String(x) === String(val));
+            if (exists) {
+                renderAddViz(currentSet.findIndex(x => String(x) === String(val)), true);
+                result.innerHTML = `>>> s.add(${typeof val === 'string' ? '"' + val + '"' : val})<br>` +
+                    `>>> ${val} allaqachon bor — takror qo‘shilmadi<br>` +
+                    `>>> {${currentSet.join(', ')}}`;
+            } else {
+                currentSet.push(val);
+                renderAddViz(currentSet.length - 1, false);
+                result.innerHTML = `>>> s.add(${typeof val === 'string' ? '"' + val + '"' : val})<br>` +
+                    `>>> {${currentSet.join(', ')}}`;
+            }
+        }
+
+        function demoReset() {
+            currentSet = [1, 2];
+            renderAddViz(-1, false);
+            const result = document.getElementById('resultAdd');
+            result.classList.add('show');
+            result.innerHTML = '>>> s = {1, 2}';
+        }
+
+        // --- Misol 2: union / intersection / difference ---
+        function parseSet(str) {
+            const arr = str.split(',').map(x => x.trim()).filter(x => x !== '');
+            const seen = [];
+            arr.forEach(x => {
+                const v = isNaN(Number(x)) ? x : Number(x);
+                if (!seen.some(s => String(s) === String(v))) seen.push(v);
+            });
+            return seen;
+        }
+
+        function fmtSet(arr) {
+            if (arr.length === 0) return 'set()';
+            return '{' + arr.map(x => (typeof x === 'string' ? "'" + x + "'" : x)).join(', ') + '}';
+        }
+
+        function demoOp(kind) {
+            const a = parseSet(document.getElementById('setA').value);
+            const b = parseSet(document.getElementById('setB').value);
+            const result = document.getElementById('resultOp');
+            result.classList.add('show');
+            let out, label;
+            if (kind === 'union') {
+                out = a.slice();
+                b.forEach(x => { if (!out.some(s => String(s) === String(x))) out.push(x); });
+                label = 'A | B';
+            } else if (kind === 'inter') {
+                out = a.filter(x => b.some(s => String(s) === String(x)));
+                label = 'A & B';
+            } else {
+                out = a.filter(x => !b.some(s => String(s) === String(x)));
+                label = 'A - B';
+            }
+            result.innerHTML = `>>> A = ${fmtSet(a)}<br>>>> B = ${fmtSet(b)}<br>>>> ${label}<br>>>> ${fmtSet(out)}`;
+        }
+
+        // --- Misol 3: list -> set -> unique ---
+        function demoUnique() {
+            const arr = document.getElementById('dupList').value.split(',').map(x => x.trim()).filter(x => x !== '');
+            const seen = [];
+            arr.forEach(x => { if (!seen.includes(x)) seen.push(x); });
+            const removed = arr.length - seen.length;
+            const result = document.getElementById('resultUnique');
+            result.classList.add('show');
+            result.innerHTML = `>>> royxat = [${arr.map(x => "'" + x + "'").join(', ')}]  (${arr.length} ta)<br>` +
+                `>>> list(set(royxat))<br>` +
+                `>>> [${seen.map(x => "'" + x + "'").join(', ')}]  (${seen.length} ta)<br>` +
+                `>>> ${removed} ta takror olib tashlandi`;
+        }
+
+        // --- Misol 4: remove / discard ---
+        function demoDel(kind) {
+            const s = parseSet(document.getElementById('delSet').value);
+            const raw = document.getElementById('delVal').value.trim();
+            const val = isNaN(Number(raw)) ? raw : Number(raw);
+            const result = document.getElementById('resultDel');
+            result.classList.add('show');
+            const idx = s.findIndex(x => String(x) === String(val));
+            const valTxt = typeof val === 'string' ? "'" + val + "'" : val;
+            if (idx !== -1) {
+                s.splice(idx, 1);
+                result.innerHTML = `>>> s.${kind}(${valTxt})<br>>>> ${fmtSet(s)}`;
+            } else {
+                if (kind === 'remove') {
+                    result.innerHTML = `>>> s.remove(${valTxt})<br>` +
+                        `>>> KeyError: ${valTxt}  ❌ (element yo‘q)`;
+                } else {
+                    result.innerHTML = `>>> s.discard(${valTxt})<br>` +
+                        `>>> ${fmtSet(s)}  (yo‘q edi — xatosiz)`;
+                }
+            }
+        }
+
+        // --- Misol 5: membership (in) ---
+        function demoMember() {
+            const s = parseSet(document.getElementById('memSet').value);
+            const raw = document.getElementById('memVal').value.trim();
+            const val = isNaN(Number(raw)) ? raw : Number(raw);
+            const valTxt = typeof val === 'string' ? '"' + val + '"' : val;
+            const inSet = s.some(x => String(x) === String(val));
+            const result = document.getElementById('resultMember');
+            result.classList.add('show');
+            result.innerHTML = `>>> mevalar = ${fmtSet(s)}<br>>>> ${valTxt} in mevalar<br>>>> ${inSet ? 'True' : 'False'}`;
+        }
+
+        // dastlabki ko'rinish
+        renderAddViz(-1, false);
+    </script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python IT Kursi — Barcha Darslar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--dark);
+        }
+
+        .wrap { max-width: 1200px; margin: 0 auto; }
+
+        .hero {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+            margin-bottom: 30px;
+            text-align: center;
+            animation: fadeUp 0.7s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 2.4em;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .hero .accent { color: var(--primary); }
+
+        .hero p {
+            color: var(--gray);
+            font-size: 1.05em;
+            line-height: 1.7;
+            max-width: 720px;
+            margin: 0 auto 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: var(--primary-light);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 14px 22px;
+            min-width: 120px;
+        }
+
+        .stat .num { font-size: 1.6em; font-weight: bold; color: var(--primary-dark); }
+        .stat .label { font-size: 0.85em; color: var(--gray); }
+
+        .progress-wrap {
+            margin-top: 24px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--light);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 999px;
+            transition: width 0.8s ease-out;
+        }
+
+        .progress-text {
+            font-size: 0.85em;
+            color: var(--gray);
+            margin-top: 8px;
+        }
+
+        .module {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 26px 30px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+            margin-bottom: 22px;
+            animation: fadeUp 0.7s ease-out;
+        }
+
+        .module-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .module-badge {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .module-title { flex: 1; }
+        .module-title h2 { font-size: 1.3em; color: var(--dark); }
+        .module-title p { color: var(--gray); font-size: 0.9em; margin-top: 2px; }
+
+        .lessons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .lesson {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 2px solid var(--light);
+            background: var(--white);
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.25s ease;
+        }
+
+        .lesson.ready:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(16, 185, 129, 0.18);
+        }
+
+        .lesson.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .lesson .num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        .lesson.ready .num { background: var(--primary-light); color: var(--primary-dark); }
+        .lesson.locked .num { background: var(--light); color: var(--gray); }
+
+        .lesson .info { flex: 1; min-width: 0; }
+        .lesson .info .t { font-weight: 600; font-size: 0.95em; line-height: 1.35; }
+        .lesson .info .badge {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 0.72em;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .lesson.ready .info .badge { background: var(--primary); color: var(--white); }
+        .lesson.locked .info .badge { background: #e5e7eb; color: var(--gray); }
+
+        footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+            margin-top: 30px;
+            line-height: 1.7;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .hero { padding: 26px; }
+            .hero h1 { font-size: 1.7em; }
+            .module { padding: 20px; }
+            .lessons { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="hero">
+            <h1>🐍 Python <span class="accent">IT Kursi</span></h1>
+            <p>
+                Noldan boshlab professional darajagacha — interaktiv darslar bilan Python o'rganing.
+                Har darsda nazariya va jonli amaliy mashqlar bir sahifada, qadamma-qadam keladi.
+            </p>
+            <div class="stats">
+                <div class="stat"><div class="num">23</div><div class="label">Modul</div></div>
+                <div class="stat"><div class="num">175</div><div class="label">Dars</div></div>
+                <div class="stat"><div class="num" id="readyCount">0</div><div class="label">Tayyor</div></div>
+                <div class="stat"><div class="num">6–12</div><div class="label">Oy</div></div>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+                <div class="progress-text" id="progressText"></div>
+            </div>
+        </div>
+
+        <div id="modules"></div>
+
+        <footer>
+            Python IT Kursi · LMS dars materiallari<br>
+            Har dars mustaqil HTML fayl — internet aloqasisiz ham ishlaydi.
+        </footer>
+    </div>
+
+    <script>
+        // ====== KURS MANIFESTI (yagona manba) ======
+        // ok: true  → dars tayyor (havola ishlaydi)
+        // ok: false → tez kunda
+        const MODULES = [
+            { num: 1, name: "Asoslar", lessons: [
+                { n: 1,  t: "Dasturlashga kirish",        f: "dars_1_complete.html",       ok: true },
+                { n: 2,  t: "O'rnatish va muhit",         f: "dars_2_ornatish.html",       ok: true },
+                { n: 3,  t: "print() funksiyasi",         f: "dars_3_print.html",          ok: true },
+                { n: 4,  t: "O'zgaruvchilar va turlar",   f: "dars_4_types.html",          ok: true },
+                { n: 5,  t: "Operatorlar va matematika",  f: "dars_5_operators.html",      ok: true },
+            ]},
+            { num: 2, name: "Stringlar va matnlar", lessons: [
+                { n: 6,  t: "Input va foydalanuvchi",     f: "dars_6_input.html",          ok: true },
+                { n: 7,  t: "String metodlari",           f: "dars_7_string_metodlari.html", ok: true },
+                { n: 8,  t: "f-string va matn formatlash",f: "dars_8_fstring.html",        ok: true },
+            ]},
+            { num: 3, name: "Shartlar va sikllar", lessons: [
+                { n: 9,  t: "Taqqoslash operatorlari",    f: "dars_9_taqqoslash.html",     ok: true },
+                { n: 10, t: "Mantiqiy operatorlar",       f: "dars_10_mantiqiy.html",      ok: true },
+                { n: 11, t: "if, elif, else",             f: "dars_11_if_else.html",       ok: true },
+                { n: 12, t: "For sikli",                  f: "dars_12_for.html",           ok: true },
+                { n: 13, t: "While sikli",                f: "dars_13_while.html",         ok: true },
+                { n: 14, t: "Sikllarni taqqoslash",       f: "dars_14_sikllar_taqqoslash.html", ok: true },
+                { n: 15, t: "Sikllardagi xatolar",        f: "dars_15_sikl_xatolar.html",  ok: true },
+            ]},
+            { num: 4, name: "Ma'lumot tuzilmalari", lessons: [
+                { n: 16, t: "Listlar (Lists)",            f: "dars_16_listlar.html",       ok: true },
+                { n: 17, t: "Tuple va o'zgarmaslik",      f: "dars_17_tuple.html",         ok: true },
+                { n: 18, t: "Dictionary",                 f: "dars_18_dictionary.html",    ok: true },
+                { n: 19, t: "Set (To'plam)",              f: "dars_19_set.html",           ok: true },
+                { n: 20, t: "List comprehension",         f: "dars_20_list_comprehension.html", ok: true },
+                { n: 21, t: "Indexing va slicing",        f: "dars_21_indexing_slicing.html", ok: true },
+                { n: 22, t: "len, min, max, sum",         f: "dars_22_len_min_max.html",   ok: true },
+                { n: 23, t: "enumerate va zip",           f: "dars_23_enumerate_zip.html", ok: true },
+                { n: 24, t: "Tuzilmalarni taqqoslash",    f: "dars_24_data_taqqoslash.html", ok: true },
+            ]},
+            { num: 5, name: "Funksiyalar va modullar", lessons: [
+                { n: 25, t: "Funksiyalar — asoslar",      f: "dars_25_funksiyalar.html",   ok: true },
+                { n: 26, t: "Funksiyalarda parametrlar",  f: "dars_26_parametrlar.html",   ok: true },
+                { n: 27, t: "Scope va o'zgaruvchilar",    f: "dars_27_scope.html",         ok: true },
+                { n: 28, t: "Rekursiya",                  f: "dars_28_rekursiya.html",     ok: true },
+            ]},
+            { num: 6, name: "Fayllar bilan ishlash", lessons: [
+                { n: 29, t: "Fayllarni ochish va o'qish", f: "dars_29_fayl_oqish.html",    ok: true },
+                { n: 30, t: "Fayllarga yozish",           f: "dars_30_fayl_yozish.html",   ok: true },
+                { n: 31, t: "CSV fayllar",                f: "dars_31_csv.html",           ok: true },
+                { n: 32, t: "JSON fayllar",               f: "dars_32_json.html",          ok: true },
+                { n: 33, t: "Fayllar bilan xatolar",      f: "dars_33_fayl_xatolar.html",  ok: true },
+            ]},
+            { num: 7, name: "OOP — obyektga asoslangan dasturlash", lessons: [
+                { n: 34, t: "Klasslar va obyektlar",      f: "dars_34_klasslar.html",      ok: true },
+                { n: 35, t: "Xususiyatlar va metodlar",   f: "dars_35_metodlar.html",      ok: true },
+                { n: 36, t: "__str__ va __repr__",        f: "dars_36_str_repr.html",      ok: true },
+                { n: 37, t: "Meros (Inheritance)",        f: "dars_37_meros.html",         ok: true },
+                { n: 38, t: "Polimorfizm",                f: "dars_38_polimorfizm.html",   ok: true },
+                { n: 39, t: "Inkapsulatsiya",             f: "dars_39_inkapsulatsiya.html", ok: true },
+                { n: 40, t: "Static va class metodlar",   f: "dars_40_static_classmethod.html", ok: true },
+                { n: 41, t: "Dunder (sehrli) metodlar",   f: "dars_41_dunder.html",        ok: true },
+            ]},
+            { num: 8, name: "Xatolar va test", lessons: [
+                { n: 42, t: "Exception handling",         f: "dars_42_exception.html",     ok: true },
+                { n: 43, t: "Built-in exceptions",        f: "dars_43_builtin_exceptions.html", ok: true },
+                { n: 44, t: "O'z xatolaringizni yaratish",f: "dars_44_oz_xato.html",       ok: true },
+                { n: 45, t: "Unit testing",               f: "dars_45_unittest.html",      ok: true },
+                { n: 46, t: "assert funksiyasi",          f: "dars_46_assert.html",        ok: true },
+            ]},
+            { num: 9, name: "Iterator va generator", lessons: [
+                { n: 47, t: "Iterator nima?",             f: "dars_47_iterator.html",      ok: true },
+                { n: 48, t: "Generator funksiyalari",     f: "dars_48_generator.html",     ok: true },
+                { n: 49, t: "Decorator nima?",            f: "dars_49_decorator.html",     ok: true },
+                { n: 50, t: "Built-in dekoratorlar",      f: "dars_50_builtin_dekorator.html", ok: true },
+                { n: 51, t: "Comprehension (davomi)",     f: "dars_51_comprehension.html", ok: true },
+                { n: 52, t: "Context manager",            f: "dars_52_context_manager.html", ok: true },
+                { n: 53, t: "Closure va lambda",          f: "dars_53_lambda.html",        ok: true },
+            ]},
+            { num: 10, name: "Git va version control", lessons: [
+                { n: 54, t: "Git asoslari",               f: "dars_54_git_asoslar.html",   ok: true },
+                { n: 55, t: "Commit va tarix",            f: "dars_55_commit.html",        ok: true },
+                { n: 56, t: "Branchlar",                  f: "dars_56_branch.html",        ok: true },
+                { n: 57, t: "Remote repository",          f: "dars_57_remote.html",        ok: true },
+                { n: 58, t: "Hamkorlik (Collaboration)",  f: "dars_58_collaboration.html", ok: true },
+                { n: 59, t: "Git — ilg'or imkoniyatlar",  f: "dars_59_git_advanced.html",  ok: true },
+            ]},
+            { num: 11, name: "Algoritmlar va optimizatsiya", lessons: [
+                { n: 60, t: "Sorting algoritmlari",       f: "dars_60_sorting.html",       ok: true },
+                { n: 61, t: "Searching algoritmlari",     f: "dars_61_searching.html",     ok: true },
+                { n: 62, t: "Big O notation",             f: "dars_62_big_o.html",         ok: true },
+                { n: 63, t: "Rekursiya va dinamik dasturlash", f: "dars_63_dinamik.html",  ok: true },
+                { n: 64, t: "Stack va Queue",             f: "dars_64_stack_queue.html",   ok: true },
+                { n: 65, t: "Linked List",                f: "dars_65_linked_list.html",   ok: true },
+                { n: 66, t: "Tree va Graph",              f: "dars_66_tree_graph.html",    ok: true },
+                { n: 67, t: "Hashing va dictionarylar",   f: "dars_67_hashing.html",       ok: true },
+                { n: 68, t: "Masala yechish strategiyasi",f: "dars_68_problem_solving.html", ok: true },
+                { n: 69, t: "Amaliy masalalar 1",         f: "dars_69_practice_1.html",    ok: true },
+                { n: 70, t: "Amaliy masalalar 2",         f: "dars_70_practice_2.html",    ok: true },
+                { n: 71, t: "Amaliy masalalar 3",         f: "dars_71_practice_3.html",    ok: true },
+            ]},
+            { num: 12, name: "Regex va ilg'or stringlar", lessons: [
+                { n: 72, t: "Regular expressions",        f: "dars_72_regex.html",         ok: true },
+                { n: 73, t: "Regex metodlari",            f: "dars_73_regex_metodlar.html", ok: true },
+                { n: 74, t: "Pattern matching",           f: "dars_74_pattern_matching.html", ok: true },
+                { n: 75, t: "Ilg'or regex",               f: "dars_75_advanced_regex.html", ok: true },
+                { n: 76, t: "Matnni qayta ishlash",       f: "dars_76_text_processing.html", ok: true },
+                { n: 77, t: "Matn analitikasi",           f: "dars_77_matn_analitika.html", ok: true },
+                { n: 78, t: "Regex samaradorligi",        f: "dars_78_regex_performance.html", ok: true },
+                { n: 79, t: "Regex misollar",             f: "dars_79_regex_misollar.html", ok: true },
+            ]},
+            { num: 13, name: "Web asoslari", lessons: [
+                { n: 80, t: "HTTP va web",                f: "dars_80_http.html",          ok: true },
+                { n: 81, t: "urllib bilan web",           f: "dars_81_urllib.html",        ok: true },
+                { n: 82, t: "requests kutubxonasi",       f: "dars_82_requests.html",      ok: true },
+                { n: 83, t: "API bilan ishlash",          f: "dars_83_api.html",           ok: true },
+                { n: 84, t: "Web scraping asoslari",      f: "dars_84_web_scraping.html",  ok: true },
+                { n: 85, t: "Flask asoslari",             f: "dars_85_flask.html",         ok: true },
+                { n: 86, t: "Flask templatelari",         f: "dars_86_flask_templates.html", ok: true },
+                { n: 87, t: "Flask formalari",            f: "dars_87_flask_forms.html",   ok: true },
+                { n: 88, t: "Database va Flask",          f: "dars_88_flask_database.html", ok: true },
+                { n: 89, t: "Deployment",                 f: "dars_89_deployment.html",    ok: true },
+            ]},
+            { num: 14, name: "Database va SQL", lessons: [
+                { n: 90, t: "Database asoslari",          f: "dars_90_database_asoslar.html", ok: true },
+                { n: 91, t: "CREATE va INSERT",           f: "dars_91_create_insert.html", ok: true },
+                { n: 92, t: "SELECT va filtrlash",        f: "dars_92_select.html",        ok: true },
+                { n: 93, t: "UPDATE va DELETE",           f: "dars_93_update_delete.html", ok: true },
+                { n: 94, t: "JOIN lar",                   f: "dars_94_joins.html",         ok: true },
+                { n: 95, t: "Aggregation",                f: "dars_95_aggregation.html",   ok: true },
+                { n: 96, t: "Indekslar va samaradorlik",  f: "dars_96_indexes.html",       ok: true },
+                { n: 97, t: "Tranzaksiyalar va yaxlitlik",f: "dars_97_transactions.html",  ok: true },
+            ]},
+            { num: 15, name: "Concurrency va ilg'or", lessons: [
+                { n: 98,  t: "Multithreading",            f: "dars_98_multithreading.html", ok: true },
+                { n: 99,  t: "Multiprocessing",           f: "dars_99_multiprocessing.html", ok: true },
+                { n: 100, t: "Async dasturlash",          f: "dars_100_async.html",        ok: true },
+                { n: 101, t: "Logging",                   f: "dars_101_logging.html",      ok: true },
+                { n: 102, t: "Debugging",                 f: "dars_102_debugging.html",    ok: true },
+                { n: 103, t: "Profiling va optimizatsiya",f: "dars_103_profiling.html",    ok: true },
+            ]},
+            { num: 16, name: "Yakuniy proyektlar", lessons: [
+                { n: 104, t: "Proyekt 1 — Kalkulyator",   f: "dars_104_proyekt_calculator.html", ok: true },
+                { n: 105, t: "Proyekt 2 — Todo App",      f: "dars_105_proyekt_todo.html", ok: true },
+                { n: 106, t: "Proyekt 3 — Weather App",   f: "dars_106_proyekt_weather.html", ok: true },
+                { n: 107, t: "Proyekt 4 — Chat Bot",      f: "dars_107_proyekt_chatbot.html", ok: true },
+                { n: 108, t: "Proyekt 5 — Data Analysis", f: "dars_108_proyekt_data.html", ok: true },
+                { n: 109, t: "Proyekt 6 — Web Scraper",   f: "dars_109_proyekt_scraper.html", ok: true },
+                { n: 110, t: "Yakuniy proyektlar",        f: "dars_110_final.html",        ok: true },
+            ]},
+            { num: 17, name: "Qo'shimcha mavzular", lessons: [
+                { n: 111, t: "Package management (pip)",  f: "dars_111_pip.html",          ok: true },
+                { n: 112, t: "Dokumentatsiya",            f: "dars_112_dokumentatsiya.html", ok: true },
+                { n: 113, t: "Best practices",            f: "dars_113_best_practices.html", ok: true },
+                { n: 114, t: "Open Source",               f: "dars_114_open_source.html",  ok: true },
+                { n: 115, t: "Karyera (Career)",          f: "dars_115_career.html",       ok: true },
+            ]},
+            { num: 18, name: "GUI — tkinter", lessons: [
+                { n: 116, t: "tkinter — kirish va oyna",   f: "dars_116_tkinter_kirish.html",   ok: true },
+                { n: 117, t: "Widgetlar (Label, Button)",  f: "dars_117_widgetlar.html",        ok: true },
+                { n: 118, t: "Layout (pack, grid, place)", f: "dars_118_layout.html",           ok: true },
+                { n: 119, t: "Hodisalar (Events)",         f: "dars_119_hodisalar.html",        ok: true },
+                { n: 120, t: "Entry va forma",             f: "dars_120_entry_forma.html",      ok: true },
+                { n: 121, t: "Canvas va chizish",          f: "dars_121_canvas.html",           ok: true },
+                { n: 122, t: "Dialog va menyu",            f: "dars_122_dialog_menyu.html",     ok: true },
+                { n: 123, t: "Proyekt — GUI ilova",        f: "dars_123_gui_proyekt.html",      ok: true },
+            ]},
+            { num: 19, name: "NumPy va Pandas", lessons: [
+                { n: 124, t: "NumPy — array asoslari",     f: "dars_124_numpy_array.html",      ok: true },
+                { n: 125, t: "NumPy amallar va indexing",  f: "dars_125_numpy_amallar.html",    ok: true },
+                { n: 126, t: "Pandas — Series",            f: "dars_126_pandas_series.html",    ok: true },
+                { n: 127, t: "Pandas — DataFrame",         f: "dars_127_dataframe.html",        ok: true },
+                { n: 128, t: "Fayldan o'qish (CSV/Excel)", f: "dars_128_pandas_read.html",      ok: true },
+                { n: 129, t: "Ma'lumotni tozalash",        f: "dars_129_data_cleaning.html",    ok: true },
+                { n: 130, t: "groupby va agregatsiya",     f: "dars_130_groupby.html",          ok: true },
+                { n: 131, t: "merge va join",              f: "dars_131_merge.html",            ok: true },
+                { n: 132, t: "Pandas amaliy tahlil",       f: "dars_132_pandas_tahlil.html",    ok: true },
+                { n: 133, t: "Proyekt — ma'lumot tahlili", f: "dars_133_pandas_proyekt.html",   ok: true },
+            ]},
+            { num: 20, name: "Vizualizatsiya va ML asoslari", lessons: [
+                { n: 134, t: "matplotlib asoslari",        f: "dars_134_matplotlib.html",       ok: true },
+                { n: 135, t: "Grafik turlari",             f: "dars_135_grafik_turlari.html",   ok: true },
+                { n: 136, t: "seaborn bilan vizualizatsiya", f: "dars_136_seaborn.html",        ok: true },
+                { n: 137, t: "Machine Learning — kirish",  f: "dars_137_ml_kirish.html",        ok: true },
+                { n: 138, t: "scikit-learn asoslari",      f: "dars_138_sklearn.html",          ok: true },
+                { n: 139, t: "Train/Test va ma'lumot",     f: "dars_139_train_test.html",       ok: true },
+                { n: 140, t: "Regressiya",                 f: "dars_140_regressiya.html",       ok: true },
+                { n: 141, t: "Klassifikatsiya",            f: "dars_141_klassifikatsiya.html",  ok: true },
+                { n: 142, t: "Model baholash (metriklar)", f: "dars_142_metriklar.html",        ok: true },
+                { n: 143, t: "Klasterlash (K-Means)",      f: "dars_143_klasterlash.html",      ok: true },
+                { n: 144, t: "Overfitting va yaxshilash",  f: "dars_144_overfitting.html",      ok: true },
+                { n: 145, t: "Proyekt — ML model",         f: "dars_145_ml_proyekt.html",       ok: true },
+            ]},
+            { num: 21, name: "Django (Web Framework)", lessons: [
+                { n: 146, t: "Django — kirish",            f: "dars_146_django_kirish.html",    ok: true },
+                { n: 147, t: "Loyiha va app tuzilishi",    f: "dars_147_django_app.html",       ok: true },
+                { n: 148, t: "Modellar (Models)",          f: "dars_148_django_model.html",     ok: true },
+                { n: 149, t: "View va URL",                f: "dars_149_django_view.html",      ok: true },
+                { n: 150, t: "Template (Shablon)",         f: "dars_150_django_template.html",  ok: true },
+                { n: 151, t: "Forma va foydalanuvchi",     f: "dars_151_django_forma.html",     ok: true },
+                { n: 152, t: "Admin panel",                f: "dars_152_django_admin.html",     ok: true },
+                { n: 153, t: "Autentifikatsiya",           f: "dars_153_django_auth.html",      ok: true },
+                { n: 154, t: "ORM va so'rovlar",           f: "dars_154_django_orm.html",       ok: true },
+                { n: 155, t: "Proyekt — Django sayt",      f: "dars_155_django_proyekt.html",   ok: true },
+            ]},
+            { num: 22, name: "DevOps — Docker va CI/CD", lessons: [
+                { n: 156, t: "Docker — asoslar",           f: "dars_156_docker_asos.html",      ok: true },
+                { n: 157, t: "Image va Dockerfile",        f: "dars_157_dockerfile.html",       ok: true },
+                { n: 158, t: "Docker Compose",             f: "dars_158_docker_compose.html",   ok: true },
+                { n: 159, t: "CI/CD — kirish",             f: "dars_159_cicd_kirish.html",      ok: true },
+                { n: 160, t: "GitHub Actions",             f: "dars_160_github_actions.html",   ok: true },
+                { n: 161, t: "Env va maxfiy kalitlar",     f: "dars_161_env_secrets.html",      ok: true },
+                { n: 162, t: "Monitoring va loglar",       f: "dars_162_monitoring.html",       ok: true },
+                { n: 163, t: "Proyekt — deploy pipeline",  f: "dars_163_deploy_proyekt.html",   ok: true },
+            ]},
+            { num: 23, name: "Pro daraja va Capstone", lessons: [
+                { n: 164, t: "Type hints",                 f: "dars_164_type_hints.html",       ok: true },
+                { n: 165, t: "Dataclasses",                f: "dars_165_dataclasses.html",      ok: true },
+                { n: 166, t: "Async — ilg'or",             f: "dars_166_async_pro.html",        ok: true },
+                { n: 167, t: "Test — ilg'or (pytest)",     f: "dars_167_pytest_pro.html",       ok: true },
+                { n: 168, t: "Packaging va nashr",         f: "dars_168_packaging.html",        ok: true },
+                { n: 169, t: "Performance — ilg'or",       f: "dars_169_performance_pro.html",  ok: true },
+                { n: 170, t: "Design Patterns",            f: "dars_170_design_patterns.html",  ok: true },
+                { n: 171, t: "Capstone 1 — REST API",      f: "dars_171_capstone_api.html",     ok: true },
+                { n: 172, t: "Capstone 2 — Data pipeline", f: "dars_172_capstone_data.html",    ok: true },
+                { n: 173, t: "Capstone 3 — Web ilova",     f: "dars_173_capstone_web.html",     ok: true },
+                { n: 174, t: "Capstone 4 — Avtomatlashtirish", f: "dars_174_capstone_auto.html", ok: true },
+                { n: 175, t: "Yakuniy — Portfolio",        f: "dars_175_portfolio.html",        ok: true },
+            ]},
+        ];
+
+        // ====== RENDER ======
+        const modulesEl = document.getElementById('modules');
+        let total = 0, ready = 0;
+
+        MODULES.forEach(mod => {
+            const sec = document.createElement('div');
+            sec.className = 'module';
+
+            const lessonsHtml = mod.lessons.map(l => {
+                total++;
+                const isReady = l.ok;
+                if (isReady) ready++;
+                const cls = isReady ? 'lesson ready' : 'lesson locked';
+                const tag = isReady
+                    ? '<span class="badge">Boshlash →</span>'
+                    : '<span class="badge">Tez kunda</span>';
+                const inner = `
+                    <span class="num">${l.n}</span>
+                    <span class="info">
+                        <span class="t">${l.t}</span><br>
+                        ${tag}
+                    </span>`;
+                return isReady
+                    ? `<a class="${cls}" href="${l.f}">${inner}</a>`
+                    : `<div class="${cls}">${inner}</div>`;
+            }).join('');
+
+            sec.innerHTML = `
+                <div class="module-head">
+                    <div class="module-badge">M${mod.num}</div>
+                    <div class="module-title">
+                        <h2>${mod.name}</h2>
+                        <p>${mod.lessons.length} ta dars · ${mod.lessons[0].n}–${mod.lessons[mod.lessons.length-1].n}-darslar</p>
+                    </div>
+                </div>
+                <div class="lessons">${lessonsHtml}</div>`;
+            modulesEl.appendChild(sec);
+        });
+
+        // Stats + progress
+        document.getElementById('readyCount').textContent = ready;
+        const pct = Math.round((ready / total) * 100);
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent =
+            `${ready} / ${total} dars tayyor (${pct}%)`;
+    </script>
+</body>
+</html>
