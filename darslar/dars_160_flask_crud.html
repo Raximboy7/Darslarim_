@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 160: Database va Flask</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DATABASE TABLE VISUALIZER */
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .db-table th {
+            background: var(--dark);
+            color: var(--white);
+            padding: 10px 12px;
+            text-align: left;
+        }
+        .db-table td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; color: var(--dark); }
+        .db-table tr:nth-child(even) td { background: #f9fafb; }
+        .db-table .row-new td { animation: rowFlash 1.2s ease-out; }
+        @keyframes rowFlash {
+            from { background: var(--primary-light); }
+            to { background: transparent; }
+        }
+        .db-empty { color: var(--gray); font-style: italic; padding: 12px; text-align: center; }
+
+        /* MODEL -> JADVAL MAPPING */
+        .map-wrap { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; margin: 15px 0; }
+        .map-card { flex: 1; min-width: 240px; border-radius: 10px; overflow: hidden; }
+        .map-card .map-head { padding: 10px 14px; color: var(--white); font-weight: bold; font-size: 0.9em; }
+        .map-card.model .map-head { background: var(--secondary); }
+        .map-card.table .map-head { background: var(--primary-dark); }
+        .map-card .map-body {
+            background: #1f2937; color: #d4d4d4;
+            padding: 14px; font-family: monospace; font-size: 0.85em; line-height: 1.7;
+        }
+        .map-arrow { display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: var(--primary); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+            .map-arrow { transform: rotate(90deg); }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 14 — Web Asoslari · Dars 160 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Flask va Database</h1>
+                <p>Modul 14 — Web Asoslari | Dars 160</p>
+            </header>
+
+            <div class="section">
+                <h2>Database Nega Kerak?</h2>
+                <div class="description">
+                    Oldingi darslarda formadan kelgan ma'lumotni o'zgaruvchiga saqladik. Lekin dastur
+                    qayta ishga tushganda yoki server o'chganda — <strong>hamma ma'lumot yo'qoladi</strong>.
+                    <br><br>
+                    <strong>Database (ma'lumotlar bazasi)</strong> — ma'lumotni <span class="highlight-var">doimiy</span>
+                    saqlash uchun maxsus joy. Foydalanuvchilar, postlar, buyurtmalar — hammasi shu yerda
+                    yashaydi va server o'chsa ham yo'qolmaydi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy taqqoslash</strong>
+                    <p>
+                        O'zgaruvchi — bu qo'lyozma qog'oz: ish tugagach tashlanadi.<br>
+                        Database — bu daftar: yozganing doim qoladi, keyin qayta o'qiy olasan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>SQLite — Eng Oddiy Baza</h2>
+                <div class="description">
+                    <strong>SQLite</strong> — bu butun bazani <span class="highlight-var">bitta fayl</span>ga
+                    saqlaydigan oddiy ma'lumotlar bazasi. Alohida server o'rnatish kerak emas — Python
+                    bilan birga keladi. O'rganish va kichik loyihalar uchun ideal.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Baza shunchaki bitta fayl bo'ladi:</span><br>
+                        sqlite:///baza.db
+                    </div>
+                    <div class="comment-part">
+                        # baza.db fayli loyiha papkasida paydo bo'ladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Flask-SQLAlchemy — ORM</h2>
+                <div class="description">
+                    Baza bilan ishlash uchun odatda <strong>SQL</strong> tili yoziladi
+                    (<code>SELECT * FROM users</code>). Buni o'rganish vaqt oladi.
+                    <br><br>
+                    <strong>ORM</strong> (Object-Relational Mapping) bu ishni soddalashtiradi:
+                    SQL o'rniga oddiy <strong>Python class va obyektlar</strong> bilan ishlaysiz.
+                    Flask uchun bu vosita — <span class="highlight-var">Flask-SQLAlchemy</span>.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> flask <span class="keyword">import</span> Flask<br>
+                        <span class="keyword">from</span> flask_sqlalchemy <span class="keyword">import</span> SQLAlchemy<br>
+                        <br>
+                        app <span class="operator">=</span> <span class="function">Flask</span>(__name__)<br>
+                        app.config[<span class="string">"SQLALCHEMY_DATABASE_URI"</span>] <span class="operator">=</span> <span class="string">"sqlite:///baza.db"</span><br>
+                        db <span class="operator">=</span> <span class="function">SQLAlchemy</span>(app)
+                    </div>
+                    <div class="comment-part">
+                        # db — bu bazaga ulanish. Endi model yaratamiz.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Model Yaratish</h2>
+                <div class="description">
+                    <strong>Model</strong> — bu baza jadvalini tasvirlovchi Python class. Class bazadagi
+                    <strong>jadval</strong>ga, har bir <span class="highlight-var">db.Column</span>
+                    jadval <strong>ustun</strong>iga, har bir obyekt esa bitta <strong>qator</strong>ga
+                    mos keladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">User</span>(db.Model):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;id <span class="operator">=</span> db.<span class="function">Column</span>(db.Integer, primary_key<span class="operator">=</span><span class="boolean">True</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ism <span class="operator">=</span> db.<span class="function">Column</span>(db.String(<span class="number">80</span>))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;yosh <span class="operator">=</span> db.<span class="function">Column</span>(db.Integer)
+                    </div>
+                    <div class="comment-part">
+                        # id — har qatorning yagona raqami (primary key)<br>
+                        # ism — matn ustuni, yosh — son ustuni
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> app.app_context():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;db.<span class="function">create_all</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Bu modelga qarab bazada jadval yaratadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>CRUD Amallari</h2>
+                <div class="description">
+                    Baza bilan ishlashda 4 ta asosiy amal bor. Ularning bosh harflari
+                    <span class="highlight-var">CRUD</span> so'zini beradi:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Amal</th><th>Ma'nosi</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>C</strong> — Create</td><td>Qo'shish</td><td>Yangi qator yaratish</td></tr>
+                        <tr><td><strong>R</strong> — Read</td><td>O'qish</td><td>Ma'lumotni olish</td></tr>
+                        <tr><td><strong>U</strong> — Update</td><td>Yangilash</td><td>Mavjud qatorni o'zgartirish</td></tr>
+                        <tr><td><strong>D</strong> — Delete</td><td>O'chirish</td><td>Qatorni o'chirish</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Create — qo'shish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        yangi <span class="operator">=</span> <span class="function">User</span>(ism<span class="operator">=</span><span class="string">"Ali"</span>, yosh<span class="operator">=</span><span class="number">20</span>)<br>
+                        db.session.<span class="function">add</span>(yangi)<br>
+                        db.session.<span class="function">commit</span>()
+                    </div>
+                    <div class="comment-part">
+                        # add — navbatga qo'yadi, commit — bazaga yozadi
+                    </div>
+                </div>
+
+                <h3>Read — o'qish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        hammasi <span class="operator">=</span> User.query.<span class="function">all</span>()<br>
+                        bittasi <span class="operator">=</span> User.query.<span class="function">get</span>(<span class="number">1</span>)
+                    </div>
+                    <div class="comment-part">
+                        # all() — barcha qator, get(1) — id=1 bo'lgan qator
+                    </div>
+                </div>
+
+                <h3>Update — yangilash</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        u <span class="operator">=</span> User.query.<span class="function">get</span>(<span class="number">1</span>)<br>
+                        u.yosh <span class="operator">=</span> <span class="number">21</span><br>
+                        db.session.<span class="function">commit</span>()
+                    </div>
+                    <div class="comment-part">
+                        # Obyektni o'zgartirib, commit() qilamiz
+                    </div>
+                </div>
+
+                <h3>Delete — o'chirish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        u <span class="operator">=</span> User.query.<span class="function">get</span>(<span class="number">1</span>)<br>
+                        db.session.<span class="function">delete</span>(u)<br>
+                        db.session.<span class="function">commit</span>()
+                    </div>
+                    <div class="comment-part">
+                        # delete — o'chirishga belgilaydi, commit — tasdiqlaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eng Muhimi: commit()</strong>
+                <p>
+                    <span class="highlight-var">db.session.add/delete</span> — faqat rejani tayyorlaydi.<br>
+                    <span class="highlight-var">db.session.commit()</span> — o'zgarishlarni bazaga haqiqatdan yozadi.<br>
+                    commit() qilmasang — hech narsa saqlanmaydi!
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: CRUD Amallari (jonli jadval)</h2>
+                <div class="description">
+                    Quyida soxta <code>User</code> jadvali. Qo'shish, o'qish, yangilash va o'chirish
+                    tugmalarini bosib, bazaga nima bo'lishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="crudName" placeholder="ism" value="Ali">
+                        <input type="number" id="crudAge" placeholder="yosh" value="20" style="min-width:90px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="crudCreate()">Qo'shish (C)</button>
+                        <button onclick="crudRead()">O'qish (R)</button>
+                        <button onclick="crudUpdate()">Yangilash (U)</button>
+                        <button onclick="crudDelete()">O'chirish (D)</button>
+                    </div>
+                    <div class="demo-input" style="margin-bottom:0;">
+                        <input type="number" id="crudId" placeholder="id (U/D uchun)" value="1" style="min-width:130px;">
+                    </div>
+                    <div id="crudTableWrap"></div>
+                    <div class="demo-result" id="crudResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Model → Jadval Mosligi</h2>
+                <div class="description">
+                    Model ustunlarini o'zgartiring va o'ngda bazada qanday jadval hosil bo'lishini ko'ring.
+                    Class — jadvalga, har bir <code>db.Column</code> — ustunga aylanadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="modelClass" placeholder="class nomi" value="User">
+                        <input type="text" id="modelCols" placeholder="ustunlar (vergul bilan)" value="ism, yosh, email">
+                        <button onclick="buildMapping()">Jadval hosil qil</button>
+                    </div>
+                    <div class="map-wrap" id="mapWrap"></div>
+                    <div class="demo-result" id="mapResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Yangi Yozuv Qo'shib Ro'yxatni Yangilash</h2>
+                <div class="description">
+                    Bu xuddi haqiqiy ilovadagidek: yangi foydalanuvchi qo'shasiz va ro'yxat
+                    darhol yangilanadi. <code>add()</code> + <code>commit()</code> + <code>query.all()</code>.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="addName" placeholder="Yangi foydalanuvchi ismi" value="Guli">
+                        <button onclick="addAndRefresh()">add() + commit()</button>
+                    </div>
+                    <div id="listWrap"></div>
+                    <div class="demo-result" id="listResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Bazani ulang</strong>
+                            <p>Flask-SQLAlchemy o'rnating va SQLITE URI ni sozlang (sqlite:///baza.db)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Model yarating</strong>
+                            <p>class Talaba(db.Model) — id, ism va ball ustunlari bilan, so'ng db.create_all()</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Yozuv qo'shing (Create)</strong>
+                            <p>db.session.add(...) va db.session.commit() bilan 2-3 ta talaba qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>O'qing va yangilang (Read + Update)</strong>
+                            <p>Talaba.query.all() bilan ro'yxatni chiqaring, bittasining ballini o'zgartirib commit() qiling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 161: Deploy tushunchasi</p>
+                    <p style="opacity: 0.9;">
+                        Flask ilovangizni database bilan ishlaydigan qildingiz!<br>
+                        Endi uni internetga joylab, butun dunyoga ochishni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== Misol 1: CRUD ======
+        let users = [
+            { id: 1, ism: "Vali", yosh: 25 },
+            { id: 2, ism: "Hasan", yosh: 30 }
+        ];
+        let nextId = 3;
+
+        function renderCrudTable(newId) {
+            const wrap = document.getElementById('crudTableWrap');
+            if (users.length === 0) {
+                wrap.innerHTML = '<div class="db-empty">Jadval bo\'sh — qator yo\'q</div>';
+                return;
+            }
+            let rows = users.map(u => {
+                const cls = (u.id === newId) ? ' class="row-new"' : '';
+                return `<tr${cls}><td>${u.id}</td><td>${u.ism}</td><td>${u.yosh}</td></tr>`;
+            }).join('');
+            wrap.innerHTML = `<table class="db-table">
+                <thead><tr><th>id</th><th>ism</th><th>yosh</th></tr></thead>
+                <tbody>${rows}</tbody></table>`;
+        }
+
+        function showCrud(msg) {
+            const r = document.getElementById('crudResult');
+            r.classList.add('show');
+            r.innerHTML = msg;
+        }
+
+        function crudCreate() {
+            const ism = document.getElementById('crudName').value || "NoName";
+            const yosh = parseInt(document.getElementById('crudAge').value) || 0;
+            const id = nextId++;
+            users.push({ id, ism, yosh });
+            renderCrudTable(id);
+            showCrud(`>>> yangi = User(ism="${ism}", yosh=${yosh})<br>>>> db.session.add(yangi)<br>>>> db.session.commit()<br>>>> # qo'shildi: id=${id}`);
+        }
+
+        function crudRead() {
+            renderCrudTable();
+            const txt = users.map(u => `(${u.id}, '${u.ism}', ${u.yosh})`).join(', ');
+            showCrud(`>>> User.query.all()<br>>>> [${txt}]`);
+        }
+
+        function crudUpdate() {
+            const id = parseInt(document.getElementById('crudId').value);
+            const u = users.find(x => x.id === id);
+            if (!u) { showCrud(`>>> User.query.get(${id})<br>>>> None  # bunday id yo'q`); return; }
+            const yosh = parseInt(document.getElementById('crudAge').value) || u.yosh;
+            const ism = document.getElementById('crudName').value || u.ism;
+            u.ism = ism; u.yosh = yosh;
+            renderCrudTable(id);
+            showCrud(`>>> u = User.query.get(${id})<br>>>> u.ism = "${ism}"; u.yosh = ${yosh}<br>>>> db.session.commit()<br>>>> # yangilandi`);
+        }
+
+        function crudDelete() {
+            const id = parseInt(document.getElementById('crudId').value);
+            const before = users.length;
+            users = users.filter(x => x.id !== id);
+            renderCrudTable();
+            if (users.length === before) {
+                showCrud(`>>> User.query.get(${id})<br>>>> None  # o'chiriladigan qator topilmadi`);
+            } else {
+                showCrud(`>>> u = User.query.get(${id})<br>>>> db.session.delete(u)<br>>>> db.session.commit()<br>>>> # o'chirildi: id=${id}`);
+            }
+        }
+
+        // ====== Misol 2: Model -> Jadval ======
+        function buildMapping() {
+            const cls = (document.getElementById('modelClass').value || "User").trim();
+            const colsRaw = document.getElementById('modelCols').value || "ism";
+            const cols = colsRaw.split(',').map(c => c.trim()).filter(c => c.length > 0);
+
+            let modelLines = `<span style="color:#60a5fa;font-weight:bold;">class</span> <span style="color:#a78bfa;">${cls}</span>(db.Model):<br>`;
+            modelLines += `&nbsp;&nbsp;id = db.Column(db.Integer, primary_key=True)<br>`;
+            cols.forEach(c => {
+                modelLines += `&nbsp;&nbsp;${c} = db.Column(db.String)<br>`;
+            });
+
+            const tableName = cls.toLowerCase();
+            let headCells = `<th>id</th>` + cols.map(c => `<th>${c}</th>`).join('');
+
+            const mapWrap = document.getElementById('mapWrap');
+            mapWrap.innerHTML = `
+                <div class="map-card model">
+                    <div class="map-head">Python modeli (class)</div>
+                    <div class="map-body">${modelLines}</div>
+                </div>
+                <div class="map-arrow">→</div>
+                <div class="map-card table">
+                    <div class="map-head">Bazadagi jadval: ${tableName}</div>
+                    <div class="map-body">
+                        <table class="db-table" style="margin:0;"><thead><tr>${headCells}</tr></thead>
+                        <tbody><tr><td colspan="${cols.length + 1}" class="db-empty">(hozircha qator yo'q)</td></tr></tbody></table>
+                    </div>
+                </div>`;
+
+            const r = document.getElementById('mapResult');
+            r.classList.add('show');
+            r.innerHTML = `>>> class ${cls} -> jadval "${tableName}"<br>>>> ustunlar: id, ${cols.join(', ')}`;
+        }
+
+        // ====== Misol 3: Qo'shib ro'yxatni yangilash ======
+        let people = ["Ali", "Vali"];
+
+        function renderList(highlight) {
+            const wrap = document.getElementById('listWrap');
+            let rows = people.map((p, i) => {
+                const cls = (i === highlight) ? ' class="row-new"' : '';
+                return `<tr${cls}><td>${i + 1}</td><td>${p}</td></tr>`;
+            }).join('');
+            wrap.innerHTML = `<table class="db-table">
+                <thead><tr><th>id</th><th>ism</th></tr></thead>
+                <tbody>${rows}</tbody></table>`;
+        }
+
+        function addAndRefresh() {
+            const ism = document.getElementById('addName').value.trim();
+            if (!ism) {
+                const r = document.getElementById('listResult');
+                r.classList.add('show');
+                r.innerHTML = `>>> # ism bo'sh — avval ism yozing`;
+                return;
+            }
+            people.push(ism);
+            const idx = people.length - 1;
+            renderList(idx);
+            const r = document.getElementById('listResult');
+            r.classList.add('show');
+            r.innerHTML = `>>> yangi = User(ism="${ism}")<br>>>> db.session.add(yangi)<br>>>> db.session.commit()<br>>>> User.query.all()  # ${people.length} ta foydalanuvchi`;
+        }
+
+        // dastlabki ko'rinish
+        renderCrudTable();
+        buildMapping();
+        renderList();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

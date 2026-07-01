@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 58: Mustahkamlash</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 4 — Ma'lumot Tuzilmalari · Dars 58 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Mustahkamlash</h1>
+                <p>Modul 4 — Ma'lumot Tuzilmalari | Dars 58</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Modul 4 xulosasi</h2>
+                <p>Tabriklaymiz! Siz <b>Modul 4 — Ma'lumot Tuzilmalari</b>ni yakunladingiz. Bu darsda o'tilgan barcha mavzularni qisqacha eslab, 6 ta amaliy mashq bilan mustahkamlaymiz.</p>
+                <div class="info-box">
+                    <strong>Modul 4 da o'rganganlarimiz</strong>
+                    <p>• <b>List metodlari</b>: append, insert, remove, pop, sort, reverse<br>
+                    • <b>Slicing</b>: <code>list[boshlanish:tugash:qadam]</code><br>
+                    • <b>Tuple unpacking</b>: <code>a, b = 1, 2</code><br>
+                    • <b>Dict metodlari</b>: keys, values, items, get, update<br>
+                    • <b>Set operatsiyalari</b>: union, intersection, difference<br>
+                    • <b>List of dicts</b> va <b>nested structures</b></p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Mashq 1 — Takrorlanmas elementlar (set)</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Berilgan ro'yxatdan takrorlanuvchi elementlarni olib tashlab, faqat noyob qiymatlarni chiqaring.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>sonlar = [1, 2, 2, 3, 3, 3, 4, 5, 5]
+
+noyob = list(set(sonlar))
+noyob.sort()
+
+print("Noyob elementlar:", noyob)
+print("Soni:", len(noyob))</pre></div>
+                    <div class="comment-part"><code>set()</code> takrorlarni avtomatik o'chiradi. Keyin <code>list()</code> bilan qayta ro'yxatga aylantirib, <code>sort()</code> bilan tartiblaymiz.</div>
+                </div>
+                <div class="output-demo">>>> Noyob elementlar: [1, 2, 3, 4, 5]<br>>>> Soni: 5</div>
+            </div>
+
+            <div class="section">
+                <h2>Mashq 2 — Lug'atlar ro'yxatini saralash</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Talabalarni bahosi bo'yicha kamayish tartibida saralang (list of dicts).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>talabalar = [
+    {"ism": "Ali", "baho": 4},
+    {"ism": "Vali", "baho": 5},
+    {"ism": "Guli", "baho": 3}
+]
+
+talabalar.sort(key=lambda t: t["baho"], reverse=True)
+
+for t in talabalar:
+    print(t["ism"], "-", t["baho"])</pre></div>
+                    <div class="comment-part"><code>key=lambda t: t["baho"]</code> — har bir lug'atning "baho" qiymatiga qarab saralaydi. <code>reverse=True</code> — kattadan kichikka.</div>
+                </div>
+                <div class="output-demo">>>> Vali - 5<br>>>> Ali - 4<br>>>> Guli - 3</div>
+            </div>
+
+            <div class="section">
+                <h2>Mashq 3 — Matritsa yig'indisi</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Nested list (matritsa) dagi barcha sonlar yig'indisini toping.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matritsa = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+jami = 0
+for qator in matritsa:
+    for son in qator:
+        jami += son
+
+print("Barcha sonlar yig'indisi:", jami)</pre></div>
+                    <div class="comment-part">Ichma-ich <code>for</code>: tashqi loop qatorlarni, ichki loop har qatordagi sonlarni aylanadi va <code>jami</code>ga qo'shadi.</div>
+                </div>
+                <div class="output-demo">>>> Barcha sonlar yig'indisi: 45</div>
+            </div>
+
+            <div class="section">
+                <h2>Mashq 4 — So'zlar chastotasi (dict)</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Matndagi har bir so'z necha marta uchraganini hisoblang.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matn = "olma anor olma uzum anor olma"
+
+sozlar = matn.split()
+chastota = {}
+
+for soz in sozlar:
+    chastota[soz] = chastota.get(soz, 0) + 1
+
+for soz, son in chastota.items():
+    print(soz, ":", son)</pre></div>
+                    <div class="comment-part"><code>get(soz, 0)</code> — agar so'z lug'atda yo'q bo'lsa 0 qaytaradi, bor bo'lsa mavjud sonini. Har uchraganda +1 qilinadi.</div>
+                </div>
+                <div class="output-demo">>>> olma : 3<br>>>> anor : 2<br>>>> uzum : 1</div>
+            </div>
+
+            <div class="section">
+                <h2>Mashq 5 — Slicing va tuple unpacking</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Ro'yxatning birinchi, oxirgi elementini va o'rtadagilarni ajrating.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>raqamlar = [10, 20, 30, 40, 50]
+
+birinchi = raqamlar[0]
+oxirgi = raqamlar[-1]
+ortasi = raqamlar[1:-1]
+
+print("Birinchi:", birinchi)
+print("Oxirgi:", oxirgi)
+print("O'rtasi:", ortasi)
+
+# teskari tartib slicing bilan
+print("Teskari:", raqamlar[::-1])</pre></div>
+                    <div class="comment-part"><code>raqamlar[1:-1]</code> — birinchi va oxirgidan tashqari hammasi. <code>[::-1]</code> — ro'yxatni teskari aylantiradi.</div>
+                </div>
+                <div class="output-demo">>>> Birinchi: 10<br>>>> Oxirgi: 50<br>>>> O'rtasi: [20, 30, 40]<br>>>> Teskari: [50, 40, 30, 20, 10]</div>
+            </div>
+
+            <div class="section">
+                <h2>Mashq 6 — Set operatsiyalari</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Ikki guruhdagi umumiy va faqat bittasida bor talabalarni toping.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>python = {"Ali", "Vali", "Guli"}
+matematika = {"Vali", "Guli", "Hasan"}
+
+print("Ikkalasida:", python & matematika)   # intersection
+print("Hammasi:", python | matematika)       # union
+print("Faqat Python:", python - matematika)  # difference</pre></div>
+                    <div class="comment-part"><code>&amp;</code> — ikkala to'plamda bor elementlar, <code>|</code> — barcha elementlar (takrorsiz), <code>-</code> — birinchisida bor, ikkinchisida yo'q.</div>
+                </div>
+                <div class="output-demo">>>> Ikkalasida: {'Vali', 'Guli'}<br>>>> Hammasi: {'Ali', 'Vali', 'Guli', 'Hasan'}<br>>>> Faqat Python: {'Ali'}</div>
+            </div>
+
+            <div class="section">
+                <h2>Tabriklaymiz!</h2>
+                <div class="info-box">
+                    <strong>Modul 4 tugadi!</strong>
+                    <p>Siz endi Python'ning eng muhim ma'lumot tuzilmalarini — <b>list, tuple, dict, set</b> va ularning ichma-ich kombinatsiyalarini bilasiz. Bu bilimlar real dasturlarda ma'lumotni saqlash, saralash va tahlil qilishning asosidir.<br><br>
+                    Keyingi modulda <b>list comprehension</b> — ro'yxatlarni yanada qisqa va chiroyli yaratish usullarini o'rganamiz. Omad tilaymiz!</p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 59: List comprehension — kirish</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

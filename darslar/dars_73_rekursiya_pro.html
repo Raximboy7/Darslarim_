@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 73: Rekursiya va dinamik dasturlash</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DP CACHE GRID */
+        .cache-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+        .cache-cell { text-align: center; }
+        .cache-box {
+            min-width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #6b7280;
+            border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 0.95em;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            padding: 0 6px;
+        }
+        .cache-box.filled { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .cache-idx { font-size: 0.72em; color: var(--gray); margin-top: 4px; font-family: monospace; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #cbd5e1; color: #94a3b8; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 6 — Funksiyalar · Dars 73 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Rekursiya va Dinamik Dasturlash</h1>
+                <p>Modul 6 — Funksiyalar | Dars 73</p>
+            </header>
+
+            <div class="section">
+                <h2>Rekursiya — Qisqa Eslatma</h2>
+                <div class="description">
+                    <strong>Rekursiya</strong> — bu funksiyaning o'zini o'zi chaqirishidir. Katta masala
+                    har safar bir oz <strong>kichikroq</strong> masalaga aylanadi va oxir-oqibat eng oddiy
+                    holatga (bazaviy holatga) yetadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">faktorial</span>(n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> n <span class="operator">==</span> <span class="number">0</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> n <span class="operator">*</span> <span class="function">faktorial</span>(n <span class="operator">-</span> <span class="number">1</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Bazaviy holat: n == 0 bo'lsa 1 qaytaradi<br>
+                        # Aks holda o'zini kichikroq n bilan chaqiradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> faktorial(4)<br>
+                    >>> 24
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Dinamik Dasturlash Nima?</h2>
+                <div class="description">
+                    <strong>Dinamik dasturlash (DP)</strong> — bu katta masalani <strong>kichik
+                    qism masalalarga</strong> bo'lib yechish usulidir. Asosiy g'oya:
+                    <strong>bir marta hisoblangan natijani saqlab qo'yamiz</strong> va keyin uni
+                    qayta hisoblamaymiz — saqlangan javobni o'qib olamiz.
+                </div>
+                <div class="info-box">
+                    <strong>DP qachon ishlaydi?</strong>
+                    <p>
+                        Masala bir xil qism masalalarga qayta-qayta bo'linganda. Masalan oddiy rekursiv
+                        Fibonacci bir xil qiymatni minglab marta qayta hisoblaydi — bu juda sekin.
+                        DP shu takror hisoblardan qutqaradi.
+                    </p>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Yondashuv</th><th>G'oya</th><th>Nomi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Memoization</code></td><td>Rekursiya + natijani keshda saqlash</td><td>Yuqoridan-pastga (top-down)</td></tr>
+                        <tr><td><code>Tabulation</code></td><td>Jadvalni kichikdan kattaga to'ldirish</td><td>Pastdan-yuqoriga (bottom-up)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Memoization — Natijalarni Saqlash (top-down)</h2>
+                <div class="description">
+                    <strong>Memoization</strong> — rekursiyaga <span class="highlight-var">kesh</span>
+                    (xotira lug'ati) qo'shamiz. Har bir hisoblangan natijani saqlaymiz; keyin yana
+                    so'ralsa, qayta hisoblamasdan keshdan o'qiymiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        kesh <span class="operator">=</span> {}<br>
+                        <span class="keyword">def</span> <span class="function">fib</span>(n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> n <span class="operator">&lt;</span> <span class="number">2</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> n<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> n <span class="keyword">in</span> kesh:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> kesh[n]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;kesh[n] <span class="operator">=</span> <span class="function">fib</span>(n<span class="operator">-</span><span class="number">1</span>) <span class="operator">+</span> <span class="function">fib</span>(n<span class="operator">-</span><span class="number">2</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> kesh[n]
+                    </div>
+                    <div class="comment-part">
+                        # Avval keshni tekshiramiz<br>
+                        # Yangi natijani keshga yozib qo'yamiz<br>
+                        # Shunda har qiymat faqat BIR marta hisoblanadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Tayyor vosita</strong>
+                    <p>
+                        Python'da <span class="highlight-var">@lru_cache</span> dekoratori avtomatik
+                        memoization beradi: <span class="highlight-var">functools</span> dan import qilinadi
+                        va funksiya ustiga yoziladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Tabulation — Jadval Bilan (bottom-up)</h2>
+                <div class="description">
+                    <strong>Tabulation</strong> — rekursiyasiz. Biz kichik qiymatlardan boshlab
+                    <strong>jadvalni</strong> (ro'yxatni) to'ldirib boramiz. Har bir keyingi qiymat
+                    oldingilaridan hisoblanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">fib</span>(n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;jadval <span class="operator">=</span> [<span class="number">0</span>, <span class="number">1</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">2</span>, n<span class="operator">+</span><span class="number">1</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jadval.<span class="function">append</span>(jadval[i<span class="operator">-</span><span class="number">1</span>] <span class="operator">+</span> jadval[i<span class="operator">-</span><span class="number">2</span>])<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> jadval[n]
+                    </div>
+                    <div class="comment-part">
+                        # 0 va 1 dan boshlaymiz<br>
+                        # Har qadamda oxirgi ikkitasini qo'shamiz<br>
+                        # Jadval kichikdan kattaga to'ladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> fib(10)<br>
+                    >>> 55
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Fibonacci: Oddiy vs Memoization</h2>
+                <div class="description">
+                    Oddiy rekursiv Fibonacci har bir qiymatni qayta-qayta hisoblaydi —
+                    n kattalashganda hisoblar soni <strong>portlab ketadi</strong>. Memoization esa
+                    har qiymatni faqat bir marta hisoblaydi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>n</th><th>Oddiy rekursiya (chaqiruvlar)</th><th>Memoization (chaqiruvlar)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>fib(10)</code></td><td>177</td><td>19</td></tr>
+                        <tr><td><code>fib(20)</code></td><td>21891</td><td>39</td></tr>
+                        <tr><td><code>fib(30)</code></td><td>2692537</td><td>59</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Xulosa</strong>
+                    <p>
+                        Oddiy usul deyarli ikki barobar tezroq o'sadi (eksponensial), memoization esa
+                        chiziqli (n ga mutanosib). Ana shu DP ning kuchi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Oddiy vs Memoized Fibonacci</h2>
+                <div class="description">
+                    n kiriting va ikkala usul Fibonacci'ni hisoblash uchun necha marta funksiya
+                    chaqirilishini taqqoslang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="cmpN" placeholder="n" value="15" min="0" max="35">
+                        <button onclick="demoCompare()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Memoization Keshi To'lib Borishi</h2>
+                <div class="description">
+                    fib(n) ni memoization bilan hisoblaganda kesh qanday to'lib borishini ko'ring.
+                    Yashil kataklar — keshda saqlangan qiymatlar.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="cacheN" placeholder="n" value="9" min="2" max="20">
+                        <button onclick="demoCache()">Keshni to'ldir</button>
+                    </div>
+                    <div class="cache-grid" id="cacheGrid"></div>
+                    <div class="demo-result" id="resultCache"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Fibonacci Qiymatini Hisoblash</h2>
+                <div class="description">
+                    n ning Fibonacci qiymatini tez (tabulation) usulda hisoblang va butun ketma-ketlikni
+                    ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="valN" placeholder="n" value="10" min="0" max="40">
+                        <button onclick="demoValue()">Hisobla</button>
+                    </div>
+                    <div class="demo-result" id="resultValue"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Rekursiya — funksiyaning o'zini o'zi chaqirishi<br>
+                    • DP — katta masalani kichiklarga bo'lib, takror hisoblardan qochish<br>
+                    • <span class="highlight-var">Memoization</span> — rekursiya + kesh (top-down)<br>
+                    • <span class="highlight-var">Tabulation</span> — jadval bilan (bottom-up)<br>
+                    • DP sekin rekursiyani tez yechimga aylantiradi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Oddiy rekursiv fib yozing</strong>
+                            <p>def fib(n) — bazaviy holat va ikki chaqiruv bilan</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Keshli versiyani qo'shing</strong>
+                            <p>Lug'at (kesh) bilan memoization qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Tabulation bilan yozing</strong>
+                            <p>For sikli va ro'yxat (jadval) yordamida</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Tezlikni taqqoslang</strong>
+                            <p>fib(35) ni har uchala usulda chaqirib farqni his qiling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 74: Loyiha: Funksiyalar kutubxonasi</p>
+                    <p style="opacity: 0.9;">
+                        Rekursiya va dinamik dasturlashni o'rgandingiz!<br>
+                        Endi ma'lumotlarni saqlovchi Stack va Queue tuzilmalarini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Oddiy rekursiv fib uchun chaqiruvlar sonini sanaymiz
+        function countNaive(n) {
+            if (n < 2) return 1;
+            return 1 + countNaive(n - 1) + countNaive(n - 2);
+        }
+        // Memoization uchun chaqiruvlar sonini sanaymiz
+        function countMemo(n, cache, counter) {
+            counter.calls++;
+            if (n < 2) return n;
+            if (cache[n] !== undefined) return cache[n];
+            cache[n] = countMemo(n - 1, cache, counter) + countMemo(n - 2, cache, counter);
+            return cache[n];
+        }
+
+        function demoCompare() {
+            let n = parseInt(document.getElementById('cmpN').value);
+            if (isNaN(n) || n < 0) n = 0;
+            if (n > 35) n = 35;
+            const naive = countNaive(n);
+            const counter = { calls: 0 };
+            countMemo(n, {}, counter);
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> fib(${n}) hisoblash<br>` +
+                `Oddiy rekursiya: ${naive} ta chaqiruv<br>` +
+                `Memoization: ${counter.calls} ta chaqiruv<br>` +
+                `>>> Memoization ~${(naive / counter.calls).toFixed(0)} barobar kam ishlaydi`;
+        }
+
+        function demoCache() {
+            let n = parseInt(document.getElementById('cacheN').value);
+            if (isNaN(n) || n < 2) n = 2;
+            if (n > 20) n = 20;
+            const grid = document.getElementById('cacheGrid');
+            grid.innerHTML = '';
+            // jadval kataklarini chizamiz
+            const vals = [0, 1];
+            for (let i = 2; i <= n; i++) vals.push(null);
+            for (let i = 0; i <= n; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cache-cell';
+                cell.innerHTML =
+                    `<div class="cache-box" id="ch-${i}">${vals[i] === null ? '?' : vals[i]}</div>` +
+                    `<div class="cache-idx">f(${i})</div>`;
+                grid.appendChild(cell);
+            }
+            // boshlang'ich ikkitasini darhol yashil qilamiz
+            document.getElementById('ch-0').classList.add('filled');
+            document.getElementById('ch-1').classList.add('filled');
+            // qadam-baqadam to'ldiramiz
+            let i = 2;
+            const fill = setInterval(() => {
+                if (i > n) {
+                    clearInterval(fill);
+                    const result = document.getElementById('resultCache');
+                    result.classList.add('show');
+                    result.innerHTML = `>>> Kesh to'ldi: f(${n}) = ${vals[n]}<br>>>> Har qiymat faqat bir marta hisoblandi`;
+                    return;
+                }
+                vals[i] = vals[i - 1] + vals[i - 2];
+                const box = document.getElementById('ch-' + i);
+                box.textContent = vals[i];
+                box.classList.add('filled');
+                i++;
+            }, 350);
+        }
+
+        function demoValue() {
+            let n = parseInt(document.getElementById('valN').value);
+            if (isNaN(n) || n < 0) n = 0;
+            if (n > 40) n = 40;
+            const seq = [0, 1];
+            for (let i = 2; i <= n; i++) seq.push(seq[i - 1] + seq[i - 2]);
+            const result = document.getElementById('resultValue');
+            result.classList.add('show');
+            const shown = seq.slice(0, n + 1).join(', ');
+            result.innerHTML = `>>> Ketma-ketlik: ${shown}<br>>>> fib(${n}) = ${seq[n]}`;
+        }
+
+        // dastlabki ko'rinish
+        demoCache();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

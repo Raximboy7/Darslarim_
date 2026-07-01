@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 90: Built-in exceptions</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+        .output-demo.error {
+            color: #fca5a5;
+            border-left-color: #ef4444;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        select { flex: 1; min-width: 160px; background: var(--white); cursor: pointer; }
+        input:focus, select:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* MATCH GAME */
+        .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 15px 0; }
+        .match-col { display: flex; flex-direction: column; gap: 10px; }
+        .match-item {
+            padding: 12px 14px;
+            background: var(--white);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+        .match-item:hover { background: var(--primary-light); }
+        .match-item.selected { background: var(--secondary); color: var(--white); border-color: var(--secondary); }
+        .match-item.done { background: var(--primary); color: var(--white); border-color: var(--primary); cursor: default; opacity: 0.85; }
+        .match-item code { font-family: 'Monaco', monospace; font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+            .match-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 8 — Xatolar, Test va Debug · Dars 90 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Built-in Exception Turlari</h1>
+                <p>Modul 8 — Xatolar, Test va Debug | Dars 90</p>
+            </header>
+
+            <div class="section">
+                <h2>Built-in Exception Nima?</h2>
+                <div class="description">
+                    Python ichida juda ko'p <strong>tayyor (built-in) xato turlari</strong> bor. Dasturda
+                    biror narsa noto'g'ri bo'lganda Python o'zi mos xato turini "tashlaydi" (raises).
+                    Har bir xatoning <strong>nomi</strong> bor — masalan
+                    <span class="highlight-var">NameError</span>,
+                    <span class="highlight-var">TypeError</span>,
+                    <span class="highlight-var">ValueError</span>.
+                    Xato nomini bilsangiz, muammoni tezroq topasiz.
+                </div>
+                <div class="info-box">
+                    <strong>Asosiy g'oya</strong>
+                    <p>
+                        Xato turini tanish — bu kasallikni tashxis qilishga o'xshaydi.
+                        Python sizga "qaysi turdagi xato yuz berdi" deb aytadi, siz esa
+                        shu nom bo'yicha sababni topasiz va tuzatasiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy Xato Turlari (Katta Jadval)</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xato nomi</th><th>Sabab</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>NameError</code></td><td>Noma'lum o'zgaruvchi ishlatildi</td><td><code>print(yosh)</code></td></tr>
+                        <tr><td><code>TypeError</code></td><td>Noto'g'ri tur ustida amal</td><td><code>"2" + 2</code></td></tr>
+                        <tr><td><code>ValueError</code></td><td>Tur to'g'ri, lekin qiymat noto'g'ri</td><td><code>int("salom")</code></td></tr>
+                        <tr><td><code>IndexError</code></td><td>Ro'yxatda yo'q indeks</td><td><code>[1,2][5]</code></td></tr>
+                        <tr><td><code>KeyError</code></td><td>Lug'atda (dict) yo'q kalit</td><td><code>d["yosh"]</code></td></tr>
+                        <tr><td><code>ZeroDivisionError</code></td><td>Nolga bo'lish</td><td><code>10 / 0</code></td></tr>
+                        <tr><td><code>FileNotFoundError</code></td><td>Fayl topilmadi</td><td><code>open("yoq.txt")</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>NameError — Noma'lum o'zgaruvchi</h2>
+                <div class="description">
+                    O'zgaruvchini e'lon qilmasdan ishlatsangiz yoki nomini noto'g'ri yozsangiz yuz beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(yosh)
+                    </div>
+                    <div class="comment-part">
+                        # "yosh" o'zgaruvchisi hech qachon yaratilmagan
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    NameError: name 'yosh' is not defined
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>TypeError — Noto'g'ri tur</h2>
+                <div class="description">
+                    Bir-biriga mos kelmaydigan turlar ustida amal qilsangiz yuz beradi. Masalan
+                    matn (string) va son (int) ni <span class="highlight-var">+</span> bilan qo'shsangiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        natija = <span class="string">"2"</span> <span class="operator">+</span> <span class="number">2</span>
+                    </div>
+                    <div class="comment-part">
+                        # String va int ni qo'shib bo'lmaydi
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    TypeError: can only concatenate str (not "int") to str
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>ValueError — Noto'g'ri qiymat</h2>
+                <div class="description">
+                    Tur to'g'ri, ammo qiymat amalga to'g'ri kelmaydi. Masalan
+                    <span class="highlight-var">int()</span> ga raqam bo'lmagan matn bersangiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        son = <span class="function">int</span>(<span class="string">"salom"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # "salom" ni butun songa aylantirib bo'lmaydi
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    ValueError: invalid literal for int() with base 10: 'salom'
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>IndexError — Yo'q indeks</h2>
+                <div class="description">
+                    Ro'yxatda mavjud bo'lmagan indeksga murojaat qilsangiz yuz beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ronxat = [<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>]<br>
+                        <span class="function">print</span>(ronxat[<span class="number">5</span>])
+                    </div>
+                    <div class="comment-part">
+                        # Faqat 0, 1, 2 indekslar bor — 5 yo'q
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    IndexError: list index out of range
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>KeyError — Yo'q kalit</h2>
+                <div class="description">
+                    Lug'atda (dictionary) mavjud bo'lmagan kalitni so'rasangiz yuz beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        odam = {<span class="string">"ism"</span>: <span class="string">"Ali"</span>}<br>
+                        <span class="function">print</span>(odam[<span class="string">"yosh"</span>])
+                    </div>
+                    <div class="comment-part">
+                        # Lug'atda faqat "ism" bor, "yosh" yo'q
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    KeyError: 'yosh'
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>ZeroDivisionError — Nolga bo'lish</h2>
+                <div class="description">
+                    Matematikada sonni nolga bo'lib bo'lmaydi. Python ham buni xato deb hisoblaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        natija = <span class="number">10</span> <span class="operator">/</span> <span class="number">0</span>
+                    </div>
+                    <div class="comment-part">
+                        # Nolga bo'lib bo'lmaydi
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    ZeroDivisionError: division by zero
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>FileNotFoundError — Fayl yo'q</h2>
+                <div class="description">
+                    Mavjud bo'lmagan faylni ochmoqchi bo'lsangiz yuz beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        fayl = <span class="function">open</span>(<span class="string">"yoq.txt"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Bunday nomli fayl mavjud emas
+                    </div>
+                </div>
+                <div class="output-demo error">
+                    FileNotFoundError: [Errno 2] No such file or directory: 'yoq.txt'
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">NameError</span> — o'zgaruvchi yo'q yoki nomi xato<br>
+                    • <span class="highlight-var">TypeError</span> — turlar mos emas<br>
+                    • <span class="highlight-var">ValueError</span> — qiymat noto'g'ri<br>
+                    • <span class="highlight-var">IndexError</span> / <span class="highlight-var">KeyError</span> — yo'q indeks / kalit<br>
+                    • <span class="highlight-var">ZeroDivisionError</span> — nolga bo'lish<br>
+                    • <span class="highlight-var">FileNotFoundError</span> — fayl topilmadi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Xato Turini Tanlang</h2>
+                <div class="description">
+                    Xato turini tanlang — uni keltirib chiqaradigan kod va Python beradigan xabar ko'rsatiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="errSelect">
+                            <option value="NameError">NameError</option>
+                            <option value="TypeError">TypeError</option>
+                            <option value="ValueError">ValueError</option>
+                            <option value="IndexError">IndexError</option>
+                            <option value="KeyError">KeyError</option>
+                            <option value="ZeroDivisionError">ZeroDivisionError</option>
+                            <option value="FileNotFoundError">FileNotFoundError</option>
+                        </select>
+                        <button onclick="showError()">Ko'rsat</button>
+                    </div>
+                    <div class="demo-result" id="resultError"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Qaysi Xato Chiqadi?</h2>
+                <div class="description">
+                    Kod parchasini tanlang va Python qaysi xatoni beradi — taxmin qilib, tugmani bosing.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="codeSelect">
+                            <option value="0">print(salom)</option>
+                            <option value="1">"3" + 5</option>
+                            <option value="2">int("abc")</option>
+                            <option value="3">[1, 2, 3][9]</option>
+                            <option value="4">{"a": 1}["b"]</option>
+                            <option value="5">8 / 0</option>
+                        </select>
+                        <button onclick="guessError()">Qaysi xato?</button>
+                    </div>
+                    <div class="demo-result" id="resultGuess"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Xato → Sabab Moslashtirish</h2>
+                <div class="description">
+                    Chap ustundan xato nomini, o'ng ustundan unga mos sababni bosing. To'g'ri juftliklar yashil bo'ladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="match-grid">
+                        <div class="match-col" id="leftCol"></div>
+                        <div class="match-col" id="rightCol"></div>
+                    </div>
+                    <button onclick="resetMatch()">Qaytadan boshlash</button>
+                    <div class="demo-result" id="resultMatch"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Atayin xato chiqaring</strong>
+                            <p>Yangi faylga <span class="highlight-var">print(narx)</span> yozing — NameError ni ko'ring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Xato nomini o'qing</strong>
+                            <p>Terminalda eng oxirgi qatorda xato nomi va izoh yoziladi — uni diqqat bilan o'qing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Boshqa xatolarni sinab ko'ring</strong>
+                            <p><span class="highlight-var">10 / 0</span>, <span class="highlight-var">int("uch")</span>, <span class="highlight-var">[1,2][7]</span> — har birining nomini yozib oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Sabab va yechimni yozing</strong>
+                            <p>Har bir xato uchun: nomi, sababi, qanday tuzatish mumkinligini daftarga yozing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 91: O'z xatongni raise qilish</p>
+                    <p style="opacity: 0.9;">
+                        Tayyor xato turlarini o'rgandingiz!<br>
+                        Endi <span style="font-family: monospace;">raise</span> bilan o'zingizning maxsus xatolaringizni yaratishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ERRORS = {
+            NameError: {
+                code: 'print(yosh)',
+                msg: "NameError: name 'yosh' is not defined",
+                reason: "noma'lum o'zgaruvchi ishlatildi"
+            },
+            TypeError: {
+                code: '"2" + 2',
+                msg: 'TypeError: can only concatenate str (not "int") to str',
+                reason: "noto'g'ri tur ustida amal (string + son)"
+            },
+            ValueError: {
+                code: 'int("salom")',
+                msg: "ValueError: invalid literal for int() with base 10: 'salom'",
+                reason: "noto'g'ri qiymat berildi"
+            },
+            IndexError: {
+                code: '[10, 20, 30][5]',
+                msg: 'IndexError: list index out of range',
+                reason: "ro'yxatda yo'q indeks so'raldi"
+            },
+            KeyError: {
+                code: '{"ism": "Ali"}["yosh"]',
+                msg: "KeyError: 'yosh'",
+                reason: "lug'atda yo'q kalit so'raldi"
+            },
+            ZeroDivisionError: {
+                code: '10 / 0',
+                msg: 'ZeroDivisionError: division by zero',
+                reason: "son nolga bo'lindi"
+            },
+            FileNotFoundError: {
+                code: 'open("yoq.txt")',
+                msg: "FileNotFoundError: [Errno 2] No such file or directory: 'yoq.txt'",
+                reason: "mavjud bo'lmagan fayl ochildi"
+            }
+        };
+
+        function showError() {
+            const name = document.getElementById('errSelect').value;
+            const e = ERRORS[name];
+            const result = document.getElementById('resultError');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${e.code}<br>` +
+                `<span style="color:#fca5a5;">${e.msg}</span><br>` +
+                `<span style="color:#fbbf24;"># Sabab: ${e.reason}</span>`;
+        }
+
+        const CODE_SNIPPETS = [
+            { code: 'print(salom)', err: 'NameError', note: "salom o'zgaruvchisi mavjud emas" },
+            { code: '"3" + 5', err: 'TypeError', note: "string va int ni qo'shib bo'lmaydi" },
+            { code: 'int("abc")', err: 'ValueError', note: '"abc" ni songa aylantirib bo\'lmaydi' },
+            { code: '[1, 2, 3][9]', err: 'IndexError', note: "9-indeks ro'yxatda yo'q" },
+            { code: '{"a": 1}["b"]', err: 'KeyError', note: '"b" kaliti lug\'atda yo\'q' },
+            { code: '8 / 0', err: 'ZeroDivisionError', note: "nolga bo'lish mumkin emas" }
+        ];
+
+        function guessError() {
+            const i = parseInt(document.getElementById('codeSelect').value);
+            const s = CODE_SNIPPETS[i];
+            const result = document.getElementById('resultGuess');
+            result.classList.add('show');
+            result.innerHTML = `>>> ${s.code}<br>` +
+                `<span style="color:#fca5a5;">${s.err}</span><br>` +
+                `<span style="color:#fbbf24;"># ${s.note}</span>`;
+        }
+
+        const MATCH_DATA = [
+            { err: 'NameError', reason: "Noma'lum o'zgaruvchi ishlatildi" },
+            { err: 'ValueError', reason: 'int("salom") — qiymat noto\'g\'ri' },
+            { err: 'IndexError', reason: "Ro'yxatda yo'q indeks" },
+            { err: 'ZeroDivisionError', reason: "Son nolga bo'lindi" }
+        ];
+
+        let selectedErr = null;
+        let matchedCount = 0;
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function buildMatch() {
+            selectedErr = null;
+            matchedCount = 0;
+            const left = document.getElementById('leftCol');
+            const right = document.getElementById('rightCol');
+            left.innerHTML = '';
+            right.innerHTML = '';
+            const result = document.getElementById('resultMatch');
+            result.classList.remove('show');
+            result.innerHTML = '';
+
+            MATCH_DATA.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'match-item';
+                el.innerHTML = `<code>${d.err}</code>`;
+                el.dataset.err = d.err;
+                el.onclick = () => pickErr(el);
+                left.appendChild(el);
+            });
+
+            shuffle(MATCH_DATA).forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'match-item';
+                el.textContent = d.reason;
+                el.dataset.err = d.err;
+                el.onclick = () => pickReason(el);
+                right.appendChild(el);
+            });
+        }
+
+        function pickErr(el) {
+            if (el.classList.contains('done')) return;
+            document.querySelectorAll('#leftCol .match-item').forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedErr = el;
+        }
+
+        function pickReason(el) {
+            if (el.classList.contains('done') || !selectedErr) return;
+            const result = document.getElementById('resultMatch');
+            result.classList.add('show');
+            if (el.dataset.err === selectedErr.dataset.err) {
+                el.classList.add('done');
+                selectedErr.classList.add('done');
+                selectedErr.classList.remove('selected');
+                selectedErr = null;
+                matchedCount++;
+                if (matchedCount === MATCH_DATA.length) {
+                    result.innerHTML = `<span style="color:#34d399;">Barakalla! Hammasini to'g'ri moslashtirdingiz!</span>`;
+                } else {
+                    result.innerHTML = `<span style="color:#34d399;">To'g'ri! (${matchedCount}/${MATCH_DATA.length})</span>`;
+                }
+            } else {
+                result.innerHTML = `<span style="color:#fca5a5;">Noto'g'ri juftlik. Yana urinib ko'ring.</span>`;
+                selectedErr.classList.remove('selected');
+                selectedErr = null;
+            }
+        }
+
+        function resetMatch() {
+            buildMatch();
+        }
+
+        // dastlabki ko'rinish
+        buildMatch();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

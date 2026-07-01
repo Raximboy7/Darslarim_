@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 103: Static va class metodlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 9 — OOP · Dars 103 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Statik va Klass Metodlar</h1>
+                <p>Modul 9 — OOP | Dars 103</p>
+            </header>
+
+            <div class="section">
+                <h2>Uch Xil Metod Bor</h2>
+                <div class="description">
+                    Klass ichida uch turdagi metod yozish mumkin. Ularning farqi —
+                    <strong>birinchi argument</strong> nima bo'lishida:
+                    <span class="highlight-var">self</span>, <span class="highlight-var">cls</span> yoki umuman hech narsa.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Turi</th><th>Birinchi argument</th><th>Nima bilan ishlaydi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Instance metod</td><td><code>self</code></td><td>Aniq obyekt (masalan: bitta talaba)</td></tr>
+                        <tr><td><code>@classmethod</code></td><td><code>cls</code></td><td>Klassning o'zi (barcha obyektlar)</td></tr>
+                        <tr><td><code>@staticmethod</code></td><td>(yo'q)</td><td>Hech narsa — mustaqil yordamchi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>1. Instance Metod (eslatma)</h2>
+                <div class="description">
+                    Bu biz odatda yozadigan metod. Birinchi argumenti <span class="highlight-var">self</span> —
+                    u <strong>aniq obyektni</strong> bildiradi. Shu obyektning ma'lumotlari bilan ishlaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">salomlash</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">f"Salom, {self.ism}!"</span>
+                    </div>
+                    <div class="comment-part">
+                        # self orqali aynan shu obyektning ismiga murojaat qilamiz<br>
+                        # Talaba("Ali").salomlash() → "Salom, Ali!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. @staticmethod — Mustaqil Yordamchi</h2>
+                <div class="description">
+                    Ba'zan metod klass ichida joylashgan, lekin na obyektga
+                    (<span class="highlight-var">self</span>), na klassga (<span class="highlight-var">cls</span>) muhtoj
+                    bo'ladi. U shunchaki <strong>mustaqil yordamchi funksiya</strong> — faqat o'ziga kelgan
+                    argumentlar bilan ishlaydi. Ustiga <span class="highlight-var">@staticmethod</span> yoziladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Matematika</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">@</span>staticmethod<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">qoshish</span>(a, b):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> a <span class="operator">+</span> b<br>
+                        <br>
+                        <span class="function">print</span>(Matematika.qoshish(<span class="number">2</span>, <span class="number">3</span>))
+                    </div>
+                    <div class="comment-part">
+                        # self yo'q — obyekt yaratmasdan to'g'ridan-to'g'ri chaqiramiz<br>
+                        # Klass shunchaki funksiyalarni bir joyga to'playdi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 5
+                </div>
+                <div class="info-box">
+                    <strong>Qachon ishlatiladi?</strong>
+                    <p>Metod mantiqan klassga taalluqli, lekin obyektning ma'lumotlariga kerak bo'lmasa.
+                    Masalan: hisoblash, tekshirish, formatlash kabi yordamchi vazifalar.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Klass va Instance O'zgaruvchisi</h2>
+                <div class="description">
+                    <strong>Klass o'zgaruvchisi</strong> (class variable) — klass ichida, metodlardan tashqarida
+                    yoziladi va <strong>barcha obyektlar uchun umumiy</strong>.<br>
+                    <strong>Instance o'zgaruvchisi</strong> — <span class="highlight-var">self.</span> bilan yoziladi va
+                    <strong>har obyektga alohida</strong> tegishli.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;maktab <span class="operator">=</span> <span class="string">"1-maktab"</span>&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                    <div class="comment-part">
+                        # maktab — klass o'zgaruvchisi (hammaga umumiy)<br>
+                        # self.ism — instance o'zgaruvchisi (har kimga alohida)
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>Klass o'zgaruvchisi</th><th>Instance o'zgaruvchisi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Qayerda</td><td>Metodlardan tashqarida</td><td><code>self.</code> bilan, __init__ ichida</td></tr>
+                        <tr><td>Kimga tegishli</td><td>Barcha obyektlarga umumiy</td><td>Har obyektga alohida</td></tr>
+                        <tr><td>Misol</td><td>Talaba soni, maktab nomi</td><td>Ism, yosh, ball</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>4. @classmethod — Klass Bilan Ishlaydi</h2>
+                <div class="description">
+                    <span class="highlight-var">@classmethod</span> ning birinchi argumenti
+                    <span class="highlight-var">cls</span> — bu <strong>klassning o'zi</strong>. U aniq bir obyekt bilan emas,
+                    balki <strong>butun klass darajasida</strong> ish ko'radi. Masalan: yaratilgan obyektlar sonini sanash
+                    yoki klass o'zgaruvchisini o'zgartirish.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;soni <span class="operator">=</span> <span class="number">0</span><br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Talaba.soni <span class="operator">+=</span> <span class="number">1</span><br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">@</span>classmethod<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">nechta</span>(cls):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> cls.soni
+                    </div>
+                    <div class="comment-part">
+                        # Har yangi obyekt yaratilganda soni 1 ga oshadi<br>
+                        # cls.soni — klass o'zgaruvchisini o'qiydi<br>
+                        # Talaba.nechta() → jami nechta talaba borligini qaytaradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Talaba("Ali"); Talaba("Vali")<br>
+                    >>> Talaba.nechta()<br>
+                    2
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Qaysi Birini Qachon?</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Holat</th><th>Tanlov</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Obyektning shaxsiy ma'lumoti bilan ishlash</td><td><code>self</code> (instance metod)</td></tr>
+                        <tr><td>Butun klass darajasidagi ish (soni, umumiy sozlama)</td><td><code>cls</code> (@classmethod)</td></tr>
+                        <tr><td>Mustaqil yordamchi (na self, na cls kerak)</td><td>(yo'q) (@staticmethod)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">self</span> → bitta obyekt bilan ishlaydi<br>
+                    • <span class="highlight-var">@classmethod</span> + <span class="highlight-var">cls</span> → klassning o'zi bilan ishlaydi<br>
+                    • <span class="highlight-var">@staticmethod</span> → na self, na cls — mustaqil funksiya<br>
+                    • Klass o'zgaruvchisi hammaga umumiy, instance o'zgaruvchisi har kimga alohida
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: @staticmethod Yordamchi</h2>
+                <div class="description">
+                    <span class="highlight-var">Matematika.ozgar(a, b)</span> — obyekt yaratmasdan ishlaydigan statik metod.
+                    Ikki son kiriting va amalni tanlang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="numA" placeholder="a" value="6" style="min-width:80px;">
+                        <input type="number" id="numB" placeholder="b" value="4" style="min-width:80px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoStatic('qoshish')">qoshish</button>
+                        <button onclick="demoStatic('ayirish')">ayirish</button>
+                        <button onclick="demoStatic('kopaytirish')">kopaytirish</button>
+                    </div>
+                    <div class="demo-result" id="resultStatic"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Klass O'zgaruvchisi Umumiy</h2>
+                <div class="description">
+                    <span class="highlight-var">maktab</span> — klass o'zgaruvchisi. Uni o'zgartirsangiz,
+                    <strong>barcha obyektlarda</strong> birdaniga o'zgaradi. Quyida 3 ta talaba bor.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="maktabName" placeholder="Maktab nomi" value="5-maktab">
+                        <button onclick="demoShared()">Hammasiga qo'llash</button>
+                    </div>
+                    <div class="demo-result" id="resultShared"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: @classmethod — Obyektlarni Sanash</h2>
+                <div class="description">
+                    Har "Yangi talaba" tugmasini bossangiz, obyekt yaratiladi va klass o'zgaruvchisi
+                    <span class="highlight-var">soni</span> 1 ga oshadi. <span class="highlight-var">Talaba.nechta()</span> jamini qaytaradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoCount('add')">Yangi talaba +</button>
+                        <button onclick="demoCount('check')">Talaba.nechta()</button>
+                        <button onclick="demoCount('reset')">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultCount"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Mahsulot klassi yarating</strong>
+                            <p>Klass o'zgaruvchisi soliq = 0.12 bo'lsin (hammaga umumiy)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>@staticmethod qo'shing</strong>
+                            <p>summa_hisobla(narx, soni) → narx * soni qaytarsin</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>@classmethod qo'shing</strong>
+                            <p>soliq_ozgartir(cls, yangi) → cls.soliq ni yangilasin</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Sinab ko'ring</strong>
+                            <p>Statik metodni obyektsiz chaqiring, klass metodi soliqni o'zgartirsin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 104: Meros (Inheritance)</p>
+                    <p style="opacity: 0.9;">
+                        Statik va klass metodlarini o'rgandingiz!<br>
+                        Endi __str__, __len__ kabi maxsus metodlarni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoStatic(amal) {
+            const a = parseFloat(document.getElementById('numA').value) || 0;
+            const b = parseFloat(document.getElementById('numB').value) || 0;
+            let natija, belgi;
+            if (amal === 'qoshish') { natija = a + b; belgi = '+'; }
+            else if (amal === 'ayirish') { natija = a - b; belgi = '-'; }
+            else { natija = a * b; belgi = '*'; }
+            const result = document.getElementById('resultStatic');
+            result.classList.add('show');
+            result.innerHTML = `>>> Matematika.${amal}(${a}, ${b})<br>>>> ${a} ${belgi} ${b} = ${natija}<br><br># Obyekt yaratilmadi — to'g'ridan-to'g'ri klassdan chaqirildi`;
+        }
+
+        function demoShared() {
+            const maktab = document.getElementById('maktabName').value || "1-maktab";
+            const talabalar = ["Ali", "Vali", "Guli"];
+            const result = document.getElementById('resultShared');
+            result.classList.add('show');
+            let satr = `>>> Talaba.maktab = "${maktab}"<br><br>`;
+            talabalar.forEach(t => {
+                satr += `${t}.maktab → "${maktab}"<br>`;
+            });
+            satr += `<br># Bitta o'zgartirish — hammada o'zgardi (umumiy o'zgaruvchi)`;
+            result.innerHTML = satr;
+        }
+
+        let talabaSoni = 0;
+        function demoCount(amal) {
+            const result = document.getElementById('resultCount');
+            result.classList.add('show');
+            if (amal === 'add') {
+                talabaSoni += 1;
+                result.innerHTML = `>>> Talaba("Talaba ${talabaSoni}")<br># __init__ ichida: Talaba.soni += 1<br>>>> Hozircha soni = ${talabaSoni}`;
+            } else if (amal === 'check') {
+                result.innerHTML = `>>> Talaba.nechta()<br>${talabaSoni}<br><br># cls.soni qaytarildi (klass darajasida)`;
+            } else {
+                talabaSoni = 0;
+                result.innerHTML = `>>> Talaba.soni = 0<br># Hisob tozalandi`;
+            }
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

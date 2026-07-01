@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 18: String metodlari — 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 2 — Stringlar va Formatlash · Dars 18 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>String metodlari — 2</h1>
+                <p>Modul 2 — Stringlar va Formatlash | Dars 18</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Yana String Metodlari</h2>
+                <div class="description">
+                    Oldingi darsda <span class="highlight-var">upper()</span>, <span class="highlight-var">lower()</span> kabi metodlarni ko'rdik.
+                    Endi matnni <strong>o'zgartirish, izlash, sanash va bo'laklarga ajratish</strong> uchun eng kerakli metodlar bilan tanishamiz:
+                    <span class="highlight-var">replace</span>, <span class="highlight-var">find</span>, <span class="highlight-var">count</span>,
+                    <span class="highlight-var">split</span> va <span class="highlight-var">join</span>.
+                </div>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>Stringlar Pythonda o'zgarmas (immutable). Shuning uchun bu metodlar stringni o'zgartirmaydi,
+                    balki <b>yangi natija qaytaradi</b>. Natijani o'zgaruvchiga saqlashni unutmang!</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>replace() — Almashtirish</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    <span class="highlight-var">replace(eski, yangi)</span> — matndagi barcha "eski" bo'laklarni "yangi" bilan almashtiradi.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matn = <span class="string">"Men olma yaxshi ko'raman"</span>
+yangi = matn.<span class="function">replace</span>(<span class="string">"olma"</span>, <span class="string">"banan"</span>)
+<span class="function">print</span>(yangi)</pre></div>
+                    <div class="comment-part"># "olma" so'zi "banan" bilan almashadi</div>
+                </div>
+                <div class="output-demo">>>> Men banan yaxshi ko'raman</div>
+                <p style="color: var(--dark); line-height: 1.7; margin: 12px 0;">
+                    Barcha mos keladigan joylar almashadi:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>gap = <span class="string">"aa-aa-aa"</span>
+<span class="function">print</span>(gap.<span class="function">replace</span>(<span class="string">"a"</span>, <span class="string">"b"</span>))</pre></div>
+                    <div class="comment-part"># har bir "a" "b" ga aylanadi</div>
+                </div>
+                <div class="output-demo">>>> bb-bb-bb</div>
+            </div>
+
+            <div class="section">
+                <h2>find() — Izlash</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    <span class="highlight-var">find(bo'lak)</span> — bo'lak birinchi marta qaysi indeksda uchraganini qaytaradi.
+                    Agar topilmasa <span class="highlight-var">-1</span> qaytaradi.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matn = <span class="string">"salom dunyo"</span>
+<span class="function">print</span>(matn.<span class="function">find</span>(<span class="string">"dunyo"</span>))
+<span class="function">print</span>(matn.<span class="function">find</span>(<span class="string">"lom"</span>))
+<span class="function">print</span>(matn.<span class="function">find</span>(<span class="string">"kompyuter"</span>))</pre></div>
+                    <div class="comment-part"># indeks 6 dan boshlanadi<br># indeks 2<br># topilmadi -> -1</div>
+                </div>
+                <div class="output-demo">>>> 6<br>>>> 2<br>>>> -1</div>
+                <div class="info-box">
+                    <strong>Maslahat</strong>
+                    <p>Indekslar <b>0 dan</b> boshlanadi. "salom dunyo" da "d" harfi 6-indeksda turadi
+                    (s=0, a=1, l=2, o=3, m=4, bo'shliq=5, d=6).</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>count() — Sanash</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    <span class="highlight-var">count(bo'lak)</span> — bo'lak matnda necha marta uchraganini sanaydi.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matn = <span class="string">"ananas"</span>
+<span class="function">print</span>(matn.<span class="function">count</span>(<span class="string">"a"</span>))
+<span class="function">print</span>(matn.<span class="function">count</span>(<span class="string">"an"</span>))
+<span class="function">print</span>(matn.<span class="function">count</span>(<span class="string">"z"</span>))</pre></div>
+                    <div class="comment-part"># "a" 3 marta<br># "an" 2 marta<br># "z" yo'q -> 0</div>
+                </div>
+                <div class="output-demo">>>> 3<br>>>> 2<br>>>> 0</div>
+            </div>
+
+            <div class="section">
+                <h2>split() va join() — Bo'lish va Birlashtirish</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    <span class="highlight-var">split(ajratuvchi)</span> — matnni ro'yxatga (list) bo'laklarga ajratadi.
+                    <span class="highlight-var">join(list)</span> — aksincha, ro'yxatni bitta matnga birlashtiradi.
+                </p>
+                <h3>split misoli</h3>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>gap = <span class="string">"olma,banan,uzum"</span>
+mevalar = gap.<span class="function">split</span>(<span class="string">","</span>)
+<span class="function">print</span>(mevalar)</pre></div>
+                    <div class="comment-part"># vergul bo'yicha ajratadi</div>
+                </div>
+                <div class="output-demo">>>> ['olma', 'banan', 'uzum']</div>
+                <p style="color: var(--dark); line-height: 1.7; margin: 12px 0;">
+                    Ajratuvchi berilmasa, <b>bo'shliq</b> bo'yicha ajratadi:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>jumla = <span class="string">"Men Python o'rganaman"</span>
+<span class="function">print</span>(jumla.<span class="function">split</span>())</pre></div>
+                    <div class="comment-part"># so'zlarga ajratadi</div>
+                </div>
+                <div class="output-demo">>>> ['Men', 'Python', "o'rganaman"]</div>
+                <h3>join misoli</h3>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>mevalar = [<span class="string">"olma"</span>, <span class="string">"banan"</span>, <span class="string">"uzum"</span>]
+natija = <span class="string">" - "</span>.<span class="function">join</span>(mevalar)
+<span class="function">print</span>(natija)</pre></div>
+                    <div class="comment-part"># ro'yxatni " - " bilan birlashtiradi</div>
+                </div>
+                <div class="output-demo">>>> olma - banan - uzum</div>
+            </div>
+
+            <div class="section">
+                <h2>Umumiy Jadval</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th><th>Misol</th><th>Natija</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="highlight-var">replace()</span></td><td>Almashtirish</td><td>"ha".replace("h","b")</td><td>'ba'</td></tr>
+                        <tr><td><span class="highlight-var">find()</span></td><td>Indeks izlash</td><td>"salom".find("l")</td><td>2</td></tr>
+                        <tr><td><span class="highlight-var">count()</span></td><td>Sanash</td><td>"aaa".count("a")</td><td>3</td></tr>
+                        <tr><td><span class="highlight-var">split()</span></td><td>Bo'lish</td><td>"a,b".split(",")</td><td>['a', 'b']</td></tr>
+                        <tr><td><span class="highlight-var">join()</span></td><td>Birlashtirish</td><td>"-".join(['a','b'])</td><td>'a-b'</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Amaliy Mashq</h2>
+                <div class="info-box">
+                    <strong>Sinab ko'ring</strong>
+                    <p>
+                        1. Bir jumlani <span class="highlight-var">split()</span> bilan so'zlarga ajrating va so'zlar sonini toping.<br>
+                        2. Ismingizdagi biror harf necha marta uchrashini <span class="highlight-var">count()</span> bilan sanang.<br>
+                        3. Telefon raqamidagi <span class="highlight-var">"-"</span> belgilarni <span class="highlight-var">replace()</span> bilan olib tashlang.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="description">
+                    Bu darsda 5 ta kuchli string metodini o'rgandik: <b>replace</b> (almashtirish),
+                    <b>find</b> (izlash), <b>count</b> (sanash), <b>split</b> (bo'lish) va <b>join</b> (birlashtirish).
+                    Bu metodlar matn bilan ishlashda eng ko'p qo'llaniladiganlaridan hisoblanadi.
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 19: in operatori — substring izlash</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

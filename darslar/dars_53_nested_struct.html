@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 53: Nested structures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 4 — Ma'lumot Tuzilmalari · Dars 53 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Nested structures</h1>
+                <p>Modul 4 — Ma'lumot Tuzilmalari | Dars 53</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Ichma-ich tuzilmalar nima?</h2>
+                <p><b>Nested structures</b> (ichma-ich tuzilmalar) — bu bir ma'lumot tuzilmasi ichida boshqa tuzilmalar joylashishi. Ya'ni list ichida yana list, dict ichida yana dict bo'lishi mumkin. Bu bilan real hayotdagi murakkab ma'lumotlarni — masalan kompaniya va uning xodimlari, maktab va uning sinflarini — bir joyda saqlash mumkin.</p>
+                <div class="description">
+                    To'rt asosiy kombinatsiya bor: <span class="highlight-var">list ichida list</span> (matritsa), <span class="highlight-var">dict ichida dict</span>, <span class="highlight-var">dict ichida list</span> va <span class="highlight-var">list ichida dict</span>. Har biriga chuqur murojaat qilib, ichkaridagi qiymatga yetib boramiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>List ichida list — matritsa</h2>
+                <p>Eng ko'p uchraydigan misol — matritsa, ya'ni sonlar jadvali. Har bir element o'zi ham ro'yxat:</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matritsa = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+print(matritsa[0])       # birinchi qator
+print(matritsa[1][2])    # 2-qator, 3-ustun
+print(matritsa[2][0])    # 3-qator, 1-ustun</pre></div>
+                    <div class="comment-part">Avval qator indeksi, keyin ustun indeksi. <span class="highlight-var">matritsa[1][2]</span> — 2-qatordagi 3-elementni oladi.</div>
+                </div>
+                <div class="output-demo">>>> [1, 2, 3]<br>>>> 6<br>>>> 7</div>
+                <div class="info-box">
+                    <strong>Indekslash ketma-ketligi</strong>
+                    <p><span class="highlight-var">matritsa[1][2]</span> ni chapdan o'ngga o'qing: avval <code>matritsa[1]</code> = <code>[4, 5, 6]</code> ro'yxatini oladi, keyin uning <code>[2]</code>-elementi = <code>6</code>.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Dict ichida dict — xodimlar bazasi</h2>
+                <p>Lug'at ichida yana lug'at bo'lsa, har bir yozuvni nomi bilan chaqiramiz. Bu kompaniyadagi xodimlar ma'lumotini saqlashga juda qulay:</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>kompaniya = {
+    "ali": {"lavozim": "dasturchi", "maosh": 800},
+    "vali": {"lavozim": "menejer", "maosh": 900},
+    "guli": {"lavozim": "dizayner", "maosh": 700}
+}
+
+print(kompaniya["ali"])              # butun yozuv
+print(kompaniya["vali"]["maosh"])    # chuqur murojaat
+print(kompaniya["guli"]["lavozim"])</pre></div>
+                    <div class="comment-part">Avval xodim kaliti, keyin ichki kalit. <span class="highlight-var">kompaniya["vali"]["maosh"]</span> — Valining maoshini oladi.</div>
+                </div>
+                <div class="output-demo">>>> {'lavozim': 'dasturchi', 'maosh': 800}<br>>>> 900<br>>>> dizayner</div>
+            </div>
+
+            <div class="section">
+                <h2>Dict ichida list va list ichida dict</h2>
+                <p>Lug'at qiymati ro'yxat bo'lishi mumkin (maktab va uning sinflari), yoki ro'yxat elementlari lug'at bo'lishi mumkin (talabalar ro'yxati):</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre># dict ichida list
+maktab = {
+    "1-sinf": ["Ali", "Vali", "Guli"],
+    "2-sinf": ["Hasan", "Husan"]
+}
+print(maktab["1-sinf"][0])   # 1-sinfning 1-o'quvchisi
+
+# list ichida dict
+talabalar = [
+    {"ism": "Ali", "yosh": 20},
+    {"ism": "Vali", "yosh": 22}
+]
+print(talabalar[1]["ism"])   # 2-talabaning ismi</pre></div>
+                    <div class="comment-part"><span class="highlight-var">maktab["1-sinf"][0]</span> — kalit bilan ro'yxatga, keyin indeks bilan elementga. <span class="highlight-var">talabalar[1]["ism"]</span> — indeks bilan lug'atga, keyin kalit bilan qiymatga.</div>
+                </div>
+                <div class="output-demo">>>> Ali<br>>>> Vali</div>
+            </div>
+
+            <div class="section">
+                <h2>for loop bilan chuqur aylanish</h2>
+                <p>Ichma-ich tuzilmalarni aylanish uchun ichma-ich <code>for</code> ishlatamiz. Matritsaning barcha elementlarini bosib chiqamiz:</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>matritsa = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+for qator in matritsa:
+    for son in qator:
+        print(son, end=" ")
+    print()   # har qatordan keyin yangi qator
+
+# xodimlar bo'yicha aylanish
+kompaniya = {
+    "ali": {"maosh": 800},
+    "vali": {"maosh": 900}
+}
+for ism, malumot in kompaniya.items():
+    print(ism, "->", malumot["maosh"])</pre></div>
+                    <div class="comment-part">Tashqi <code>for</code> qatorlarni, ichki <code>for</code> har qatordagi sonlarni aylanadi. Lug'atda esa <code>.items()</code> bilan kalit va qiymatni bir vaqtda olamiz.</div>
+                </div>
+                <div class="output-demo">>>> 1 2 3<br>>>> 4 5 6<br>>>> 7 8 9<br>>>> ali -> 800<br>>>> vali -> 900</div>
+            </div>
+
+            <div class="section">
+                <h2>Amaliyot — mashq</h2>
+                <div class="description">
+                    <strong>Masala:</strong> Quyidagi tuzilmadan foydalanib, har bir xodimning ismi va birinchi ko'nikmasini chiqaring. Keyin barcha maoshlar yig'indisini hisoblang.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>xodimlar = [
+    {"ism": "Ali", "maosh": 800, "konikma": ["Python", "SQL"]},
+    {"ism": "Vali", "maosh": 900, "konikma": ["Java", "HTML"]},
+    {"ism": "Guli", "maosh": 750, "konikma": ["Design", "CSS"]}
+]
+
+jami = 0
+for x in xodimlar:
+    print(x["ism"], "-", x["konikma"][0])
+    jami += x["maosh"]
+
+print("Jami maosh:", jami)</pre></div>
+                    <div class="comment-part"><code>x["konikma"][0]</code> — list ichida dict ichida list! Avval element (dict), keyin kalit (list), keyin indeks (birinchi ko'nikma).</div>
+                </div>
+                <div class="output-demo">>>> Ali - Python<br>>>> Vali - Java<br>>>> Guli - Design<br>>>> Jami maosh: 2450</div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="info-box">
+                    <strong>Nimalarni o'rgandik?</strong>
+                    <p>• Ichma-ich tuzilmalar — tuzilma ichida tuzilma (list/dict aralashmasi).<br>
+                    • Chuqur murojaat: indekslar va kalitlarni <b>chapdan o'ngga</b> ketma-ket qo'yamiz — <code>m[1][2]</code>, <code>d["a"]["b"]</code>.<br>
+                    • Matritsa = list ichida list; xodimlar bazasi = dict ichida dict; maktab sinflari = dict ichida list; talabalar = list ichida dict.<br>
+                    • Ichma-ich <code>for</code> loop bilan barcha darajalarni aylanamiz.</p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 54: Ma'lumotni tanlash — list vs dict vs set</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 25: Mini-loyiha: Login + parol tekshirish</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 2 — Stringlar va Formatlash · Dars 25 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Mini-loyiha: Login + parol tekshirish</h1>
+                <p>Modul 2 — Stringlar va Formatlash | Dars 25</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Loyiha Haqida</h2>
+                <div class="description">
+                    Bu darsda modul davomida o'rgangan bilimlarimizni birlashtirib, kichik
+                    <strong>login va parol tekshirish</strong> dasturini yozamiz. Foydalanuvchidan login va parol so'raymiz,
+                    ularni to'g'ri qiymat bilan solishtiramiz va <b>3 marta</b> urinish beramiz.
+                </div>
+                <div class="info-box">
+                    <strong>Nimalarni ishlatamiz?</strong>
+                    <p>
+                        • <span class="highlight-var">input()</span> — foydalanuvchidan ma'lumot olish<br>
+                        • <span class="highlight-var">if / else</span> — tekshirish<br>
+                        • <span class="highlight-var">==</span> — solishtirish<br>
+                        • <span class="highlight-var">while</span> va sanoq — urinishlarni cheklash
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1-qadam: Oddiy Tekshirish</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Avval to'g'ri login va parolni belgilaymiz, so'ng foydalanuvchidan so'raymiz.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="comment"># To'g'ri ma'lumotlar</span>
+togri_login = <span class="string">"admin"</span>
+togri_parol = <span class="string">"1234"</span>
+
+<span class="comment"># Foydalanuvchidan so'rash</span>
+login = <span class="function">input</span>(<span class="string">"Login: "</span>)
+parol = <span class="function">input</span>(<span class="string">"Parol: "</span>)
+
+<span class="keyword">if</span> login == togri_login <span class="keyword">and</span> parol == togri_parol:
+    <span class="function">print</span>(<span class="string">"Xush kelibsiz!"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"Login yoki parol xato!"</span>)</pre></div>
+                    <div class="comment-part"># ikkalasi ham to'g'ri bo'lsa (and) kiritadi</div>
+                </div>
+                <div class="output-demo">>>> Login: admin<br>>>> Parol: 1234<br>>>> Xush kelibsiz!</div>
+            </div>
+
+            <div class="section">
+                <h2>2-qadam: Urinishlar Sonini Cheklash</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Endi <span class="highlight-var">while</span> sikli bilan foydalanuvchiga <b>3 ta urinish</b> beramiz.
+                    Har xato urinishda urinishlar soni kamayadi.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>togri_login = <span class="string">"admin"</span>
+togri_parol = <span class="string">"1234"</span>
+urinishlar = <span class="number">3</span>
+
+<span class="keyword">while</span> urinishlar &gt; <span class="number">0</span>:
+    login = <span class="function">input</span>(<span class="string">"Login: "</span>)
+    parol = <span class="function">input</span>(<span class="string">"Parol: "</span>)
+
+    <span class="keyword">if</span> login == togri_login <span class="keyword">and</span> parol == togri_parol:
+        <span class="function">print</span>(<span class="string">"Xush kelibsiz!"</span>)
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>:
+        urinishlar = urinishlar - <span class="number">1</span>
+        <span class="function">print</span>(<span class="string">f"Xato! Qolgan urinishlar: {urinishlar}"</span>)
+
+<span class="keyword">if</span> urinishlar == <span class="number">0</span>:
+    <span class="function">print</span>(<span class="string">"Hisob bloklandi!"</span>)</pre></div>
+                    <div class="comment-part"># break — to'g'ri bo'lsa sikldan chiqadi<br># urinishlar 0 ga tushsa bloklanadi</div>
+                </div>
+                <div class="output-demo">>>> Login: admin<br>>>> Parol: 0000<br>>>> Xato! Qolgan urinishlar: 2<br>>>> Login: admin<br>>>> Parol: 1234<br>>>> Xush kelibsiz!</div>
+            </div>
+
+            <div class="section">
+                <h2>3-qadam: Yaxshilangan To'liq Versiya</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Endi <span class="highlight-var">.strip()</span> bilan ortiqcha bo'shliqlarni tozalaymiz va
+                    bo'sh kiritishni tekshiramiz — bu real dasturlarga o'xshaydi.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>togri_login = <span class="string">"admin"</span>
+togri_parol = <span class="string">"1234"</span>
+urinishlar = <span class="number">3</span>
+
+<span class="function">print</span>(<span class="string">"=== TIZIMGA KIRISH ==="</span>)
+
+<span class="keyword">while</span> urinishlar &gt; <span class="number">0</span>:
+    login = <span class="function">input</span>(<span class="string">"Login: "</span>).<span class="function">strip</span>()
+    parol = <span class="function">input</span>(<span class="string">"Parol: "</span>).<span class="function">strip</span>()
+
+    <span class="keyword">if</span> login == <span class="string">""</span> <span class="keyword">or</span> parol == <span class="string">""</span>:
+        <span class="function">print</span>(<span class="string">"Maydonlarni to'ldiring!"</span>)
+        <span class="keyword">continue</span>
+
+    <span class="keyword">if</span> login == togri_login <span class="keyword">and</span> parol == togri_parol:
+        <span class="function">print</span>(<span class="string">f"Xush kelibsiz, {login}!"</span>)
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>:
+        urinishlar -= <span class="number">1</span>
+        <span class="keyword">if</span> urinishlar &gt; <span class="number">0</span>:
+            <span class="function">print</span>(<span class="string">f"Xato! Yana {urinishlar} urinish bor."</span>)
+        <span class="keyword">else</span>:
+            <span class="function">print</span>(<span class="string">"Urinishlar tugadi. Hisob vaqtincha bloklandi."</span>)</pre></div>
+                    <div class="comment-part"># strip() — bo'shliqlarni tozalaydi<br># continue — bo'sh bo'lsa qaytadan so'raydi<br># urinishlar -= 1 — qisqa yozuv</div>
+                </div>
+                <div class="output-demo">>>> === TIZIMGA KIRISH ===<br>>>> Login: admin<br>>>> Parol:  <br>>>> Maydonlarni to'ldiring!<br>>>> Login: admin<br>>>> Parol: 1234<br>>>> Xush kelibsiz, admin!</div>
+            </div>
+
+            <div class="section">
+                <h2>Kod Qanday Ishlaydi?</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>To'g'ri ma'lumotlar saqlanadi</strong>
+                            <p>login = "admin", parol = "1234", urinishlar = 3</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>while sikli aylanadi</strong>
+                            <p>urinishlar 0 dan katta bo'lguncha davom etadi</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Solishtirish</strong>
+                            <p>login va parol == to'g'ri qiymatlarga teng bo'lsa — kiradi (break)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Xato bo'lsa</strong>
+                            <p>urinishlar 1 ga kamayadi, 0 ga yetsa hisob bloklanadi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Vazifa — O'zingiz Rivojlantiring</h2>
+                <div class="info-box">
+                    <strong>Qo'shimcha mashqlar</strong>
+                    <p>
+                        1. Parol uzunligini tekshiring — 4 belgidan kam bo'lsa ogohlantiring.<br>
+                        2. Login katta-kichik harfga bog'liq bo'lmasin: <span class="highlight-var">login.lower()</span> ishlating.<br>
+                        3. Bir nechta foydalanuvchini tekshirish uchun ma'lumotlarni kengaytiring.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="description">
+                    Ushbu mini-loyihada <b>input()</b>, <b>if/else</b>, <b>while</b>, <b>and/or</b>, <b>break/continue</b> va
+                    string metodlarini birga ishlatdik. Login-parol tekshirish — deyarli har bir dasturda uchraydigan amaliy vazifa.
+                    Modulni tugatganingiz bilan tabriklaymiz — endi stringlar va formatlashni yaxshi bilasiz!
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 26: if / elif / else</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

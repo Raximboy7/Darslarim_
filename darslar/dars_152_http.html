@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 152: HTTP va web</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input, select { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus, select:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* REQUEST -> RESPONSE FLOW */
+        .flow-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+        .flow-node {
+            flex: 1;
+            min-width: 110px;
+            text-align: center;
+            background: #1f2937;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 16px 10px;
+            border: 2px solid transparent;
+            transition: all 0.4s ease;
+        }
+        .flow-node .fn-icon { font-size: 1.8em; display: block; margin-bottom: 6px; }
+        .flow-node .fn-label { font-weight: bold; font-size: 0.95em; }
+        .flow-node.active { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .flow-arrow { font-size: 1.6em; color: var(--gray); transition: color 0.4s ease; }
+        .flow-arrow.active { color: var(--primary); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 14 — Web Asoslari · Dars 152 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>HTTP va Web</h1>
+                <p>Modul 14 — Web Asoslari | Dars 152</p>
+            </header>
+
+            <div class="section">
+                <h2>HTTP Nima?</h2>
+                <div class="description">
+                    <strong>HTTP</strong> (HyperText Transfer Protocol) — bu internetda
+                    ma'lumot almashish uchun ishlatiladigan <strong>protokol</strong> (qoidalar to'plami).
+                    Brauzeringiz biror saytni ochganda, u HTTP orqali serverga
+                    <span class="highlight-var">so'rov</span> yuboradi va server unga
+                    <span class="highlight-var">javob</span> qaytaradi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy misol</strong>
+                    <p>
+                        HTTP — bu xuddi restorandagi suhbat kabi: siz (mijoz) ofitsiantdan
+                        ovqat <strong>so'raysiz</strong>, oshxona (server) tayyorlab sizga
+                        <strong>olib keladi</strong>. So'rash va javob qaytarish — HTTP ham shunday ishlaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Client-Server Modeli</h2>
+                <div class="description">
+                    Internet ikki tomondan iborat: <strong>client</strong> (mijoz) va
+                    <strong>server</strong>. Client so'rov yuboradi, server esa unga javob beradi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tomon</th><th>Kim?</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Client</code></td><td>Brauzer, telefon, dastur</td><td>So'rov (request) yuboradi</td></tr>
+                        <tr><td><code>Server</code></td><td>Saytni saqlab turuvchi kompyuter</td><td>Javob (response) qaytaradi</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        Client  ──── so'rov ────►  Server<br>
+                        Client  ◄─── javob ─────  Server
+                    </div>
+                    <div class="comment-part">
+                        # Client so'raydi, server javob beradi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Request va Response</h2>
+                <div class="description">
+                    <strong>Request (so'rov)</strong> — client serverga yuboradigan xabar.
+                    <strong>Response (javob)</strong> — server qaytaradigan natija.
+                    Har bir so'rovga bitta javob keladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qism</th><th>Request ichida</th><th>Response ichida</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Manzil (URL)</td><td>Qaysi sahifa so'ralyapti</td><td>—</td></tr>
+                        <tr><td>Metod</td><td>GET, POST va boshqalar</td><td>—</td></tr>
+                        <tr><td>Status kod</td><td>—</td><td>200, 404, 500 ...</td></tr>
+                        <tr><td>Tana (body)</td><td>Yuboriladigan ma'lumot</td><td>Sahifa yoki ma'lumot</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Status Kodlar</h2>
+                <div class="description">
+                    Har bir javobda <strong>status kod</strong> bo'ladi — bu raqam so'rov
+                    qanday natija bilan tugaganini bildiradi. Birinchi raqamiga qarab
+                    guruhlarga bo'linadi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Kod</th><th>Ma'nosi</th><th>Tushuntirish</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>200</code></td><td>OK</td><td>Hammasi muvaffaqiyatli o'tdi</td></tr>
+                        <tr><td><code>301</code></td><td>Redirect</td><td>Sahifa boshqa manzilga ko'chgan</td></tr>
+                        <tr><td><code>404</code></td><td>Not Found</td><td>Sahifa topilmadi</td></tr>
+                        <tr><td><code>500</code></td><td>Server Error</td><td>Serverda xatolik yuz berdi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Guruhlar (birinchi raqam)</strong>
+                    <p>
+                        • <strong>2xx</strong> — Muvaffaqiyat (masalan 200)<br>
+                        • <strong>3xx</strong> — Yo'naltirish / redirect (masalan 301)<br>
+                        • <strong>4xx</strong> — Client xatosi (masalan 404)<br>
+                        • <strong>5xx</strong> — Server xatosi (masalan 500)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>HTTP Metodlari</h2>
+                <div class="description">
+                    <strong>Metod</strong> — so'rovning maqsadini bildiradi: ma'lumot olishni,
+                    yuborishni, yangilashni yoki o'chirishni. Eng ko'p ishlatiladiganlari quyida.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>GET</code></td><td>Ma'lumot olish</td><td>Sahifani ochish</td></tr>
+                        <tr><td><code>POST</code></td><td>Ma'lumot yuborish</td><td>Forma to'ldirib yuborish</td></tr>
+                        <tr><td><code>PUT</code></td><td>Ma'lumotni yangilash</td><td>Profilni tahrirlash</td></tr>
+                        <tr><td><code>DELETE</code></td><td>Ma'lumotni o'chirish</td><td>Rasmni o'chirish</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        GET  /maqolalar      <span class="comment"># maqolalarni olish</span><br>
+                        POST /maqolalar      <span class="comment"># yangi maqola qo'shish</span><br>
+                        PUT  /maqolalar/<span class="number">5</span>    <span class="comment"># 5-maqolani yangilash</span><br>
+                        DELETE /maqolalar/<span class="number">5</span>  <span class="comment"># 5-maqolani o'chirish</span>
+                    </div>
+                    <div class="comment-part">
+                        # Bir manzil, lekin har xil metod — har xil amal
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • HTTP — internetda ma'lumot almashish protokoli<br>
+                    • <span class="highlight-var">Client</span> so'rov yuboradi, <span class="highlight-var">server</span> javob qaytaradi<br>
+                    • Status kod javob natijasini bildiradi: <span class="highlight-var">200</span> yaxshi, <span class="highlight-var">404</span> topilmadi<br>
+                    • Metodlar: <span class="highlight-var">GET</span> olish, <span class="highlight-var">POST</span> yuborish, <span class="highlight-var">PUT</span> yangilash, <span class="highlight-var">DELETE</span> o'chirish
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Status Kod Tekshiruvchi</h2>
+                <div class="description">
+                    Status kodni kiriting va uning ma'nosini ko'ring (masalan 200, 404, 500, 301).
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="codeInput" placeholder="Status kod" value="404">
+                        <button onclick="demoStatus()">Tekshir</button>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="setCode(200)">200</button>
+                        <button onclick="setCode(301)">301</button>
+                        <button onclick="setCode(404)">404</button>
+                        <button onclick="setCode(500)">500</button>
+                    </div>
+                    <div class="demo-result" id="resultStatus"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Request → Response Oqimi</h2>
+                <div class="description">
+                    "So'rov yubor" tugmasini bosing va client'dan server'ga so'rov,
+                    so'ng serverdan javob qanday qaytishini bosqichma-bosqich kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-box">
+                        <div class="flow-node" id="node-client">
+                            <span class="fn-icon">💻</span>
+                            <span class="fn-label">Client</span>
+                        </div>
+                        <span class="flow-arrow" id="arrow-1">►</span>
+                        <div class="flow-node" id="node-net">
+                            <span class="fn-icon">🌐</span>
+                            <span class="fn-label">Internet</span>
+                        </div>
+                        <span class="flow-arrow" id="arrow-2">►</span>
+                        <div class="flow-node" id="node-server">
+                            <span class="fn-icon">🖥️</span>
+                            <span class="fn-label">Server</span>
+                        </div>
+                    </div>
+                    <div class="demo-input">
+                        <button onclick="demoFlow()">So'rov yubor</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: HTTP Metodini Tanlash</h2>
+                <div class="description">
+                    Metodni tanlang va u nima qilishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="methodSelect">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                        <button onclick="demoMethod()">Ko'rsat</button>
+                    </div>
+                    <div class="demo-result" id="resultMethod"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Status kodlarni yodlang</strong>
+                            <p>200, 404, 500 va 301 ning ma'nosini ayting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Oqimni chizib chiqing</strong>
+                            <p>Client → so'rov → server → javob ketma-ketligini yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Metodlarni moslang</strong>
+                            <p>"forma yuborish", "sahifa ochish", "o'chirish" uchun qaysi metod kerakligini toping</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Demolarni sinab ko'ring</strong>
+                            <p>Yuqoridagi 3 ta demoni turli qiymatlar bilan sinab ko'ring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 153: requests moduli</p>
+                    <p style="opacity: 0.9;">
+                        HTTP qanday ishlashini o'rgandingiz!<br>
+                        Endi Python'da urllib orqali haqiqiy so'rov yuborishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setCode(c) {
+            document.getElementById('codeInput').value = c;
+            demoStatus();
+        }
+
+        function demoStatus() {
+            const code = parseInt(document.getElementById('codeInput').value);
+            const result = document.getElementById('resultStatus');
+            let name = '', desc = '', group = '';
+            const map = {
+                200: ['OK', 'Hammasi muvaffaqiyatli o\'tdi'],
+                201: ['Created', 'Yangi narsa yaratildi'],
+                301: ['Moved Permanently', 'Sahifa boshqa manzilga ko\'chgan (redirect)'],
+                400: ['Bad Request', 'So\'rov noto\'g\'ri yuborilgan'],
+                401: ['Unauthorized', 'Kirish uchun ruxsat yo\'q'],
+                403: ['Forbidden', 'Bu sahifa taqiqlangan'],
+                404: ['Not Found', 'Sahifa topilmadi'],
+                500: ['Server Error', 'Serverda xatolik yuz berdi'],
+                503: ['Service Unavailable', 'Server vaqtincha ishlamayapti']
+            };
+            if (isNaN(code)) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, raqam kiriting (masalan 200)';
+                return;
+            }
+            const first = Math.floor(code / 100);
+            if (first === 2) group = '2xx — Muvaffaqiyat';
+            else if (first === 3) group = '3xx — Yo\'naltirish';
+            else if (first === 4) group = '4xx — Client xatosi';
+            else if (first === 5) group = '5xx — Server xatosi';
+            else group = 'Noma\'lum guruh';
+            if (map[code]) { name = map[code][0]; desc = map[code][1]; }
+            else { name = '(boshqa kod)'; desc = group; }
+            result.classList.add('show');
+            result.innerHTML = `>>> Status: ${code} ${name}<br>>>> Guruh: ${group}<br>>>> Ma'no: ${desc}`;
+        }
+
+        function demoFlow() {
+            const result = document.getElementById('resultFlow');
+            const ids = ['node-client', 'node-net', 'node-server'];
+            const arrows = ['arrow-1', 'arrow-2'];
+            ids.forEach(id => document.getElementById(id).classList.remove('active'));
+            arrows.forEach(id => document.getElementById(id).classList.remove('active'));
+            result.classList.add('show');
+
+            const steps = [
+                () => { document.getElementById('node-client').classList.add('active'); result.innerHTML = '>>> 1. Client so\'rov tayyorlaydi: GET /sahifa'; },
+                () => { document.getElementById('arrow-1').classList.add('active'); document.getElementById('node-net').classList.add('active'); result.innerHTML = '>>> 2. So\'rov internet orqali serverga ketmoqda...'; },
+                () => { document.getElementById('arrow-2').classList.add('active'); document.getElementById('node-server').classList.add('active'); result.innerHTML = '>>> 3. Server so\'rovni qabul qildi va javob tayyorlamoqda...'; },
+                () => { document.getElementById('arrow-2').classList.remove('active'); document.getElementById('arrow-1').classList.remove('active'); document.getElementById('node-server').classList.remove('active'); document.getElementById('node-net').classList.remove('active'); document.getElementById('node-client').classList.add('active'); result.innerHTML = '>>> 4. Javob client\'ga qaytdi: 200 OK<br>>>> Sahifa ko\'rsatildi!'; }
+            ];
+            let i = 0;
+            steps[0]();
+            const timer = setInterval(() => {
+                i++;
+                if (i >= steps.length) { clearInterval(timer); return; }
+                steps[i]();
+            }, 900);
+        }
+
+        function demoMethod() {
+            const m = document.getElementById('methodSelect').value;
+            const result = document.getElementById('resultMethod');
+            const map = {
+                GET: ['Ma\'lumot olish', 'GET /maqolalar', 'Serverdan ma\'lumotni o\'qiydi, hech narsani o\'zgartirmaydi'],
+                POST: ['Ma\'lumot yuborish', 'POST /maqolalar', 'Serverga yangi ma\'lumot qo\'shadi (masalan forma)'],
+                PUT: ['Ma\'lumotni yangilash', 'PUT /maqolalar/5', 'Mavjud ma\'lumotni yangi qiymat bilan almashtiradi'],
+                DELETE: ['Ma\'lumotni o\'chirish', 'DELETE /maqolalar/5', 'Serverdan ma\'lumotni o\'chiradi']
+            };
+            const info = map[m];
+            result.classList.add('show');
+            result.innerHTML = `>>> Metod: ${m}<br>>>> Vazifasi: ${info[0]}<br>>>> Misol: ${info[1]}<br>>>> Izoh: ${info[2]}`;
+        }
+
+        // dastlabki ko'rinish
+        demoStatus();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

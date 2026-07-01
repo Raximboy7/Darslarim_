@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 70: Closure va lambda</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 6 — Funksiyalar · Dars 70 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Closure va Lambda</h1>
+                <p>Modul 6 — Funksiyalar | Dars 70</p>
+            </header>
+
+            <div class="section">
+                <h2>Bu Darsda Nimani O'rganamiz?</h2>
+                <div class="description">
+                    Bu darsda Python'ning ikkita kuchli imkoniyatini ko'ramiz:
+                    <strong>closure</strong> (ichki funksiya tashqi o'zgaruvchini eslab qolishi) va
+                    <strong>lambda</strong> (qisqa, nomsiz funksiya). So'ngra ularni
+                    <span class="highlight-var">map()</span>, <span class="highlight-var">filter()</span> va
+                    <span class="highlight-var">reduce()</span> bilan birga ishlatishni o'rganamiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Closure Nima?</h2>
+                <div class="description">
+                    <strong>Closure</strong> — bu ichki funksiya o'zini o'rab turgan tashqi funksiyaning
+                    o'zgaruvchisini <strong>"eslab qoladi"</strong>. Tashqi funksiya o'z ishini tugatib,
+                    yo'qolib ketsa ham, ichki funksiya o'sha o'zgaruvchini saqlab qoladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">kopaytuvchi_yasa</span>(son):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">ichki</span>(x):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> x <span class="operator">*</span> son<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> ichki<br>
+                        <br>
+                        ikkiga <span class="operator">=</span> <span class="function">kopaytuvchi_yasa</span>(<span class="number">2</span>)<br>
+                        <span class="function">print</span>(ikkiga(<span class="number">5</span>))
+                    </div>
+                    <div class="comment-part">
+                        # ichki() funksiya "son=2" ni eslab qoldi<br>
+                        # ikkiga(5) → 5 * 2 = 10
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 10
+                </div>
+
+                <div class="info-box">
+                    <strong>Closure uchun 3 ta shart</strong>
+                    <p>
+                        1. Funksiya ichida boshqa funksiya bo'lishi kerak (ichki funksiya).<br>
+                        2. Ichki funksiya tashqi funksiyaning o'zgaruvchisidan foydalanishi kerak.<br>
+                        3. Tashqi funksiya ichki funksiyani <span class="highlight-var">return</span> qilishi kerak.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Lambda — Qisqa, Nomsiz Funksiya</h2>
+                <div class="description">
+                    <strong>Lambda</strong> — bu bitta qatorda yoziladigan, nomi yo'q kichik funksiya.
+                    U <span class="highlight-var">lambda parametr: ifoda</span> ko'rinishida yoziladi.
+                    Natijani <span class="highlight-var">return</span> yozmasdan, avtomatik qaytaradi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment-part" style="background:none;padding:0;color:#6b7280;">// Oddiy funksiya:</span><br>
+                        <span class="keyword">def</span> <span class="function">ikki_baravar</span>(x):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> x <span class="operator">*</span> <span class="number">2</span><br>
+                        <br>
+                        <span class="comment-part" style="background:none;padding:0;color:#6b7280;">// Xuddi shu lambda bilan:</span><br>
+                        ikki_baravar <span class="operator">=</span> <span class="keyword">lambda</span> x: x <span class="operator">*</span> <span class="number">2</span><br>
+                        <span class="function">print</span>(ikki_baravar(<span class="number">4</span>))
+                    </div>
+                    <div class="comment-part">
+                        # ikkalasi ham bir xil ishlaydi<br>
+                        # lambda — bir qatorda, qisqa
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 8
+                </div>
+
+                <h3>Bir nechta parametr bilan</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        qoshish <span class="operator">=</span> <span class="keyword">lambda</span> a, b: a <span class="operator">+</span> b<br>
+                        <span class="function">print</span>(qoshish(<span class="number">3</span>, <span class="number">7</span>))
+                    </div>
+                    <div class="comment-part">
+                        # bir nechta parametr vergul bilan ajratiladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 10
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Lambda vs def — Farqi va Qachon Ishlatamiz?</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>def</th><th>lambda</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Nomi</td><td>Doim bor</td><td>Yo'q (nomsiz)</td></tr>
+                        <tr><td>Uzunligi</td><td>Bir nechta qator</td><td>Faqat bir qator</td></tr>
+                        <tr><td><code>return</code></td><td>Yozish kerak</td><td>Avtomatik qaytadi</td></tr>
+                        <tr><td>Murakkab mantiq</td><td>Mumkin (if, sikl...)</td><td>Mumkin emas</td></tr>
+                        <tr><td>Qachon yaxshi</td><td>Katta, takroriy ish</td><td>Qisqa, bir martalik ish</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Qoidaning mohiyati</strong>
+                    <p>
+                        Lambda'ni asosan <span class="highlight-var">map()</span>,
+                        <span class="highlight-var">filter()</span>, <span class="highlight-var">sorted()</span>
+                        kabi funksiyalarga qisqa qoida berish uchun ishlatamiz. Agar mantiq murakkab bo'lsa —
+                        oddiy <span class="highlight-var">def</span> dan foydalaning, kod tushunarliroq bo'ladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>map() — Har Elementga Funksiya Qo'llash</h2>
+                <div class="description">
+                    <span class="highlight-var">map(funksiya, royxat)</span> — ro'yxatning
+                    <strong>har bir elementiga</strong> funksiyani qo'llaydi va yangi natijalar beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sonlar <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]<br>
+                        kvadrat <span class="operator">=</span> <span class="function">list</span>(<span class="function">map</span>(<span class="keyword">lambda</span> x: x <span class="operator">**</span> <span class="number">2</span>, sonlar))<br>
+                        <span class="function">print</span>(kvadrat)
+                    </div>
+                    <div class="comment-part">
+                        # har bir sonni kvadratga oshiradi<br>
+                        # 1→1, 2→4, 3→9, 4→16
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1, 4, 9, 16]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>filter() — Shartga Mosini Saqlash</h2>
+                <div class="description">
+                    <span class="highlight-var">filter(shart, royxat)</span> — faqat shartni
+                    <strong>bajaradigan</strong> (True qaytaradigan) elementlarni saqlab qoladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sonlar <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]<br>
+                        juftlar <span class="operator">=</span> <span class="function">list</span>(<span class="function">filter</span>(<span class="keyword">lambda</span> x: x <span class="operator">%</span> <span class="number">2</span> <span class="operator">==</span> <span class="number">0</span>, sonlar))<br>
+                        <span class="function">print</span>(juftlar)
+                    </div>
+                    <div class="comment-part">
+                        # faqat juft sonlarni saqlaydi<br>
+                        # shart True bo'lganlar qoladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [2, 4, 6]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>reduce() — Hammasini Bitta Qiymatga Yig'ish</h2>
+                <div class="description">
+                    <span class="highlight-var">reduce(funksiya, royxat)</span> — ro'yxatdagi elementlarni
+                    <strong>juft-juft</strong> qilib birlashtiradi va oxir-oqibat
+                    <strong>bitta qiymat</strong> qaytaradi. U <span class="highlight-var">functools</span>
+                    modulida joylashgan, shuning uchun avval import qilamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> functools <span class="keyword">import</span> reduce<br>
+                        <br>
+                        sonlar <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]<br>
+                        yigindi <span class="operator">=</span> <span class="function">reduce</span>(<span class="keyword">lambda</span> a, b: a <span class="operator">+</span> b, sonlar)<br>
+                        <span class="function">print</span>(yigindi)
+                    </div>
+                    <div class="comment-part">
+                        # ((1+2)+3)+4 = 10<br>
+                        # bosqichma-bosqich yig'ib boradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 10
+                </div>
+                <div class="info-box">
+                    <strong>Uchalasini eslab qoling</strong>
+                    <p>
+                        • <span class="highlight-var">map()</span> — har elementni o'zgartiradi (soni o'zgarmaydi)<br>
+                        • <span class="highlight-var">filter()</span> — kerakligini saqlaydi (soni kamayadi)<br>
+                        • <span class="highlight-var">reduce()</span> — hammasini bitta qiymatga yig'adi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Lambda Funksiyani Sinab Ko'rish</h2>
+                <div class="description">
+                    Bir son kiriting va lambda qoidani tanlang — natijani darhol ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="lamNum" placeholder="Son kiriting" value="5">
+                        <select id="lamOp">
+                            <option value="double">lambda x: x * 2</option>
+                            <option value="square">lambda x: x ** 2</option>
+                            <option value="plus10">lambda x: x + 10</option>
+                            <option value="neg">lambda x: -x</option>
+                        </select>
+                        <button onclick="demoLambda()">Hisobla</button>
+                    </div>
+                    <div class="demo-result" id="resultLambda"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: map() va filter() Natijasi</h2>
+                <div class="description">
+                    Vergul bilan sonlar yozing, so'ng amalni tanlang — map yoki filter natijasini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="mfList" placeholder="1,2,3,4,5,6" value="1,2,3,4,5,6">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoMF('square')">map: kvadrat</button>
+                        <button onclick="demoMF('double')">map: x*2</button>
+                        <button onclick="demoMF('even')">filter: juft</button>
+                        <button onclick="demoMF('big')">filter: &gt;3</button>
+                    </div>
+                    <div class="demo-result" id="resultMF"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Closure — Tashqi O'zgaruvchini Eslab Qolish</h2>
+                <div class="description">
+                    Avval ko'paytuvchi yasang (masalan 3 ga), so'ng turli sonlar kiriting. E'tibor bering:
+                    yasalgan funksiya o'z ko'paytuvchisini <strong>eslab qoladi</strong>.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="closFactor" placeholder="Ko'paytuvchi" value="3">
+                        <button onclick="makeMultiplier()">Funksiya yasa</button>
+                    </div>
+                    <div class="demo-input">
+                        <input type="number" id="closInput" placeholder="Son kiriting" value="5">
+                        <button onclick="useMultiplier()">Qo'llash</button>
+                    </div>
+                    <div class="demo-result" id="resultClosure"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: reduce() — Yig'indi va Ko'paytma</h2>
+                <div class="description">
+                    Sonlarni yozing va reduce bilan ularni bitta qiymatga yig'ing.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="redList" placeholder="1,2,3,4" value="1,2,3,4">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoReduce('sum')">reduce: yig'indi</button>
+                        <button onclick="demoReduce('mul')">reduce: ko'paytma</button>
+                        <button onclick="demoReduce('max')">reduce: eng katta</button>
+                    </div>
+                    <div class="demo-result" id="resultReduce"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Lambda yarating</strong>
+                            <p>kub = lambda x: x ** 3 — sonni kubga oshiruvchi lambda yozing va kub(3) ni chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>map() bilan ishlang</strong>
+                            <p>[1,2,3,4,5] ro'yxatining har bir sonini map va lambda bilan kvadratga oshiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>filter() bilan ajrating</strong>
+                            <p>1 dan 10 gacha sonlardan faqat toq sonlarni filter va lambda bilan saqlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Closure yasang</strong>
+                            <p>qoshuvchi_yasa(n) yozing — u "ichki" funksiya qaytarsin va n ni eslab qolsin (masalan beshga = qoshuvchi_yasa(5))</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Modul 9 tugadi! 🎉</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Keyingi: Modul 10 — Git va Loyiha Boshqaruvi</p>
+                    <p style="opacity: 0.95;">
+                        Closure, lambda, map, filter va reduce'ni o'rgandingiz!<br>
+                        Bu hozircha eng so'nggi tayyor dars. Tez orada
+                        <strong>Modul 10 (Git)</strong> da kodingizni qanday saqlash va boshqarishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseNums(id) {
+            return document.getElementById(id).value
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '')
+                .map(Number)
+                .filter(n => !isNaN(n));
+        }
+
+        function demoLambda() {
+            const x = parseFloat(document.getElementById('lamNum').value);
+            const op = document.getElementById('lamOp').value;
+            const result = document.getElementById('resultLambda');
+            if (isNaN(x)) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, son kiriting!';
+                return;
+            }
+            let out, code;
+            if (op === 'double') { out = x * 2; code = 'lambda x: x * 2'; }
+            else if (op === 'square') { out = x ** 2; code = 'lambda x: x ** 2'; }
+            else if (op === 'plus10') { out = x + 10; code = 'lambda x: x + 10'; }
+            else { out = -x; code = 'lambda x: -x'; }
+            result.classList.add('show');
+            result.innerHTML = `>>> f = ${code}<br>>>> f(${x})<br>>>> ${out}`;
+        }
+
+        function demoMF(kind) {
+            const nums = parseNums('mfList');
+            const result = document.getElementById('resultMF');
+            if (nums.length === 0) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, sonlarni vergul bilan yozing!';
+                return;
+            }
+            let out, code;
+            if (kind === 'square') {
+                out = nums.map(x => x ** 2);
+                code = 'list(map(lambda x: x ** 2, sonlar))';
+            } else if (kind === 'double') {
+                out = nums.map(x => x * 2);
+                code = 'list(map(lambda x: x * 2, sonlar))';
+            } else if (kind === 'even') {
+                out = nums.filter(x => x % 2 === 0);
+                code = 'list(filter(lambda x: x % 2 == 0, sonlar))';
+            } else {
+                out = nums.filter(x => x > 3);
+                code = 'list(filter(lambda x: x > 3, sonlar))';
+            }
+            result.classList.add('show');
+            result.innerHTML = `>>> ${code}<br>>>> [${out.join(', ')}]`;
+        }
+
+        let savedFactor = null;
+        function makeMultiplier() {
+            const f = parseFloat(document.getElementById('closFactor').value);
+            const result = document.getElementById('resultClosure');
+            if (isNaN(f)) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, ko\'paytuvchi son kiriting!';
+                return;
+            }
+            savedFactor = f;
+            result.classList.add('show');
+            result.innerHTML = `>>> kopaytuvchi = kopaytuvchi_yasa(${f})<br>>>> Funksiya yasaldi! U "${f}" ni eslab qoldi.<br>>>> Endi son kiritib, "Qo'llash" ni bosing.`;
+        }
+        function useMultiplier() {
+            const result = document.getElementById('resultClosure');
+            if (savedFactor === null) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Avval "Funksiya yasa" tugmasini bosing!';
+                return;
+            }
+            const x = parseFloat(document.getElementById('closInput').value);
+            if (isNaN(x)) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, son kiriting!';
+                return;
+            }
+            result.classList.add('show');
+            result.innerHTML = `>>> kopaytuvchi(${x})<br>>>> ${x} * ${savedFactor} = ${x * savedFactor}<br>>>> (eslab qolingan ko'paytuvchi: ${savedFactor})`;
+        }
+
+        function demoReduce(kind) {
+            const nums = parseNums('redList');
+            const result = document.getElementById('resultReduce');
+            if (nums.length === 0) {
+                result.classList.add('show');
+                result.innerHTML = '>>> Iltimos, sonlarni vergul bilan yozing!';
+                return;
+            }
+            let out, code;
+            if (kind === 'sum') {
+                out = nums.reduce((a, b) => a + b);
+                code = 'reduce(lambda a, b: a + b, sonlar)';
+            } else if (kind === 'mul') {
+                out = nums.reduce((a, b) => a * b);
+                code = 'reduce(lambda a, b: a * b, sonlar)';
+            } else {
+                out = nums.reduce((a, b) => a > b ? a : b);
+                code = 'reduce(lambda a, b: a if a > b else b, sonlar)';
+            }
+            result.classList.add('show');
+            result.innerHTML = `>>> from functools import reduce<br>>>> ${code}<br>>>> ${out}`;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

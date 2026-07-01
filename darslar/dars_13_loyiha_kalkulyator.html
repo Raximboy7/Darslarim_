@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 13: Mini-loyiha: Kalkulyator (CLI)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 1 — Asoslar · Dars 13 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Mini-loyiha: Kalkulyator (CLI)</h1>
+                <p>Modul 1 — Asoslar | Dars 13</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Loyihamiz: oddiy kalkulyator</h2>
+                <div class="description">
+                    Endi o'rgangan bilimlarimizni birlashtirib, <strong>haqiqiy ishlaydigan kalkulyator</strong>
+                    yozamiz! U foydalanuvchidan ikkita son va bitta amal (+, −, ×, ÷) so'raydi,
+                    keyin natijani chiqaradi. Bu <b>CLI</b> (buyruq qatori) dasturi bo'ladi.
+                </div>
+                <p style="color: var(--dark); line-height: 1.7;">
+                    Loyihada quyidagilarni ishlatamiz: <span class="highlight-var">input()</span>,
+                    <span class="highlight-var">float()</span>, <span class="highlight-var">if/elif/else</span> va
+                    arifmetik operatorlar.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>1-qadam: Sonlarni olish</h2>
+                <div class="description">
+                    Avval foydalanuvchidan ikkita sonni olamiz. <span class="highlight-var">input()</span> matn
+                    qaytargani uchun darhol <span class="highlight-var">float()</span> ga o'giramiz (kasr sonlar ham ishlashi uchun).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+son1 <span class="operator">=</span> <span class="function">float</span>(<span class="function">input</span>(<span class="string">"Birinchi son: "</span>))<br>
+son2 <span class="operator">=</span> <span class="function">float</span>(<span class="function">input</span>(<span class="string">"Ikkinchi son: "</span>))
+                    </div>
+                    <div class="comment-part">
+                        # float() bilan 3.5 kabi sonlar ham ishlaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-qadam: Amalni so'rash</h2>
+                <div class="description">
+                    Endi qaysi amalni bajarishni so'raymiz. Foydalanuvchi <b>+, -, *, /</b> belgilaridan birini kiritadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+amal <span class="operator">=</span> <span class="function">input</span>(<span class="string">"Amal (+, -, *, /): "</span>)
+                    </div>
+                    <div class="comment-part">
+                        # amal — matn bo'lib qoladi, o'girish shart emas
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3-qadam: Amalni bajarish (if/elif/else)</h2>
+                <div class="description">
+                    <span class="highlight-var">if/elif/else</span> yordamida qaysi belgi kiritilganini tekshiramiz
+                    va mos amalni bajaramiz. Nolga bo'lishni ham alohida tekshiramiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+<span class="keyword">if</span> amal <span class="operator">==</span> <span class="string">"+"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">+</span> son2<br>
+<span class="keyword">elif</span> amal <span class="operator">==</span> <span class="string">"-"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">-</span> son2<br>
+<span class="keyword">elif</span> amal <span class="operator">==</span> <span class="string">"*"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">*</span> son2<br>
+<span class="keyword">elif</span> amal <span class="operator">==</span> <span class="string">"/"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> son2 <span class="operator">==</span> <span class="number">0</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> <span class="string">"Nolga bo'lib bo'lmaydi!"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">/</span> son2<br>
+<span class="keyword">else</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> <span class="string">"Noma'lum amal!"</span>
+                    </div>
+                    <div class="comment-part">
+                        # har bir amalni alohida tekshiramiz<br>
+                        # / uchun son2 == 0 ni tekshirish MUHIM
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4-qadam: Natijani chiqarish</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+<span class="function">print</span>(<span class="string">"Natija:"</span>, natija)
+                    </div>
+                    <div class="comment-part">
+                        # print bilan javobni ekranga chiqaramiz
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq dastur</h2>
+                <div class="description">
+                    Hamma qadamlarni birlashtiramiz. Mana tayyor, ishlaydigan kalkulyator:
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+<span class="function">print</span>(<span class="string">"=== KALKULYATOR ==="</span>)<br>
+<br>
+son1 <span class="operator">=</span> <span class="function">float</span>(<span class="function">input</span>(<span class="string">"Birinchi son: "</span>))<br>
+son2 <span class="operator">=</span> <span class="function">float</span>(<span class="function">input</span>(<span class="string">"Ikkinchi son: "</span>))<br>
+amal <span class="operator">=</span> <span class="function">input</span>(<span class="string">"Amal (+, -, *, /): "</span>)<br>
+<br>
+<span class="keyword">if</span> amal <span class="operator">==</span> <span class="string">"+"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">+</span> son2<br>
+<span class="keyword">elif</span> amal <span class="operator">==</span> <span class="string">"-"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">-</span> son2<br>
+<span class="keyword">elif</span> amal <span class="operator">==</span> <span class="string">"*"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">*</span> son2<br>
+<span class="keyword">elif</span> amal <span class="operator">==</span> <span class="string">"/"</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> son2 <span class="operator">==</span> <span class="number">0</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> <span class="string">"Nolga bo'lib bo'lmaydi!"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> son1 <span class="operator">/</span> son2<br>
+<span class="keyword">else</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;natija <span class="operator">=</span> <span class="string">"Noma'lum amal!"</span><br>
+<br>
+<span class="function">print</span>(<span class="string">"Natija:"</span>, natija)
+                    </div>
+                    <div class="comment-part">
+                        # to'liq ishlaydigan kalkulyator dasturi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    === KALKULYATOR ===<br>
+                    Birinchi son: 12<br>
+                    Ikkinchi son: 4<br>
+                    Amal (+, -, *, /): *<br>
+                    &gt;&gt;&gt; Natija: 48.0
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sinab ko'ring: brauzer kalkulyatori</h2>
+                <div class="description">
+                    Quyida yuqoridagi mantiq bilan ishlaydigan jonli kalkulyator. Sonlarni kiriting va amalni tanlang!
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="calc1" placeholder="Son 1" value="12">
+                        <input type="text" id="calcOp" placeholder="Amal" value="*" style="max-width:70px;text-align:center;">
+                        <input type="number" id="calc2" placeholder="Son 2" value="4">
+                        <button onclick="hisobla()">Hisoblash</button>
+                    </div>
+                    <div class="demo-result" id="calcResult"></div>
+                </div>
+                <script>
+                    function hisobla() {
+                        const a = parseFloat(document.getElementById('calc1').value) || 0;
+                        const b = parseFloat(document.getElementById('calc2').value) || 0;
+                        const op = document.getElementById('calcOp').value.trim();
+                        const box = document.getElementById('calcResult');
+                        let natija;
+                        if (op === '+') natija = a + b;
+                        else if (op === '-') natija = a - b;
+                        else if (op === '*') natija = a * b;
+                        else if (op === '/') natija = (b === 0) ? "Nolga bo'lib bo'lmaydi!" : a / b;
+                        else natija = "Noma'lum amal!";
+                        box.classList.add('show');
+                        box.innerHTML = `>>> Natija: ${natija}`;
+                    }
+                </script>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy xulosalar</h2>
+                <div class="info-box">
+                    <strong>Nima o'rgandik</strong>
+                    <p>
+                        • <span class="highlight-var">input()</span> + <span class="highlight-var">float()</span> bilan son olish<br>
+                        • <span class="highlight-var">if/elif/else</span> bilan tanlov qilish<br>
+                        • Nolga bo'lishni oldindan tekshirish muhim<br>
+                        • Kichik qadamlarni birlashtirib to'liq dastur yasash<br>
+                        • Bu — sizning birinchi real loyihangiz!
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 14: Kod madaniyati: PEP8</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

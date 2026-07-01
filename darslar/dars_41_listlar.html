@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 41: Listlar (Lists)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* LIST INDEX VISUALIZER */
+        .index-viz { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+        .char-cell { text-align: center; }
+        .char-box {
+            min-width: 44px; height: 44px; padding: 0 8px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #fbbf24;
+            border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 1.0em;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .char-box.hit { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .char-idx { font-size: 0.72em; color: var(--gray); margin-top: 4px; font-family: monospace; }
+        .char-neg { font-size: 0.72em; color: var(--secondary); font-family: monospace; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 4 — Ma'lumot Tuzilmalari · Dars 41 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Listlar (Lists)</h1>
+                <p>Modul 4 — Ma'lumot Tuzilmalari | Dars 41</p>
+            </header>
+
+            <div class="section">
+                <h2>List Nima?</h2>
+                <div class="description">
+                    <strong>List (ro'yxat)</strong> — bu bir nechta qiymatni <strong>bitta o'zgaruvchida</strong>
+                    saqlash uchun ishlatiladigan tuzilma. Qiymatlar
+                    <span class="highlight-var">[ ]</span> kvadrat qavslar ichida, vergul bilan ajratib yoziladi.
+                    Listdagi qiymatlar tartibli bo'ladi va ularni o'zgartirish mumkin.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sonlar = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]<br>
+                        <span class="function">print</span>(sonlar)
+                    </div>
+                    <div class="comment-part">
+                        # 5 ta sonni bitta o'zgaruvchida saqladik
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1, 2, 3, 4, 5]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>List Yaratish</h2>
+                <div class="description">
+                    List ichida istalgan turdagi qiymatlar bo'lishi mumkin: sonlar, matnlar, hatto aralash.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ismlar = [<span class="string">"ali"</span>, <span class="string">"bobur"</span>]<br>
+                        bahar = [<span class="number">3.5</span>, <span class="number">4</span>, <span class="number">5</span>]<br>
+                        bosh = []
+                    </div>
+                    <div class="comment-part">
+                        # matnlar ro'yxati<br>
+                        # sonlar ro'yxati<br>
+                        # bo'sh list (hozircha hech narsa yo'q)
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Bo'sh list</strong>
+                    <p>
+                        Ko'pincha listni <span class="highlight-var">[]</span> bo'sh holda yaratib,
+                        keyin unga qiymatlarni qo'shib boramiz. Bu juda keng tarqalgan usul.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Indeks (Indexing)</h2>
+                <div class="description">
+                    Har bir element o'z <strong>raqamiga (indeksiga)</strong> ega. Sanash
+                    <span class="highlight-var">0</span> dan boshlanadi. Manfiy indeks oxiridan sanaydi:
+                    <span class="highlight-var">-1</span> — oxirgi element.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        meva = [<span class="string">"olma"</span>, <span class="string">"banan"</span>, <span class="string">"uzum"</span>]<br>
+                        <span class="function">print</span>(meva[<span class="number">0</span>])<br>
+                        <span class="function">print</span>(meva[-<span class="number">1</span>])
+                    </div>
+                    <div class="comment-part">
+                        <br>
+                        # birinchi element<br>
+                        # oxirgi element
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> olma<br>
+                    >>> uzum
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Kesim (Slicing)</h2>
+                <div class="description">
+                    <span class="highlight-var">list[boshi:oxiri]</span> — boshidan oxirigacha (oxiri kirmaydi)
+                    bo'lakni qaytaradi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Kod</th><th>Natija</th><th>Izoh</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>[10,20,30,40][1:3]</code></td><td>[20, 30]</td><td>1 va 2-indeks</td></tr>
+                        <tr><td><code>[10,20,30,40][:2]</code></td><td>[10, 20]</td><td>boshidan 2 gacha</td></tr>
+                        <tr><td><code>[10,20,30,40][2:]</code></td><td>[30, 40]</td><td>2 dan oxirigacha</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>List Metodlari</h2>
+                <div class="description">
+                    Metodlar listni boshqarish uchun ishlatiladi. Ular
+                    <span class="highlight-var">list.metod()</span> ko'rinishida chaqiriladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th><th>Misol → Natija</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>.append(x)</code></td><td>Oxiriga qo'shadi</td><td>[1,2].append(3) → [1, 2, 3]</td></tr>
+                        <tr><td><code>.insert(i,x)</code></td><td>i-o'ringa qo'shadi</td><td>[1,3].insert(1,2) → [1, 2, 3]</td></tr>
+                        <tr><td><code>.remove(x)</code></td><td>x qiymatni o'chiradi</td><td>[1,2,3].remove(2) → [1, 3]</td></tr>
+                        <tr><td><code>.pop(i)</code></td><td>i-indeksni o'chiradi</td><td>[1,2,3].pop(0) → [2, 3]</td></tr>
+                        <tr><td><code>.sort()</code></td><td>Tartiblaydi</td><td>[3,1,2].sort() → [1, 2, 3]</td></tr>
+                        <tr><td><code>.reverse()</code></td><td>Teskari qiladi</td><td>[1,2,3].reverse() → [3, 2, 1]</td></tr>
+                        <tr><td><code>.clear()</code></td><td>Hammasini tozalaydi</td><td>[1,2,3].clear() → []</td></tr>
+                        <tr><td><code>.copy()</code></td><td>Nusxa oladi</td><td>[1,2].copy() → [1, 2]</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>append() va pop() amalda</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        savat = [<span class="string">"non"</span>]<br>
+                        savat.<span class="function">append</span>(<span class="string">"sut"</span>)<br>
+                        savat.<span class="function">pop</span>()<br>
+                        <span class="function">print</span>(savat)
+                    </div>
+                    <div class="comment-part">
+                        <br>
+                        # oxiriga "sut" qo'shildi<br>
+                        # oxirgisi o'chirildi<br>
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ['non']
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>len() va for bilan Aylanish</h2>
+                <div class="description">
+                    <span class="highlight-var">len(list)</span> listdagi elementlar sonini qaytaradi.
+                    <span class="highlight-var">for</span> sikli bilan har bir elementni birma-bir aylanib chiqamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        meva = [<span class="string">"olma"</span>, <span class="string">"banan"</span>, <span class="string">"uzum"</span>]<br>
+                        <span class="function">print</span>(<span class="function">len</span>(meva))<br>
+                        <span class="keyword">for</span> m <span class="keyword">in</span> meva:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(m)
+                    </div>
+                    <div class="comment-part">
+                        <br>
+                        # nechta element bor<br>
+                        # har bir mevani chiqaramiz<br>
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 3<br>
+                    >>> olma<br>
+                    >>> banan<br>
+                    >>> uzum
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: mavjud bo'lmagan indeks</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            meva = [<span class="string">"olma"</span>, <span class="string">"banan"</span>]<br>
+                            <span class="function">print</span>(meva[<span class="number">2</span>])  <span style="color:#f87171;"># XATO!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Listda 2 ta element bor (indekslar 0 va 1). 2-indeks yo'q, shuning uchun
+                        <span class="highlight-var">IndexError</span> xatosi chiqadi.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: oxirgini -1 bilan oling</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            meva = [<span class="string">"olma"</span>, <span class="string">"banan"</span>]<br>
+                            <span class="function">print</span>(meva[-<span class="number">1</span>])
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> banan
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • List <span class="highlight-var">[ ]</span> ichida vergul bilan yoziladi<br>
+                    • Indeks <span class="highlight-var">0</span> dan boshlanadi, <span class="highlight-var">-1</span> — oxirgi element<br>
+                    • <span class="highlight-var">.append()</span> qo'shadi, <span class="highlight-var">.pop()</span> o'chiradi<br>
+                    • <span class="highlight-var">len(list)</span> uzunlikni, <span class="highlight-var">for</span> sikli aylanishni beradi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Jonli List Quruvchi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="itemInput" placeholder="Element yozing" value="olma">
+                        <button onclick="demoAppend()">append()</button>
+                        <button onclick="demoPop()">pop()</button>
+                    </div>
+                    <div class="index-viz" id="listViz"></div>
+                    <div class="demo-result" id="resultList"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Element qo'shing yoki oxirgisini o'chiring — list jonli yangilanadi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: sort() va reverse()</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="sortInput" placeholder="Sonlar: 3,1,4,2,5" value="3,1,4,2,5">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoSort('asc')">sort()</button>
+                        <button onclick="demoSort('desc')">sort(reverse=True)</button>
+                        <button onclick="demoSort('rev')">reverse()</button>
+                    </div>
+                    <div class="demo-result" id="resultSort"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Indeks Bo'yicha Element</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="idxList" placeholder="Element: olma,banan,uzum" value="olma,banan,uzum">
+                        <input type="number" id="idxNum" placeholder="indeks" value="0" style="min-width:80px;">
+                        <button onclick="demoIndex()">Olish</button>
+                    </div>
+                    <div class="index-viz" id="idxViz"></div>
+                    <div class="demo-result" id="resultIndex"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: len() va sum()</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="calcInput" placeholder="Sonlar: 10,20,30,40" value="10,20,30,40">
+                        <button onclick="demoCalc()">Hisobla</button>
+                    </div>
+                    <div class="demo-result" id="resultCalc"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    <span class="highlight-var">len()</span> uzunlik, <span class="highlight-var">sum()</span> yig'indi,
+                    o'rtacha = sum / len.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: for bilan Aylanish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="loopInput" placeholder="Element: ali,bobur,guli" value="ali,bobur,guli">
+                        <button onclick="demoLoop()">Aylan</button>
+                    </div>
+                    <div class="demo-result" id="resultLoop"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Bo'sh list yarating</strong>
+                            <p><span class="highlight-var">dostlar = []</span></p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>3 ta ism qo'shing</strong>
+                            <p>.append() bilan oxiriga ism qo'shing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Tartiblang</strong>
+                            <p>.sort() bilan alifbo tartibiga keltiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Sanang va chiqaring</strong>
+                            <p>len() bilan sonini, for bilan har birini chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 42: List metodlari</p>
+                    <p style="opacity: 0.9;">
+                        Listlarni o'rgandingiz!<br>
+                        Endi o'zgartirib bo'lmaydigan tuzilma — tuple bilan tanishamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Misol 1: Jonli List Quruvchi =====
+        let myList = ["olma", "banan"];
+
+        function renderListViz() {
+            const box = document.getElementById('listViz');
+            box.innerHTML = '';
+            myList.forEach((item, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.innerHTML = `
+                    <div class="char-box">${item}</div>
+                    <div class="char-idx">${i}</div>
+                    <div class="char-neg">${i - myList.length}</div>`;
+                box.appendChild(cell);
+            });
+        }
+
+        function pyList(arr) {
+            return '[' + arr.map(x => `'${x}'`).join(', ') + ']';
+        }
+
+        function demoAppend() {
+            const val = document.getElementById('itemInput').value.trim() || "element";
+            myList.push(val);
+            renderListViz();
+            const result = document.getElementById('resultList');
+            result.classList.add('show');
+            result.innerHTML = `>>> savat.append("${val}")<br>>>> ${pyList(myList)}<br>>>> len(savat) = ${myList.length}`;
+        }
+
+        function demoPop() {
+            const result = document.getElementById('resultList');
+            result.classList.add('show');
+            if (myList.length === 0) {
+                result.innerHTML = `>>> savat.pop()<br>>>> IndexError: list bo'sh!`;
+                return;
+            }
+            const removed = myList.pop();
+            renderListViz();
+            result.innerHTML = `>>> savat.pop()  # oxirgini o'chiradi<br>>>> o'chirildi: "${removed}"<br>>>> ${pyList(myList)}`;
+        }
+
+        // ===== Misol 2: sort / reverse =====
+        function parseNums(str) {
+            return str.split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '')
+                .map(Number)
+                .filter(n => !isNaN(n));
+        }
+
+        function demoSort(kind) {
+            const nums = parseNums(document.getElementById('sortInput').value);
+            let out = [...nums];
+            let code = '';
+            if (kind === 'asc') {
+                out.sort((a, b) => a - b);
+                code = 'sonlar.sort()';
+            } else if (kind === 'desc') {
+                out.sort((a, b) => b - a);
+                code = 'sonlar.sort(reverse=True)';
+            } else {
+                out.reverse();
+                code = 'sonlar.reverse()';
+            }
+            const result = document.getElementById('resultSort');
+            result.classList.add('show');
+            result.innerHTML = `>>> sonlar = [${nums.join(', ')}]<br>>>> ${code}<br>>>> [${out.join(', ')}]`;
+        }
+
+        // ===== Misol 3: indeks bo'yicha element =====
+        function renderIdxViz(arr, hit) {
+            const box = document.getElementById('idxViz');
+            box.innerHTML = '';
+            arr.forEach((item, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                const isHit = (i === hit);
+                cell.innerHTML = `
+                    <div class="char-box${isHit ? ' hit' : ''}">${item}</div>
+                    <div class="char-idx">${i}</div>
+                    <div class="char-neg">${i - arr.length}</div>`;
+                box.appendChild(cell);
+            });
+        }
+
+        function demoIndex() {
+            const arr = document.getElementById('idxList').value
+                .split(',').map(s => s.trim()).filter(s => s !== '');
+            let idx = parseInt(document.getElementById('idxNum').value);
+            if (isNaN(idx)) idx = 0;
+            // Pythondagi manfiy indeksni haqiqiy o'ringa aylantiramiz
+            let real = idx < 0 ? arr.length + idx : idx;
+            const result = document.getElementById('resultIndex');
+            result.classList.add('show');
+            if (real < 0 || real >= arr.length) {
+                renderIdxViz(arr, -1);
+                result.innerHTML = `>>> meva = ${pyList(arr)}<br>>>> meva[${idx}]<br>>>> IndexError: indeks chegaradan tashqarida!`;
+            } else {
+                renderIdxViz(arr, real);
+                result.innerHTML = `>>> meva = ${pyList(arr)}<br>>>> meva[${idx}]<br>>>> '${arr[real]}'`;
+            }
+        }
+
+        // ===== Misol 4: len / sum =====
+        function demoCalc() {
+            const nums = parseNums(document.getElementById('calcInput').value);
+            const result = document.getElementById('resultCalc');
+            result.classList.add('show');
+            if (nums.length === 0) {
+                result.innerHTML = `>>> sonlar = []<br>>>> len(sonlar) = 0<br>>>> sum(sonlar) = 0`;
+                return;
+            }
+            const total = nums.reduce((a, b) => a + b, 0);
+            const avg = total / nums.length;
+            result.innerHTML = `>>> sonlar = [${nums.join(', ')}]<br>` +
+                `>>> len(sonlar) = ${nums.length}<br>` +
+                `>>> sum(sonlar) = ${total}<br>` +
+                `>>> o'rtacha = ${(Math.round(avg * 100) / 100)}<br>` +
+                `>>> max = ${Math.max(...nums)}, min = ${Math.min(...nums)}`;
+        }
+
+        // ===== Misol 5: for bilan aylanish =====
+        function demoLoop() {
+            const arr = document.getElementById('loopInput').value
+                .split(',').map(s => s.trim()).filter(s => s !== '');
+            const result = document.getElementById('resultLoop');
+            result.classList.add('show');
+            let lines = `>>> for nom in ${pyList(arr)}:<br>`;
+            arr.forEach((item, i) => {
+                lines += `&nbsp;&nbsp;&nbsp;&nbsp;# ${i + 1}-aylanish → ${item}<br>`;
+            });
+            if (arr.length === 0) lines += '&nbsp;&nbsp;&nbsp;&nbsp;# list bo\'sh, sikl ishlamadi';
+            result.innerHTML = lines;
+        }
+
+        // dastlabki ko'rinish
+        renderListViz();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

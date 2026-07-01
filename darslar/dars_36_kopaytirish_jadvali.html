@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 36: Ko'paytirish jadvali (nested loop)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 3 — Shartlar va Sikllar · Dars 36 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Ko'paytirish jadvali (nested loop)</h1>
+                <p>Modul 3 — Shartlar va Sikllar | Dars 36</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Ko'paytirish jadvali va nested loop</h2>
+                <div class="description">
+                    Ko'paytirish jadvali — ichma-ich sikllarni o'rganish uchun eng mashhur mashqlardan biri. Bu yerda
+                    <strong>tashqi sikl</strong> qaysi son jadvali ekanini, <strong>ichki sikl</strong> esa uni 1 dan 9 gacha
+                    ko'paytirishni boshqaradi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Bitta sonning jadvali</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Avval bitta sikl bilan 5 ning jadvalini chiqaramiz:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>son = <span class="number">5</span>
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">10</span>):
+    <span class="function">print</span>(son, <span class="string">"x"</span>, i, <span class="string">"="</span>, son * i)</pre></div>
+                    <div class="comment-part">
+                        <b>i</b> 1 dan 9 gacha o'zgaradi, har safar <b>son * i</b> hisoblanadi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 5 x 1 = 5<br>
+                    &gt;&gt;&gt; 5 x 2 = 10<br>
+                    &gt;&gt;&gt; 5 x 3 = 15<br>
+                    &gt;&gt;&gt; ...<br>
+                    &gt;&gt;&gt; 5 x 9 = 45
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq jadval (nested loop)</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Endi 1 dan 9 gacha barcha sonlarning jadvalini ichma-ich sikl bilan chiqaramiz:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">for</span> son <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">10</span>):
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">10</span>):
+        <span class="function">print</span>(son * i, end=<span class="string">"\t"</span>)
+    <span class="function">print</span>()</pre></div>
+                    <div class="comment-part">
+                        Tashqi sikl qatorni (qaysi son), ichki sikl ustunni boshqaradi. <b>\t</b> — tab (ustunlarni tekislaydi),
+                        bo'sh <b>print()</b> yangi qatorga o'tkazadi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 1&nbsp;&nbsp;2&nbsp;&nbsp;3&nbsp;&nbsp;4&nbsp;&nbsp;5&nbsp;&nbsp;6&nbsp;&nbsp;7&nbsp;&nbsp;8&nbsp;&nbsp;9<br>
+                    &gt;&gt;&gt; 2&nbsp;&nbsp;4&nbsp;&nbsp;6&nbsp;&nbsp;8&nbsp;&nbsp;10&nbsp;12&nbsp;14&nbsp;16&nbsp;18<br>
+                    &gt;&gt;&gt; 3&nbsp;&nbsp;6&nbsp;&nbsp;9&nbsp;&nbsp;12&nbsp;15&nbsp;18&nbsp;21&nbsp;24&nbsp;27<br>
+                    &gt;&gt;&gt; ... (9-qatorgacha davom etadi)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Chiroyli ko'rinishdagi jadval</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Har bir amalni to'liq yozib chiqaruvchi variant — o'rganuvchilar uchun tushunarliroq:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">for</span> son <span class="keyword">in</span> <span class="function">range</span>(<span class="number">2</span>, <span class="number">5</span>):
+    <span class="function">print</span>(<span class="string">"---"</span>, son, <span class="string">"jadvali ---"</span>)
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">10</span>):
+        <span class="function">print</span>(son, <span class="string">"x"</span>, i, <span class="string">"="</span>, son * i)
+    <span class="function">print</span>()</pre></div>
+                    <div class="comment-part">
+                        Tashqi sikl har bir son uchun sarlavha chiqaradi, ichki sikl esa uning to'liq jadvalini yozadi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; --- 2 jadvali ---<br>
+                    &gt;&gt;&gt; 2 x 1 = 2<br>
+                    &gt;&gt;&gt; 2 x 2 = 4<br>
+                    &gt;&gt;&gt; ... 2 x 9 = 18<br>
+                    &gt;&gt;&gt; --- 3 jadvali --- (va hokazo)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Amaliyot va xulosa</h2>
+                <div class="info-box">
+                    <strong>O'zingiz sinab ko'ring</strong>
+                    <p>
+                        1. Foydalanuvchidan son so'rab, faqat o'sha sonning jadvalini chiqaring.<br>
+                        2. Faqat juft sonlarning (2, 4, 6, 8) jadvalini chiqaring.<br>
+                        3. Jadvalni 12 gacha kengaytiring.
+                    </p>
+                </div>
+                <div class="info-box">
+                    <strong>Nimalarni o'rgandik</strong>
+                    <p>
+                        • Ko'paytirish jadvali — nested loop uchun klassik misol.<br>
+                        • Tashqi sikl — qaysi son, ichki sikl — nechaga ko'paytirish.<br>
+                        • <span class="highlight-var">end="\t"</span> ustunlarni tekislaydi, <span class="highlight-var">print()</span>
+                        yangi qatorga o'tkazadi.
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 37: Tub son tekshirish</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

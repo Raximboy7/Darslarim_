@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 30: break va continue</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 3 — Shartlar va Sikllar · Dars 30 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>break va continue</h1>
+                <p>Modul 3 — Shartlar va Sikllar | Dars 30</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>break va continue nima?</h2>
+                <div class="description">
+                    Sikl ishlayotganda ba'zan uni <strong>butunlay to'xtatish</strong> yoki <strong>bitta qadamni o'tkazib
+                    yuborish</strong> kerak bo'ladi. Aynan shu ish uchun <span class="highlight-var">break</span> va
+                    <span class="highlight-var">continue</span> buyruqlari ishlatiladi.
+                </div>
+                <div class="operator-card">
+                    <strong><span class="operator-name">break</span> — siklni to'xtatadi</strong>
+                    <p>Bajarilishi bilan siklni butunlay tark etadi va sikldan keyingi kodga o'tadi.</p>
+                </div>
+                <div class="operator-card">
+                    <strong><span class="operator-name">continue</span> — qadamni o'tkazadi</strong>
+                    <p>Joriy takrorni to'xtatib, keyingi takrorga sakraydi. Sikl davom etaveradi.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>break bilan misol</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    1 dan 10 gacha sanaymiz, lekin 5 ga yetganda to'xtaymiz:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>):
+    <span class="keyword">if</span> i == <span class="number">5</span>:
+        <span class="keyword">break</span>
+    <span class="function">print</span>(i)
+
+<span class="function">print</span>(<span class="string">"Sikl tugadi"</span>)</pre></div>
+                    <div class="comment-part">
+                        <b>i</b> 5 ga teng bo'lganda <b>break</b> ishlaydi va sikl to'xtaydi. Shuning uchun 5 va undan keyingilar chiqmaydi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 1<br>
+                    &gt;&gt;&gt; 2<br>
+                    &gt;&gt;&gt; 3<br>
+                    &gt;&gt;&gt; 4<br>
+                    &gt;&gt;&gt; Sikl tugadi
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>continue bilan misol</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    1 dan 10 gacha sonlarni chop etamiz, lekin juft sonlarni o'tkazib yuboramiz:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">11</span>):
+    <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>:
+        <span class="keyword">continue</span>
+    <span class="function">print</span>(i)</pre></div>
+                    <div class="comment-part">
+                        Son juft bo'lsa <b>continue</b> ishlaydi va <b>print</b> ga yetmasdan keyingi songa o'tadi.
+                        Natijada faqat toq sonlar chiqadi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 1<br>
+                    &gt;&gt;&gt; 3<br>
+                    &gt;&gt;&gt; 5<br>
+                    &gt;&gt;&gt; 7<br>
+                    &gt;&gt;&gt; 9
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Amaliy misol: qidiruv</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 10px;">
+                    Ro'yxatdan kerakli ismni topganimizda darhol to'xtaymiz — bu <b>break</b> ning asosiy foydasi:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>ismlar = [<span class="string">"Ali"</span>, <span class="string">"Vali"</span>, <span class="string">"Guli"</span>, <span class="string">"Soli"</span>]
+qidirilayotgan = <span class="string">"Guli"</span>
+
+<span class="keyword">for</span> ism <span class="keyword">in</span> ismlar:
+    <span class="keyword">if</span> ism == qidirilayotgan:
+        <span class="function">print</span>(<span class="string">"Topildi:"</span>, ism)
+        <span class="keyword">break</span>
+    <span class="function">print</span>(<span class="string">"Tekshirilyapti:"</span>, ism)</pre></div>
+                    <div class="comment-part">
+                        Ism topilishi bilan sikl to'xtaydi, qolgan ismlar tekshirilmaydi — bu tezlikni oshiradi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; Tekshirilyapti: Ali<br>
+                    &gt;&gt;&gt; Tekshirilyapti: Vali<br>
+                    &gt;&gt;&gt; Topildi: Guli
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="info-box">
+                    <strong>Nimalarni o'rgandik</strong>
+                    <p>
+                        • <span class="highlight-var">break</span> — siklni butunlay to'xtatadi.<br>
+                        • <span class="highlight-var">continue</span> — faqat joriy qadamni o'tkazib, siklni davom ettiradi.<br>
+                        • <span class="highlight-var">break</span> qidiruvda kerakli narsani topgach tezda chiqish uchun juda foydali.<br>
+                        • Ikkalasi ham odatda <span class="highlight-var">if</span> sharti bilan birga ishlatiladi.
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 31: for va range()</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

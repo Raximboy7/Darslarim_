@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 169: Mustahkamlash — full-stack mini-loyiha</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 15 — Ma'lumotlar Bazasi va Concurrency · Dars 169 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Mustahkamlash — full-stack mini-loyiha</h1>
+                <p>Modul 15 — Ma'lumotlar Bazasi va Concurrency | Dars 169</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Loyiha: Vazifalar Ro'yxati (To-Do)</h2>
+                <div class="description">
+                    Bu darsda o'rganganlarimizni birlashtiramiz: <strong>Flask</strong> (web) +
+                    <strong>SQLite</strong> (ma'lumotlar bazasi) yordamida <strong>full-stack</strong> mini-ilova quramiz.
+                    Ilova vazifalarni qo'shish, ko'rish va o'chirish imkonini beradi —
+                    ya'ni <strong>CRUD</strong> ning asosiy amallari.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>CRUD</th><th>Ma'nosi</th><th>Bizning ilovada</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Create</td><td>Yaratish</td><td>Yangi vazifa qo'shish (POST)</td></tr>
+                        <tr><td>Read</td><td>O'qish</td><td>Vazifalar ro'yxatini ko'rsatish</td></tr>
+                        <tr><td>Update</td><td>Yangilash</td><td>(kengaytirish uchun)</td></tr>
+                        <tr><td>Delete</td><td>O'chirish</td><td>Vazifani o'chirish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Loyiha Tuzilishi (Reja)</h2>
+                <div class="description">
+                    Kichik loyiha uchun quyidagi fayllar yetarli. Har birining o'z vazifasi bor.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        todo_app/<br>
+                        &nbsp;&nbsp;├── app.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Flask kodi (routes + DB)<br>
+                        &nbsp;&nbsp;├── vazifalar.db&nbsp;&nbsp;# SQLite bazasi (avtomatik yaratiladi)<br>
+                        &nbsp;&nbsp;├── requirements.txt<br>
+                        &nbsp;&nbsp;└── venv/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# virtual muhit
+                    </div>
+                    <div class="comment-part">
+                        # Avval: python -m venv venv → faollashtiring → pip install flask → pip freeze > requirements.txt
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Ma'lumotlar Bazasini Tayyorlash</h2>
+                <div class="description">
+                    SQLite Python bilan birga keladi (o'rnatish shart emas).
+                    Avval <span class="highlight-var">vazifalar</span> jadvalini yaratamiz —
+                    har vazifada <span class="highlight-var">id</span> va <span class="highlight-var">matn</span> bo'ladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> sqlite3<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">baza_tayyorla</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn <span class="operator">=</span> sqlite3.<span class="function">connect</span>(<span class="string">"vazifalar.db"</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">execute</span>(<span class="string">'''</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">CREATE TABLE IF NOT EXISTS vazifalar (</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">id INTEGER PRIMARY KEY AUTOINCREMENT,</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">matn TEXT NOT NULL)</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'''</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">commit</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">close</span>()
+                    </div>
+                    <div class="comment-part">
+                        # IF NOT EXISTS — jadval bo'lsa qayta yaratmaydi; id avtomatik oshadi; commit — o'zgarishni saqlaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. app.py — Flask Routes + CRUD</h2>
+                <div class="description">
+                    Endi asosiy fayl. Bosh sahifada barcha vazifalar ko'rsatiladi (Read),
+                    forma orqali yangi vazifa qo'shiladi (Create), tugma orqali o'chiriladi (Delete).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, redirect<br>
+                        <span class="keyword">import</span> sqlite3<br>
+                        <br>
+                        app <span class="operator">=</span> <span class="function">Flask</span>(__name__)<br>
+                        <br>
+                        <span class="keyword">def</span> <span class="function">db</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> sqlite3.<span class="function">connect</span>(<span class="string">"vazifalar.db"</span>)<br>
+                        <br>
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/"</span>)<br>
+                        <span class="keyword">def</span> <span class="function">bosh</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn <span class="operator">=</span> <span class="function">db</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;rows <span class="operator">=</span> conn.<span class="function">execute</span>(<span class="string">"SELECT id, matn FROM vazifalar"</span>).<span class="function">fetchall</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">close</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;html <span class="operator">=</span> <span class="string">"&lt;h1&gt;Vazifalar&lt;/h1&gt;"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> id, matn <span class="keyword">in</span> rows:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;html <span class="operator">+=</span> <span class="string">f"&lt;p&gt;{matn} &lt;a href='/ochir/{id}'&gt;x&lt;/a&gt;&lt;/p&gt;"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;html <span class="operator">+=</span> <span class="string">'''&lt;form method="POST" action="/qoshish"&gt;</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">&lt;input name="matn"&gt;&lt;button&gt;Qo'shish&lt;/button&gt;&lt;/form&gt;'''</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> html
+                    </div>
+                    <div class="comment-part">
+                        # SELECT — vazifalarni o'qiydi (Read); har vazifa yonida o'chirish havolasi; pastda qo'shish formasi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Qo'shish va O'chirish Route'lari</h2>
+                <div class="description">
+                    Forma POST qilganda <span class="highlight-var">/qoshish</span> ishlaydi va bazaga yozadi.
+                    O'chirish havolasi <span class="highlight-var">/ochir/&lt;id&gt;</span> ni chaqiradi.
+                    Har ikkalasi ish tugagach <span class="highlight-var">redirect("/")</span> bilan bosh sahifaga qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/qoshish"</span>, methods<span class="operator">=</span>[<span class="string">"POST"</span>])<br>
+                        <span class="keyword">def</span> <span class="function">qoshish</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;matn <span class="operator">=</span> request.form[<span class="string">"matn"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn <span class="operator">=</span> <span class="function">db</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">execute</span>(<span class="string">"INSERT INTO vazifalar (matn) VALUES (?)"</span>, (matn,))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">commit</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">close</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"/"</span>)<br>
+                        <br>
+                        <span class="operator">@</span>app.<span class="function">route</span>(<span class="string">"/ochir/&lt;int:id&gt;"</span>)<br>
+                        <span class="keyword">def</span> <span class="function">ochir</span>(id):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn <span class="operator">=</span> <span class="function">db</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">execute</span>(<span class="string">"DELETE FROM vazifalar WHERE id = ?"</span>, (id,))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">commit</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;conn.<span class="function">close</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"/"</span>)<br>
+                        <br>
+                        <span class="keyword">if</span> __name__ <span class="operator">==</span> <span class="string">"__main__"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">baza_tayyorla</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;app.<span class="function">run</span>(debug<span class="operator">=</span><span class="keyword">True</span>)
+                    </div>
+                    <div class="comment-part">
+                        # ? va (matn,) — xavfsiz parametr (SQL injection dan himoya); &lt;int:id&gt; — URL dan sonni oladi; redirect — bosh sahifaga qaytaradi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Muhim: xavfsizlik</strong>
+                    <p>
+                        SQL ga qiymatni <strong>hech qachon</strong> to'g'ridan-to'g'ri qo'shmang.
+                        Doim <span class="highlight-var">?</span> belgisi va tuple ishlating:
+                        <span class="highlight-var">execute("... VALUES (?)", (matn,))</span> —
+                        bu <strong>SQL injection</strong> hujumidan himoya qiladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Ishga Tushirish va Sinash</h2>
+                <div class="output-demo">
+                    (venv) $ python app.py<br>
+                    &nbsp;* Running on http://127.0.0.1:5000<br>
+                    <br>
+                    # Brauzerda localhost:5000 → vazifa qo'shing, o'chiring<br>
+                    # Serverni o'chirib qayta ochsangiz ham vazifalar saqlanib qoladi (SQLite faylda)
+                </div>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Muhit tayyorlang</strong>
+                            <p>venv yarating, faollashtiring, pip install flask qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>app.py yozing</strong>
+                            <p>Baza yaratish, bosh sahifa, qoshish va ochir route'larini kiriting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Ishga tushiring</strong>
+                            <p>python app.py → localhost:5000 da sinab ko'ring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>requirements.txt saqlang</strong>
+                            <p>pip freeze &gt; requirements.txt bilan loyihani ulashishga tayyorlang</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="info-box">
+                    <strong>Nimalarni birlashtirdik</strong>
+                    <p>
+                        • <span class="highlight-var">venv</span> + <span class="highlight-var">requirements.txt</span> — muhit va kutubxonalar<br>
+                        • <span class="highlight-var">Flask routes</span> (GET/POST) — web sahifalar va formalar<br>
+                        • <span class="highlight-var">SQLite</span> — ma'lumotni doimiy saqlash<br>
+                        • <span class="highlight-var">CRUD</span> — qo'shish, o'qish, o'chirish amallari<br>
+                        • Parametrli so'rov (<span class="highlight-var">?</span>) — xavfsizlik. Endi o'zingiz mustaqil loyiha qura olasiz!
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 170: Loyiha tanlash va rejalashtirish</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

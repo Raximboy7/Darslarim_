@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dars 3: print() funksiyasi</title>
+    <title>Dars 4: O'zgaruvchilar va turlar</title>
     <style>
         * {
             margin: 0;
@@ -139,6 +139,7 @@
         .string { color: #fbbf24; }
         .number { color: #34d399; font-weight: bold; }
         .function { color: #a78bfa; }
+        .boolean { color: #f472b6; font-weight: bold; }
 
         .output-demo {
             background: #1f2937;
@@ -151,18 +152,25 @@
             border-left: 4px solid var(--primary);
         }
 
-        .example-box {
-            background: var(--light);
+        .type-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
             border: 2px solid var(--primary);
             border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
+            padding: 20px;
+            margin: 20px 0;
         }
 
-        .example-title {
-            font-weight: bold;
+        .type-card strong {
             color: var(--primary-dark);
+            display: block;
             margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .type-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
 
         .comparison-table {
@@ -186,6 +194,7 @@
         .comparison-table td {
             padding: 15px;
             border-bottom: 1px solid #eee;
+            font-size: 0.9em;
         }
 
         .comparison-table tr:hover {
@@ -322,24 +331,18 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .parameter-box {
+        .example-box {
             background: var(--light);
-            border-left: 4px solid var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 8px;
             margin: 15px 0;
         }
 
-        .parameter-box strong {
+        .example-title {
+            font-weight: bold;
             color: var(--primary-dark);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .parameter-box p {
-            color: var(--dark);
-            font-size: 0.9em;
-            line-height: 1.6;
+            margin-bottom: 10px;
         }
 
         @media (max-width: 1024px) {
@@ -351,11 +354,6 @@
             }
             .code-part {
                 border-right: none;
-                border-radius: 10px;
-            }
-            .comment-part {
-                border-radius: 10px;
-                margin-top: 5px;
             }
         }
 
@@ -420,359 +418,378 @@
 <body>
     <nav class="lesson-nav">
         <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
-        <span class="nav-center">Modul 1 — Asoslar · Dars 3 · <a href="../index.html">🏠 Barcha darslar</a></span>
+        <span class="nav-center">Modul 1 — Asoslar · Dars 4 · <a href="../index.html">🏠 Barcha darslar</a></span>
     </nav>
     <div class="container">
         <div class="panel">
             <header>
-                <h1>print() Funksiyasi</h1>
-                <p>Modul 1 — Asoslar | Dars 3</p>
+                <h1>O'zgaruvchilar va Turlar</h1>
+                <p>Modul 1 — Asoslar | Dars 4</p>
             </header>
 
             <div class="section">
-                <h2>print() Nima?</h2>
+                <h2>O'zgaruvchi Nima?</h2>
                 <div class="description">
-                    <strong>print()</strong> — bu ekranga matn yoki ma'lumot chiqarish uchun ishlatiladi. 
-                    Dasturchining eng ko'p ishlatiladigan funksiyalaridan biri. Natijalarni ko'rish uchun lozim!
+                    <strong>O'zgaruvchi</strong> — bu xotirada qiymat saqlash uchun nomi berilgan joy. 
+                    Kompyuter o'zgaruvchini ko'rganda, uning qiymatini eslaydi va qo'llaydi.
                 </div>
 
                 <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
-                    Sodda qo'llanma:
+                    O'zgaruvchi yaratish sodda:
                 </p>
                 <div class="code-with-comment full">
                     <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"Salom!"</span>)
+                        <span class="keyword">ism</span> = <span class="string">"Ali"</span>
                     </div>
                 </div>
-                <div class="output-demo">
-                    >>> Salom!
-                </div>
+                <p style="color: var(--dark); margin-top: 10px;">
+                    Bu degani: <span class="highlight-var">ism</span> nomli o'zgaruvchiga <span class="highlight-var">"Ali"</span> qiymatini qo'ydik.
+                </p>
             </div>
 
             <div class="section">
-                <h2>print() ning Turli Usullari</h2>
-
-                <h3>1. Matnni Chiqarish</h3>
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"Assalomu alaikum"</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Matnni chiqar
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> Assalomu alaikum
-                </div>
-
-                <h3>2. Raqamni Chiqarish</h3>
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        <span class="function">print</span>(<span class="number">42</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Raqamni chiqar
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> 42
-                </div>
-
-                <h3>3. Bir Nechta Narsani Chiqarish</h3>
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"Ism:"</span>, <span class="string">"Ali"</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Ikkita narsani virgul bilan
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> Ism: Ali
-                </div>
-
-                <h3>4. O'zgaruvchi Bilan</h3>
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        ism = <span class="string">"Bobur"</span><br>
-                        <span class="function">print</span>(ism)
-                    </div>
-                    <div class="comment-part">
-                        # O'zgaruvchini chiqar
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> Bobur
-                </div>
-
-                <h3>5. Hisoblash Natijasini Chiqarish</h3>
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        <span class="function">print</span>(<span class="number">5</span> + <span class="number">3</span>)
-                    </div>
-                    <div class="comment-part">
-                        # 5 + 3 = 8 chiqadi
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> 8
-                </div>
-            </div>
-
-            <div class="section">
-                <h2>print() Parametrlari</h2>
+                <h2>Ma'lumot Turlari (Data Types)</h2>
                 <div class="description">
-                    print() funksiyasida qo'shimcha parametrlar mavjud. Bular natijaning qanday ko'rinishini boshqaradi.
+                    Python'da turli xil ma'lumot turlari bor. Kompyuter har birni boshqacha ishlab chiqaradi.
                 </div>
 
+                <h3>1️⃣ int (Butun son)</h3>
+                <div class="type-card">
+                    <strong>int — Butun son</strong>
+                    <p>Minus (-), nol (0), va musbat (+) raqamlar.</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            yosh = <span class="number">25</span>  # int turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> yosh = 25<br>
+                        >>> type(yosh) # &lt;class 'int'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">10</span>, <span class="highlight-var">-5</span>, <span class="highlight-var">0</span>, <span class="highlight-var">1000</span>
+                    </p>
+                </div>
+
+                <h3>2️⃣ float (O'nli Kasr Raqam)</h3>
+                <div class="type-card">
+                    <strong>float - O'nli kasr raqam</strong>
+                    <p>Nuqta (.) bilan o'nli kasr raqamlar.</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            bo'yi = <span class="number">1.75</span>  # float turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> bo'yi = 1.75<br>
+                        >>> type(bo'yi) # &lt;class 'float'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">3.14</span>, <span class="highlight-var">-2.5</span>, <span class="highlight-var">0.5</span>
+                    </p>
+                </div>
+
+                <h3>3️⃣ str (String - Matn)</h3>
+                <div class="type-card">
+                    <strong>str - String (matn)</strong>
+                    <p>Tirnoq ichidagi barcha narsalar (harflar, belgilar, hatto raqamlar).</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            ism = <span class="string">"Muhammad"</span>  # str turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> ism = "Muhammad"<br>
+                        >>> type(ism) # &lt;class 'str'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">"Salom"</span>, <span class="highlight-var">"123"</span> (tirnoq ichida), <span class="highlight-var">""</span> (bo'sh)
+                    </p>
+                </div>
+
+                <h3>4️⃣ bool (Boolean - Rost/Yolg'on)</h3>
+                <div class="type-card">
+                    <strong>bool — Boolean (Rost yoki Yolg'on)</strong>
+                    <p>Faqat ikkita qiymat: <span class="highlight-var">True</span> yoki <span class="highlight-var">False</span></p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            faol = <span class="boolean">True</span>  # bool turi
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> faol = True<br>
+                        >>> type(faol) # &lt;class 'bool'&gt;
+                    </div>
+                    <p style="margin-top: 10px;">
+                        Misollar: <span class="highlight-var">True</span>, <span class="highlight-var">False</span> (katta harfda!)
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Turlarni Taqqoslash</h2>
                 <table class="comparison-table">
                     <thead>
                         <tr>
-                            <th>Parametr</th>
-                            <th>Ma'nosi</th>
+                            <th>Tur</th>
+                            <th>Nomi</th>
                             <th>Misol</th>
-                            <th>Natija</th>
+                            <th>Tirnoq?</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="highlight-var">sep</span></td>
-                            <td>Ajratuvchi belgisi</td>
-                            <td><span class="highlight-var">print("a", "b", sep="-")</span></td>
-                            <td>a-b</td>
+                            <td><span class="highlight-var">int</span></td>
+                            <td>Butun son</td>
+                            <td>42, -10, 0</td>
+                            <td>YO'Q</td>
                         </tr>
                         <tr>
-                            <td><span class="highlight-var">end</span></td>
-                            <td>Oxirgi belgi</td>
-                            <td><span class="highlight-var">print("Salom", end="!")</span></td>
-                            <td>Salom!</td>
+                            <td><span class="highlight-var">float</span></td>
+                            <td>O'nli kasr</td>
+                            <td>3.14, -2.5</td>
+                            <td>YO'Q</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-var">str</span></td>
+                            <td>Matn</td>
+                            <td>"Salom", "123"</td>
+                            <td>HA!</td>
+                        </tr>
+                        <tr>
+                            <td><span class="highlight-var">bool</span></td>
+                            <td>Rost/Yolg'on</td>
+                            <td>True, False</td>
+                            <td>YO'Q</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
 
-                <h3>sep Parametri Misollar:</h3>
-                <div class="code-with-comment">
+            <div class="section">
+                <h2>Turni Bilish: type()</h2>
+                <div class="description">
+                    O'zgaruvchining turi nima ekanligini bilish uchun <span class="highlight-var">type()</span> funksiyasini ishlating.
+                </div>
+
+                <div class="code-with-comment full">
                     <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Standart: bo'sh joy
+                        <span class="function">print</span>(<span class="function">type</span>(<span class="number">42</span>))
                     </div>
                 </div>
                 <div class="output-demo">
-                    >>> A B C
+                    >>> &lt;class 'int'&gt;
                 </div>
 
-                <div class="code-with-comment">
+                <div class="code-with-comment full">
                     <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>, sep=<span class="string">"-"</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Ajratuvchi: "-"
+                        <span class="function">print</span>(<span class="function">type</span>(<span class="string">"Salom"</span>))
                     </div>
                 </div>
                 <div class="output-demo">
-                    >>> A-B-C
-                </div>
-
-                <h3>end Parametri Misollar:</h3>
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"Salom"</span>)<br>
-                        <span class="function">print</span>(<span class="string">"Dunyo"</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Har biri yangi qatorida
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> Salom<br>
-                    >>> Dunyo
-                </div>
-
-                <div class="code-with-comment">
-                    <div class="code-part">
-                        <span class="function">print</span>(<span class="string">"A"</span>, end=<span class="string">""</span>)<br>
-                        <span class="function">print</span>(<span class="string">"B"</span>, end=<span class="string">""</span>)
-                    </div>
-                    <div class="comment-part">
-                        # Yangi qatorga o'tmaydi
-                    </div>
-                </div>
-                <div class="output-demo">
-                    >>> AB
+                    >>> &lt;class 'str'&gt;
                 </div>
             </div>
 
             <div class="section">
-                <h2>print() Xatolaridan Qutulish</h2>
-
-                <div class="example-box">
-                    <div class="example-title">❌ Xato 1: Tirnoqsiz String</div>
-                    <div class="code-with-comment full">
-                        <div class="code-part">
-                            <span class="function">print</span>(Salom)  <span style="color: #f87171;"># XATO!</span>
-                        </div>
-                    </div>
-                    <p style="color: var(--dark); margin-top: 10px;">
-                        Xato: String tirnoq ichida bo'lishi kerak!<br>
-                        To'g'ri: <span class="highlight-var">print("Salom")</span>
-                    </p>
+                <h2>Turlarni Almashtirish (Type Conversion)</h2>
+                <div class="description">
+                    Ba'zida bir turni boshqa turga o'tkazish kerak. Buni <span class="highlight-var">int()</span>, 
+                    <span class="highlight-var">float()</span>, <span class="highlight-var">str()</span> funksiyalari bilan qilamiz.
                 </div>
 
-                <div class="example-box">
-                    <div class="example-title">❌ Xato 2: Qavsni Unutib Qoldirish</div>
-                    <div class="code-with-comment full">
-                        <div class="code-part">
-                            <span class="function">print</span> <span class="string">"Salom"</span>  <span style="color: #f87171;"># XATO!</span>
-                        </div>
+                <h3>String-dan int-ga</h3>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        son = <span class="function">int</span>(<span class="string">"25"</span>)  # "25" soni bo'ladi
                     </div>
-                    <p style="color: var(--dark); margin-top: 10px;">
-                        Xato: print() qavslari kerak!<br>
-                        To'g'ri: <span class="highlight-var">print("Salom")</span>
-                    </p>
+                </div>
+                <div class="output-demo">
+                    >>> son = 25 (int turi)
                 </div>
 
-                <div class="example-box">
-                    <div class="example-title">❌ Xato 3: Tirnoq Turi</div>
-                    <div class="code-with-comment full">
-                        <div class="code-part">
-                            <span class="function">print</span>('Salom"')  <span style="color: #f87171;"># XATO!</span>
-                        </div>
+                <h3>int-dan string-ga</h3>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        matn = <span class="function">str</span>(<span class="number">42</span>)  # 42 matni bo'ladi
                     </div>
-                    <p style="color: var(--dark); margin-top: 10px;">
-                        Xato: Ochuvchi va yopuvchi tirnoq bir xil bo'lishi kerak!<br>
-                        To'g'ri: <span class="highlight-var">print("Salom")</span> yoki <span class="highlight-var">print('Salom')</span>
-                    </p>
+                </div>
+                <div class="output-demo">
+                    >>> matn = "42" (str turi)
+                </div>
+
+                <h3>float-dan int-ga</h3>
+                <div class="code-with-comment full">
+                    <div class="code-part">
+                        son = <span class="function">int</span>(<span class="number">3.99</span>)  # Kasr qismini butunlashtiradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> son = 3 (o'nli qismi o'chiriladi!)
                 </div>
             </div>
 
             <div class="info-box">
                 <strong>Eslaydigan Narsa</strong>
                 <p>
-                    print() — ekranga chiqarish uchun.<br>
-                    String — tirnoq ichida.<br>
-                    Raqam — tirnoqsiz.<br>
-                    Parametrlar — qavs ichida.
+                    • <span class="highlight-var">int</span> — raqam (butun)<br>
+                    • <span class="highlight-var">float</span> — raqam (o'nli)<br>
+                    • <span class="highlight-var">str</span> — matn (TIRNOQ ICHIDA!)<br>
+                    • <span class="highlight-var">bool</span> — True yoki False
                 </p>
             </div>
 
             <div class="section">
-                <h2>Misol 1: Oddiy Matn</h2>
+                <h2>Misol 1: int Turi</h2>
                 <div class="interactive-demo">
                     <div class="demo-input">
-                        <input type="text" id="text1" placeholder="Biror matn yozing" value="Assalomu alaikum">
-                        <button onclick="demo1()">Bajarish</button>
+                        <input type="number" id="intVal" placeholder="Raqam" value="42">
+                        <button onclick="demoInt()">Turini Ko'rish</button>
                     </div>
-                    <div class="demo-result" id="result1"></div>
+                    <div class="demo-result" id="resultInt"></div>
                 </div>
             </div>
 
             <div class="section">
-                <h2>Misol 2: Bir Nechta Narsani Qo'shish</h2>
+                <h2>Misol 2: float Turi</h2>
                 <div class="interactive-demo">
                     <div class="demo-input">
-                        <input type="text" id="text2a" placeholder="Birinchi" value="Ism:">
-                        <input type="text" id="text2b" placeholder="Ikkinchi" value="Muhammad">
-                        <button onclick="demo2()">Bajarish</button>
+                        <input type="number" step="0.01" id="floatVal" placeholder="O'nli kasr" value="3.14">
+                        <button onclick="demoFloat()">Turini Ko'rish</button>
                     </div>
-                    <div class="demo-result" id="result2"></div>
+                    <div class="demo-result" id="resultFloat"></div>
                 </div>
             </div>
 
             <div class="section">
-                <h2>Misol 3: Raqamlarni Qo'shish</h2>
+                <h2>Misol 3: str Turi</h2>
                 <div class="interactive-demo">
                     <div class="demo-input">
-                        <input type="number" id="num1" placeholder="Son 1" value="5">
-                        <input type="number" id="num2" placeholder="Son 2" value="3">
-                        <button onclick="demo3()">Qo'sh</button>
+                        <input type="text" id="strVal" placeholder="Matn" value="Salom">
+                        <button onclick="demoStr()">Turini Ko'rish</button>
                     </div>
-                    <div class="demo-result" id="result3"></div>
+                    <div class="demo-result" id="resultStr"></div>
                 </div>
             </div>
 
             <div class="section">
-                <h2>Misol 4: sep Parametri</h2>
+                <h2>Misol 4: bool Turi</h2>
                 <div class="interactive-demo">
                     <div class="demo-input">
-                        <input type="text" id="sep" placeholder="Ajratuvchi" value="-">
-                        <button onclick="demo4()">Bajarish</button>
+                        <select id="boolVal" style="flex: 1; min-width: 150px; padding: 10px 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 0.95em;">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                        <button onclick="demoBool()">Turini Ko'rish</button>
                     </div>
-                    <div class="demo-result" id="result4"></div>
+                    <div class="demo-result" id="resultBool"></div>
                 </div>
-                <p style="color: var(--gray); font-size: 0.9em; margin-top: 10px;">
-                    Misol: A, B, C ni kiritilgan ajratuvchi bilan chiqaradi
-                </p>
             </div>
 
             <div class="section">
-                <h2>Ko'p Qatorli print()</h2>
+                <h2>Misol 5: Turni Almashtirish</h2>
                 <div class="example-box">
-                    <div class="example-title">Namuna 1: Har biri alohida qator</div>
+                    <div class="example-title">String → int</div>
                     <div class="code-with-comment full">
                         <div class="code-part">
-                            <span class="function">print</span>(<span class="string">"Qator 1"</span>)<br>
-                            <span class="function">print</span>(<span class="string">"Qator 2"</span>)<br>
-                            <span class="function">print</span>(<span class="string">"Qator 3"</span>)
+                            son = <span class="function">int</span>(<span class="string">"42"</span>)
                         </div>
-                    </div>
-                    <div class="output-demo">
-                        >>> Qator 1<br>
-                        >>> Qator 2<br>
-                        >>> Qator 3
                     </div>
                 </div>
 
                 <div class="example-box">
-                    <div class="example-title">Namuna 2: Bir qatorga</div>
+                    <div class="example-title">int → str</div>
                     <div class="code-with-comment full">
                         <div class="code-part">
-                            <span class="function">print</span>(<span class="string">"A"</span>, end=<span class="string">""</span>)<br>
-                            <span class="function">print</span>(<span class="string">"B"</span>, end=<span class="string">""</span>)<br>
-                            <span class="function">print</span>(<span class="string">"C"</span>)
+                            matn = <span class="function">str</span>(<span class="number">42</span>)
                         </div>
                     </div>
-                    <div class="output-demo">
-                        >>> ABC
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">float → int</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            son = <span class="function">int</span>(<span class="number">3.99</span>)  # 3 bo'ladi
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <h2>Sizning Koding Mashqi</h2>
+                <h2>Qo'shish: Raqam va String</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: int + str</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="number">42</span> + <span class="string">"5"</span>)  # XATO!
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Xato: Raqam va matnni to'g'ridan-to'g'ri qo'sha olmaysiz!
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: Turni almashtirib</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="number">42</span> + <span class="function">int</span>(<span class="string">"5"</span>))  # 47
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> 47
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Kod Ichida Tushuntirishlari Bilan</h2>
                 <div class="step-list">
                     <div class="step-item">
                         <div class="step-icon">1</div>
                         <div class="step-content">
-                            <strong>Kod Yozish</strong>
-                            <p>VS Code da yangi fayl: <span class="highlight-var">print3.py</span></p>
+                            <strong>O'zgaruvchi yaratish</strong>
+                            <p><span class="highlight-var">a = 42</span> (int turi)</p>
                         </div>
                     </div>
 
                     <div class="step-item">
                         <div class="step-icon">2</div>
                         <div class="step-content">
-                            <strong>Yuqoridagi Misollarni Yozish</strong>
-                            <p>Har bir misolni O'z print() buyruqlari bilan yozing</p>
+                            <strong>Turini tekshirish</strong>
+                            <p><span class="highlight-var">type(a)</span> → &lt;class 'int'&gt;</p>
                         </div>
                     </div>
 
                     <div class="step-item">
                         <div class="step-icon">3</div>
                         <div class="step-content">
-                            <strong>Bajarish</strong>
-                            <p>Terminal'da: <span class="highlight-var">python print3.py</span></p>
+                            <strong>Chiqarish</strong>
+                            <p><span class="highlight-var">print(a)</span> → 42</p>
                         </div>
                     </div>
 
                     <div class="step-item">
                         <div class="step-icon">4</div>
                         <div class="step-content">
-                            <strong>Natija</strong>
-                            <p>Ekranda barcha natijalarni ko'ring</p>
+                            <strong>Turni almashtirish</strong>
+                            <p><span class="highlight-var">str(a)</span> → "42" (str turi)</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashq</h2>
+                <div class="info-box">
+                    <strong>Kod Yozish</strong>
+                    <p>
+                        1. Yangi fayl: <span class="highlight-var">types.py</span><br>
+                        2. Turli o'zgaruvchilar yarating<br>
+                        3. Ularning turlarini chiqaring<br>
+                        4. Bajarish: <span class="highlight-var">python types.py</span>
+                    </p>
                 </div>
             </div>
 
@@ -780,10 +797,10 @@
                 <h2>Endi Siz Tayyorsiz!</h2>
                 <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
                     <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
-                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 4: O'zgaruvchilar va nomlash</p>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 5: Sonlar: int va float</p>
                     <p style="opacity: 0.9;">
-                        print() ni bildingiz!<br>
-                        Endi o'zgaruvchilar bilan ishlashni o'rganamiz.
+                        O'zgaruvchilarni bildingiz!<br>
+                        Endi raqamlar bilan matematik amallarni o'rganamiz.
                     </p>
                 </div>
             </div>
@@ -791,34 +808,32 @@
     </div>
 
     <script>
-        function demo1() {
-            const text = document.getElementById('text1').value;
-            const result = document.getElementById('result1');
+        function demoInt() {
+            const val = document.getElementById('intVal').value;
+            const result = document.getElementById('resultInt');
             result.classList.add('show');
-            result.innerHTML = `>>> ${text}`;
+            result.innerHTML = `>>> a = ${val}<br>>>> type(a)<br>&lt;class 'int'&gt;`;
         }
 
-        function demo2() {
-            const text1 = document.getElementById('text2a').value;
-            const text2 = document.getElementById('text2b').value;
-            const result = document.getElementById('result2');
+        function demoFloat() {
+            const val = document.getElementById('floatVal').value;
+            const result = document.getElementById('resultFloat');
             result.classList.add('show');
-            result.innerHTML = `>>> ${text1} ${text2}`;
+            result.innerHTML = `>>> b = ${val}<br>>>> type(b)<br>&lt;class 'float'&gt;`;
         }
 
-        function demo3() {
-            const num1 = parseInt(document.getElementById('num1').value) || 0;
-            const num2 = parseInt(document.getElementById('num2').value) || 0;
-            const result = document.getElementById('result3');
+        function demoStr() {
+            const val = document.getElementById('strVal').value;
+            const result = document.getElementById('resultStr');
             result.classList.add('show');
-            result.innerHTML = `>>> ${num1 + num2}`;
+            result.innerHTML = `>>> c = "${val}"<br>>>> type(c)<br>&lt;class 'str'&gt;`;
         }
 
-        function demo4() {
-            const sep = document.getElementById('sep').value || ' ';
-            const result = document.getElementById('result4');
+        function demoBool() {
+            const val = document.getElementById('boolVal').value;
+            const result = document.getElementById('resultBool');
             result.classList.add('show');
-            result.innerHTML = `>>> A${sep}B${sep}C`;
+            result.innerHTML = `>>> d = ${val}<br>>>> type(d)<br>&lt;class 'bool'&gt;`;
         }
     </script>
 <div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>

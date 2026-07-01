@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 12: Type casting — int(), float(), str(), bool()</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 1 — Asoslar · Dars 12 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Type casting — int(), float(), str(), bool()</h1>
+                <p>Modul 1 — Asoslar | Dars 12</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Type casting nima?</h2>
+                <div class="description">
+                    <strong>Type casting</strong> (tur o'girish) — bu bir turdagi qiymatni boshqa turga
+                    aylantirish. Masalan, matn ko'rinishidagi <b>"25"</b> ni haqiqiy son <b>25</b> ga o'girish.
+                    Bu ayniqsa foydalanuvchidan ma'lumot olganda juda muhim.
+                </div>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
+                    Asosiy o'girish funksiyalari:
+                </p>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Funksiya</th><th>Nima qiladi</th><th>Misol</th><th>Natija</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="highlight-var">int()</span></td><td>butun songa</td><td>int("25")</td><td>25</td></tr>
+                        <tr><td><span class="highlight-var">float()</span></td><td>kasr songa</td><td>float("3.5")</td><td>3.5</td></tr>
+                        <tr><td><span class="highlight-var">str()</span></td><td>matnga</td><td>str(100)</td><td>"100"</td></tr>
+                        <tr><td><span class="highlight-var">bool()</span></td><td>mantiqiy turga</td><td>bool(0)</td><td>False</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>type() — turni tekshirish</h2>
+                <div class="description">
+                    O'girishdan oldin qiymatning hozirgi turini bilish uchun <strong>type()</strong> ishlatamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+a <span class="operator">=</span> <span class="string">"25"</span><br>
+b <span class="operator">=</span> <span class="number">25</span><br>
+<span class="function">print</span>(<span class="function">type</span>(a))<br>
+<span class="function">print</span>(<span class="function">type</span>(b))
+                    </div>
+                    <div class="comment-part">
+                        # "25" — matn (str)<br>
+                        # 25 — son (int)
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; &lt;class 'str'&gt;<br>
+                    &gt;&gt;&gt; &lt;class 'int'&gt;
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>int() va float()</h2>
+                <div class="description">
+                    <strong>int()</strong> matn yoki kasr sonni butun songa o'giradi.
+                    <strong>float()</strong> esa kasr songa aylantiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+<span class="function">print</span>(<span class="function">int</span>(<span class="string">"42"</span>))<br>
+<span class="function">print</span>(<span class="function">int</span>(<span class="number">3.9</span>))<br>
+<span class="function">print</span>(<span class="function">float</span>(<span class="string">"3.14"</span>))<br>
+<span class="function">print</span>(<span class="function">float</span>(<span class="number">7</span>))
+                    </div>
+                    <div class="comment-part">
+                        # int(3.9) kasrni TASHLAYDI (yaxlitlamaydi!)<br>
+                        # float(7) -&gt; 7.0
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 42<br>
+                    &gt;&gt;&gt; 3<br>
+                    &gt;&gt;&gt; 3.14<br>
+                    &gt;&gt;&gt; 7.0
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat!</strong>
+                    <span class="highlight-var">int(3.9)</span> natijasi <b>4</b> emas, <b>3</b> bo'ladi — kasr qismi shunchaki olib tashlanadi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>str() va bool()</h2>
+                <div class="description">
+                    <strong>str()</strong> sonni matnga o'giradi — sonni matn bilan birlashtirmoqchi bo'lganda kerak.
+                    <strong>bool()</strong> qiymatni True/False ga aylantiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+yosh <span class="operator">=</span> <span class="number">20</span><br>
+<span class="function">print</span>(<span class="string">"Yoshim: "</span> <span class="operator">+</span> <span class="function">str</span>(yosh))<br>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="number">1</span>))<br>
+<span class="function">print</span>(<span class="function">bool</span>(<span class="number">0</span>))
+                    </div>
+                    <div class="comment-part">
+                        # str(yosh) bo'lmasa xatolik chiqadi<br>
+                        # bool(0) -&gt; False, boshqasi -&gt; True
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; Yoshim: 20<br>
+                    &gt;&gt;&gt; True<br>
+                    &gt;&gt;&gt; False
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>input() bilan real misol</h2>
+                <div class="description">
+                    <strong>input()</strong> har doim <b>matn (str)</b> qaytaradi — hatto son yozsangiz ham!
+                    Shuning uchun hisob-kitob qilishdan oldin uni <span class="highlight-var">int()</span> yoki
+                    <span class="highlight-var">float()</span> ga o'girish shart.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+yosh <span class="operator">=</span> <span class="function">input</span>(<span class="string">"Yoshingizni kiriting: "</span>)<br>
+yosh <span class="operator">=</span> <span class="function">int</span>(yosh)<br>
+keyingi_yil <span class="operator">=</span> yosh <span class="operator">+</span> <span class="number">1</span><br>
+<span class="function">print</span>(<span class="string">"Kelasi yil:"</span>, keyingi_yil)
+                    </div>
+                    <div class="comment-part">
+                        # input() -&gt; "20" (matn)<br>
+                        # int() bilan songa o'girdik<br>
+                        # endi + 1 qila olamiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    Yoshingizni kiriting: 20<br>
+                    &gt;&gt;&gt; Kelasi yil: 21
+                </div>
+                <div class="info-box">
+                    <strong>Xato: int() ni unutsangiz</strong>
+                    Agar <span class="highlight-var">int()</span> qilmasangiz, <span class="highlight-var">"20" + 1</span>
+                    <b>TypeError</b> beradi — matn va sonni qo'shib bo'lmaydi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>O'girish xatoliklari (ValueError)</h2>
+                <div class="description">
+                    Har qanday matnni songa o'girib bo'lmaydi. <span class="highlight-var">int("salom")</span>
+                    xatolik beradi, chunki "salom" son emas.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+son <span class="operator">=</span> <span class="function">int</span>(<span class="string">"salom"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # "salom" sonli matn emas!
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; ValueError: invalid literal for int()<br>
+                    &gt;&gt;&gt; with base 10: 'salom'
+                </div>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    Faqat sonli ko'rinishdagi matn (<span class="highlight-var">"123"</span>) int() ga o'giriladi.
+                    <span class="highlight-var">int("12.5")</span> ham xatolik beradi — buning uchun <b>float("12.5")</b> ishlating.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy xulosalar</h2>
+                <div class="info-box">
+                    <strong>Esda tuting</strong>
+                    <p>
+                        • <span class="highlight-var">int()</span> — butun son, <span class="highlight-var">float()</span> — kasr son<br>
+                        • <span class="highlight-var">str()</span> — matn, <span class="highlight-var">bool()</span> — True/False<br>
+                        • <span class="highlight-var">int(3.9)</span> = 3 (kasr tashlanadi, yaxlitlanmaydi)<br>
+                        • <span class="highlight-var">input()</span> doim matn qaytaradi — int() ga o'giring<br>
+                        • Sonli bo'lmagan matnni o'girsa <span class="highlight-var">ValueError</span> chiqadi
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 13: Mini-loyiha: Kalkulyator (CLI)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

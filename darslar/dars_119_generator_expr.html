@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 119: Generator expressions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 10 — Iterator, Generator, Decorator · Dars 119 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Generator expressions</h1>
+                <p>Modul 10 — Iterator, Generator, Decorator | Dars 119</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Kirish: Generator expression nima?</h2>
+                <div class="description">
+                    <strong>Generator expression</strong> — list comprehension'ga o'xshaydi, lekin
+                    <b>kvadrat qavs</b> <code>[]</code> o'rniga <b>oddiy qavs</b> <code>()</code> ishlatiladi.
+                    U barcha qiymatlarni birdaniga xotiraga solmaydi — qiymatlarni <b>talab bo'lganda, bittalab</b> hosil qiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="comment"># List comprehension — hammasi xotirada</span>
+kvadratlar_list = [x*x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>)]
+
+<span class="comment"># Generator expression — qavs () bilan</span>
+kvadratlar_gen = (x*x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>))
+
+<span class="function">print</span>(kvadratlar_list)
+<span class="function">print</span>(kvadratlar_gen)</pre></div>
+                    <div class="comment-part">
+                        List darhol to'liq ro'yxat hosil qiladi. Generator esa maxsus obyekt qaytaradi —
+                        qiymatlar hali hisoblanmagan.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; [0, 1, 4, 9, 16]<br>
+                    &gt;&gt;&gt; &lt;generator object &lt;genexpr&gt; at 0x7f...&gt;
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nega xotira tejaladi?</h2>
+                <p style="color: var(--dark); line-height: 1.7;">
+                    List <b>barcha</b> elementlarni bir vaqtda saqlaydi. Generator esa faqat <b>joriy</b> qiymatni
+                    saqlaydi va keyingisini talab qilinganda hisoblaydi. Katta ma'lumotlarda bu ulkan farq:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">import</span> sys
+
+list_var = [x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1000000</span>)]
+gen_var  = (x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1000000</span>))
+
+<span class="function">print</span>(sys.<span class="function">getsizeof</span>(list_var), <span class="string">"bayt"</span>)
+<span class="function">print</span>(sys.<span class="function">getsizeof</span>(gen_var), <span class="string">"bayt"</span>)</pre></div>
+                    <div class="comment-part">
+                        <code>sys.getsizeof</code> obyekt xotirada nechta bayt egallashini ko'rsatadi.
+                        List millionlab element uchun megabaytlar, generator esa doim atigi ~200 bayt egallaydi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 8448728 bayt<br>
+                    &gt;&gt;&gt; 200 bayt
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Generatordan qiymat olish</h2>
+                <p style="color: var(--dark); line-height: 1.7;">
+                    Generatorni <code>for</code> bilan aylanamiz yoki <code>next()</code> bilan bittalab qiymat olamiz.
+                    Diqqat: generator <b>bir marta</b> ishlatiladi — oxiriga yetgach, bo'shaydi.
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>gen = (x*<span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">3</span>))
+
+<span class="function">print</span>(<span class="function">next</span>(gen))   <span class="comment"># 0</span>
+<span class="function">print</span>(<span class="function">next</span>(gen))   <span class="comment"># 2</span>
+
+<span class="keyword">for</span> qiymat <span class="keyword">in</span> gen:   <span class="comment"># qolganini davom ettiradi</span>
+    <span class="function">print</span>(qiymat)</pre></div>
+                    <div class="comment-part">
+                        <code>next()</code> keyingi qiymatni beradi. Keyin <code>for</code> qolgan qiymatlardan davom etadi —
+                        chunki generator holatini eslab qoladi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 0<br>
+                    &gt;&gt;&gt; 2<br>
+                    &gt;&gt;&gt; 4
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Funksiyalar ichida qavsni tejash</h2>
+                <p style="color: var(--dark); line-height: 1.7;">
+                    <code>sum()</code>, <code>max()</code>, <code>any()</code> kabi funksiyaga generatorni to'g'ridan-to'g'ri
+                    uzatsangiz, ortiqcha qavs kerak emas — bu tez va xotira tejamkor:
+                </p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="comment"># Ortiqcha ro'yxat yasamaymiz — to'g'ridan-to'g'ri generator</span>
+jami = <span class="function">sum</span>(x*x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>))
+<span class="function">print</span>(jami)
+
+kattasi = <span class="function">max</span>(<span class="function">len</span>(soz) <span class="keyword">for</span> soz <span class="keyword">in</span> [<span class="string">"olma"</span>, <span class="string">"anor"</span>, <span class="string">"banan"</span>])
+<span class="function">print</span>(kattasi)</pre></div>
+                    <div class="comment-part">
+                        <code>sum(...)</code> generatorni ichida aylanib, oraliq ro'yxat yasamasdan yig'indini hisoblaydi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    &gt;&gt;&gt; 55<br>
+                    &gt;&gt;&gt; 5
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Amaliyot</h2>
+                <div class="info-box">
+                    <strong>Mustaqil bajaring</strong>
+                    <p>
+                        1. 1 dan 100 gacha bo'lgan juft sonlar yig'indisini generator expression bilan hisoblang.<br>
+                        2. So'zlar ro'yxatidan uzunligi 5 dan katta so'zlar sonini <code>sum(1 for ...)</code> bilan toping.<br>
+                        3. Bir xil kodni list va generator ko'rinishida yozib, <code>sys.getsizeof</code> bilan solishtiring.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="info-box">
+                    <strong>Esda tuting</strong>
+                    <p>
+                        • Generator expression = <span class="highlight-var">(ifoda for x in ...)</span> — oddiy qavs bilan.<br>
+                        • Qiymatlar <b>lazy</b> (talabga ko'ra) hosil bo'ladi — xotira tejaladi.<br>
+                        • Generator <b>bir martalik</b>: oxiriga yetgach qayta ishlatib bo'lmaydi.<br>
+                        • Katta ma'lumot va oqim (stream) uchun ideal.
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 120: itertools moduli</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

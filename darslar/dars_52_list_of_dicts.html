@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 52: List of dicts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 4 — Ma'lumot Tuzilmalari · Dars 52 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>List of dicts</h1>
+                <p>Modul 4 — Ma'lumot Tuzilmalari | Dars 52</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>Lug'atlar ro'yxati nima?</h2>
+                <div class="description">
+                    <b>Lug'atlar ro'yxati</b> (list of dicts) — bu har bir elementi lug'at bo'lgan ro'yxat. Bu tuzilma real dunyodagi <b>yozuvlarni</b> (records) — masalan talabalar, mahsulotlar, foydalanuvchilar ro'yxatini — saqlash uchun juda qulay. Har bir lug'at bitta "yozuv", uning kalitlari esa "maydonlar" (ustunlar) rolini bajaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>talabalar = [
+    {"ism": "Ali", "yosh": 20},
+    {"ism": "Vali", "yosh": 22},
+    {"ism": "Guli", "yosh": 19}
+]
+
+print(talabalar[<span class="number">0</span>])
+print(talabalar[<span class="number">0</span>][<span class="string">"ism"</span>])</pre></div>
+                    <div class="comment-part"><code>talabalar[0]</code> — birinchi lug'at (yozuv). <code>talabalar[0]["ism"]</code> — o'sha yozuvning "ism" maydoni.</div>
+                </div>
+                <div class="output-demo">&gt;&gt;&gt; {'ism': 'Ali', 'yosh': 20}<br>&gt;&gt;&gt; Ali</div>
+            </div>
+
+            <div class="section">
+                <h2>For loop bilan aylanish</h2>
+                <p>Har bir yozuvni ko'rib chiqish uchun <code>for</code> tsiklidan foydalanamiz. Har aylanishda <code>t</code> o'zgaruvchisi bitta lug'atni oladi:</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>talabalar = [
+    {"ism": "Ali", "yosh": 20},
+    {"ism": "Vali", "yosh": 22},
+    {"ism": "Guli", "yosh": 19}
+]
+
+<span class="keyword">for</span> t <span class="keyword">in</span> talabalar:
+    print(t[<span class="string">"ism"</span>], "-", t[<span class="string">"yosh"</span>], "yosh")</pre></div>
+                    <div class="comment-part"><code>t</code> — har safar bitta talaba lug'ati. Undan kalit orqali qiymatlarni olamiz.</div>
+                </div>
+                <div class="output-demo">&gt;&gt;&gt; Ali - 20 yosh<br>&gt;&gt;&gt; Vali - 22 yosh<br>&gt;&gt;&gt; Guli - 19 yosh</div>
+            </div>
+
+            <div class="section">
+                <h2>Filtrlash — shart bo'yicha tanlash</h2>
+                <p>Faqat ma'lum shartga mos yozuvlarni ajratib olishimiz mumkin. Masalan, 20 yoshdan katta talabalarni tanlaymiz. Buni <code>if</code> shartli oddiy tsikl bilan yoki list comprehension bilan qilsa bo'ladi.</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="comment">// Oddiy usul (if bilan)</span>
+kattalar = []
+<span class="keyword">for</span> t <span class="keyword">in</span> talabalar:
+    <span class="keyword">if</span> t[<span class="string">"yosh"</span>] &gt; <span class="number">20</span>:
+        kattalar.append(t)
+
+<span class="comment">// Qisqa usul (list comprehension)</span>
+kattalar = [t <span class="keyword">for</span> t <span class="keyword">in</span> talabalar <span class="keyword">if</span> t[<span class="string">"yosh"</span>] &gt; <span class="number">20</span>]
+
+<span class="keyword">for</span> t <span class="keyword">in</span> kattalar:
+    print(t[<span class="string">"ism"</span>])</pre></div>
+                    <div class="comment-part">Ikkala usul ham bir xil natija beradi. List comprehension — qisqaroq va tezroq yozuv usuli.</div>
+                </div>
+                <div class="output-demo">&gt;&gt;&gt; Vali</div>
+            </div>
+
+            <div class="section">
+                <h2>Saralash — sorted() va lambda</h2>
+                <p>Yozuvlarni biror maydon bo'yicha tartiblash uchun <code>sorted()</code> funksiyasiga <code>key</code> argumentini beramiz. <code>lambda x: x["yosh"]</code> — har bir lug'atdan qaysi qiymat bo'yicha saralashni ko'rsatadi.</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>talabalar = [
+    {"ism": "Ali", "yosh": 20},
+    {"ism": "Vali", "yosh": 22},
+    {"ism": "Guli", "yosh": 19}
+]
+
+yoshga_kora = sorted(talabalar, key=<span class="keyword">lambda</span> x: x[<span class="string">"yosh"</span>])
+
+<span class="keyword">for</span> t <span class="keyword">in</span> yoshga_kora:
+    print(t[<span class="string">"ism"</span>], t[<span class="string">"yosh"</span>])</pre></div>
+                    <div class="comment-part">Yoshi bo'yicha o'sish tartibida saraladi. Kamayish uchun <code>reverse=True</code> qo'shing.</div>
+                </div>
+                <div class="output-demo">&gt;&gt;&gt; Guli 19<br>&gt;&gt;&gt; Ali 20<br>&gt;&gt;&gt; Vali 22</div>
+            </div>
+
+            <div class="section">
+                <h2>Yangi yozuv qo'shish</h2>
+                <p>Ro'yxatga yangi talaba qo'shish uchun <code>append()</code> ga yangi lug'at beramiz:</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>talabalar.append({"ism": "Hasan", "yosh": 21})
+
+print(len(talabalar))
+print(talabalar[<span class="operator">-</span><span class="number">1</span>])</pre></div>
+                    <div class="comment-part"><code>append()</code> yangi lug'atni ro'yxat oxiriga qo'shadi. <code>talabalar[-1]</code> — oxirgi qo'shilgan yozuv.</div>
+                </div>
+                <div class="output-demo">&gt;&gt;&gt; 4<br>&gt;&gt;&gt; {'ism': 'Hasan', 'yosh': 21}</div>
+            </div>
+
+            <div class="section">
+                <h2>Umumiy jadval</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Amal</th><th>Kod</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Element olish</td><td><code>talabalar[0]["ism"]</code></td><td>1-yozuvning ismi</td></tr>
+                        <tr><td>Aylanish</td><td><code>for t in talabalar:</code></td><td>Har bir yozuvni ko'rish</td></tr>
+                        <tr><td>Filtrlash</td><td><code>[t for t in d if ...]</code></td><td>Shartga mos yozuvlar</td></tr>
+                        <tr><td>Saralash</td><td><code>sorted(d, key=lambda x: x["yosh"])</code></td><td>Maydon bo'yicha tartiblash</td></tr>
+                        <tr><td>Qo'shish</td><td><code>talabalar.append({...})</code></td><td>Yangi yozuv qo'shish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Amaliyot — Mashq</h2>
+                <p>Mahsulotlar ro'yxati bor. Narxi 5000 dan qimmat mahsulotlarni topamiz va ularni narx bo'yicha saralaymiz:</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre>mahsulotlar = [
+    {"nom": "Non", "narx": 3000},
+    {"nom": "Sut", "narx": 8000},
+    {"nom": "Yog'", "narx": 25000},
+    {"nom": "Tuz", "narx": 2000}
+]
+
+qimmat = [m <span class="keyword">for</span> m <span class="keyword">in</span> mahsulotlar <span class="keyword">if</span> m[<span class="string">"narx"</span>] &gt; <span class="number">5000</span>]
+qimmat = sorted(qimmat, key=<span class="keyword">lambda</span> x: x[<span class="string">"narx"</span>])
+
+<span class="keyword">for</span> m <span class="keyword">in</span> qimmat:
+    print(m[<span class="string">"nom"</span>], ":", m[<span class="string">"narx"</span>], "so'm")</pre></div>
+                    <div class="comment-part">Avval filtrladik (narx &gt; 5000), keyin narx bo'yicha o'sish tartibida saraladik.</div>
+                </div>
+                <div class="output-demo">&gt;&gt;&gt; Sut : 8000 so'm<br>&gt;&gt;&gt; Yog' : 25000 so'm</div>
+                <p><b>Sizga topshiriq:</b> Talabalar ro'yxatini yarating, o'rtacha yoshni hisoblang (<code>yig'indi / len</code>) va eng katta yoshli talabani <code>sorted(...)[-1]</code> orqali toping.</p>
+            </div>
+
+            <div class="info-box">
+                <strong>Foydali maslahat</strong>
+                <p>Lug'atlar ro'yxati — bu ma'lumotlar bazasidagi jadvalning oddiy ko'rinishi: har bir lug'at — bir qator, kalitlar — ustunlar. JSON fayllar ham aynan shu tuzilmada saqlanadi, shuning uchun API va veb dasturlashda bu tuzilma juda ko'p ishlatiladi. Barcha yozuvlarda bir xil kalitlardan foydalanishga harakat qiling.</p>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="description">
+                    Bu darsda lug'atlar ro'yxati (yozuvlar) bilan ishlashni o'rgandik:
+                    <ul style="margin-top:10px; padding-left:20px; line-height:1.9;">
+                        <li><code>for</code> tsikli bilan har bir yozuvni aylanib chiqish;</li>
+                        <li><code>if</code> yoki list comprehension bilan filtrlash;</li>
+                        <li><code>sorted(..., key=lambda x: x["maydon"])</code> bilan saralash;</li>
+                        <li><code>append({...})</code> bilan yangi yozuv qo'shish.</li>
+                    </ul>
+                    Bu tuzilma real loyihalarda — ma'lumotlarni saqlash va qayta ishlashda — asosiy vositalardan biridir.
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 53: Nested structures</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

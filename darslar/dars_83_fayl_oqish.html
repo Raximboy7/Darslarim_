@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 83: Fayllarni ochish va o'qish</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); color: var(--dark); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 7 — Modullar va Fayllar · Dars 83 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Fayllarni Ochish va O'qish</h1>
+                <p>Modul 7 — Modullar va Fayllar | Dars 83</p>
+            </header>
+
+            <div class="section">
+                <h2>Fayl Nima va Nega Kerak?</h2>
+                <div class="description">
+                    <strong>Fayl</strong> — bu kompyuterda saqlanadigan ma'lumot. Dasturimiz ishini tugatganda,
+                    o'zgaruvchilardagi qiymatlar yo'qoladi. Agar ma'lumotni <strong>uzoq muddat saqlamoqchi</strong>
+                    bo'lsak — masalan, foydalanuvchilar ro'yxati, kundalik yozuvlar yoki natijalar — uni faylga yozamiz.
+                    Keyin istalgan vaqtda faylni ochib, o'sha ma'lumotni qayta o'qiymiz.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy misol</strong>
+                    <p>
+                        O'yin natijalaringizni <span class="highlight-var">natijalar.txt</span> fayliga yozsangiz,
+                        kompyuterni o'chirib-yoqsangiz ham ular saqlanib qoladi. Mana shuning uchun fayllar kerak.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>open() Funksiyasi va Rejimlar</h2>
+                <div class="description">
+                    Fayl bilan ishlashni boshlash uchun uni <strong>ochish</strong> kerak. Buni
+                    <span class="highlight-var">open()</span> funksiyasi bajaradi. Unga ikki narsa beramiz:
+                    fayl <strong>nomi</strong> va <strong>rejim</strong> (nima qilmoqchimiz — o'qishmi, yozishmi).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        f <span class="operator">=</span> <span class="function">open</span>(<span class="string">"fayl.txt"</span>, <span class="string">"r"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # "fayl.txt" ni o'qish ("r") rejimida ochadi
+                    </div>
+                </div>
+
+                <h3>Fayl rejimlari</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Rejim</th><th>Nomi</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>"r"</code></td><td>read (o'qish)</td><td>Faylni o'qiydi. Bu standart (default) rejim.</td></tr>
+                        <tr><td><code>"w"</code></td><td>write (yozish)</td><td>Yangi yozadi. Eski mazmunni o'chiradi!</td></tr>
+                        <tr><td><code>"a"</code></td><td>append (qo'shish)</td><td>Eski mazmun oxiriga qo'shib yozadi.</td></tr>
+                        <tr><td><code>"x"</code></td><td>create (yaratish)</td><td>Yangi fayl yaratadi. Mavjud bo'lsa xato beradi.</td></tr>
+                        <tr><td><code>"b"</code></td><td>binary</td><td>Rasm, video kabi binary fayllar uchun (masalan "rb").</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        Agar rejimni yozmasangiz, Python uni <span class="highlight-var">"r"</span> (o'qish) deb hisoblaydi.
+                        Ya'ni <span class="highlight-var">open("fayl.txt")</span> va
+                        <span class="highlight-var">open("fayl.txt", "r")</span> bir xil.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>with open(...) as f: — Eng To'g'ri Usul</h2>
+                <div class="description">
+                    Faylni ochgandan keyin uni <strong>yopish</strong> ham kerak (<span class="highlight-var">f.close()</span>).
+                    Agar yopishni unutsak, muammo bo'lishi mumkin. Shuning uchun eng yaxshi usul —
+                    <span class="highlight-var">with</span> blokidan foydalanish. U faylni <strong>avtomatik yopadi</strong>,
+                    siz hech narsa qilishingiz shart emas.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"fayl.txt"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> f:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;mazmun <span class="operator">=</span> f.<span class="function">read</span>()<br>
+                        <span class="function">print</span>(mazmun)
+                    </div>
+                    <div class="comment-part">
+                        # Blok tugagach fayl o'zi yopiladi — close() yozish shart emas
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Nega with yaxshi?</strong>
+                    <p>
+                        • Faylni avtomatik yopadi<br>
+                        • Kod toza va xavfsiz bo'ladi<br>
+                        • Xato chiqsa ham fayl baribir yopiladi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Faylni O'qish Usullari</h2>
+                <div class="description">
+                    Faylni ochgandan keyin uni o'qishning bir necha usuli bor. Quyidagicha
+                    <span class="highlight-var">fayl.txt</span> bo'lsin deb tasavvur qiling:
+                </div>
+                <div class="output-demo">Salom
+Dunyo
+Python</div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Usul</th><th>Nima qaytaradi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>f.read()</code></td><td>Butun faylni bitta katta matn (string) qilib qaytaradi</td></tr>
+                        <tr><td><code>f.readline()</code></td><td>Faqat bitta satrni o'qiydi</td></tr>
+                        <tr><td><code>f.readlines()</code></td><td>Hamma satrlarni list ko'rinishida qaytaradi</td></tr>
+                        <tr><td><code>for satr in f:</code></td><td>Faylni satrma-satr aylanib o'qiydi (eng tejamli)</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>read() — hammasini bitta matn qilib oladi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"fayl.txt"</span>) <span class="keyword">as</span> f:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;mazmun <span class="operator">=</span> f.<span class="function">read</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(mazmun)
+                    </div>
+                    <div class="comment-part">
+                        # Butun fayl bitta string sifatida o'qiladi
+                    </div>
+                </div>
+                <div class="output-demo">Salom
+Dunyo
+Python</div>
+
+                <h3>readlines() — satrlarni list qilib oladi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"fayl.txt"</span>) <span class="keyword">as</span> f:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;satrlar <span class="operator">=</span> f.<span class="function">readlines</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(satrlar)
+                    </div>
+                    <div class="comment-part">
+                        # Har bir satr listning bir elementi bo'ladi
+                    </div>
+                </div>
+                <div class="output-demo">>>> ['Salom\n', 'Dunyo\n', 'Python']</div>
+
+                <h3>for satr in f: — satrma-satr o'qish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"fayl.txt"</span>) <span class="keyword">as</span> f:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> satr <span class="keyword">in</span> f:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(satr.<span class="function">strip</span>())
+                    </div>
+                    <div class="comment-part">
+                        # strip() har satr oxiridagi yangi qator belgisini olib tashlaydi
+                    </div>
+                </div>
+                <div class="output-demo">Salom
+Dunyo
+Python</div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">open(nom, rejim)</span> — faylni ochadi<br>
+                    • <span class="highlight-var">"r"</span> — o'qish (standart rejim)<br>
+                    • <span class="highlight-var">with open(...) as f:</span> — faylni avtomatik yopadi<br>
+                    • <span class="highlight-var">read()</span> hammasini, <span class="highlight-var">readlines()</span> list, <span class="highlight-var">for satr in f</span> satrma-satr o'qiydi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: read() va readlines() Farqi</h2>
+                <div class="description">
+                    Quyidagi fayl mazmunini o'zgartirib, <span class="highlight-var">read()</span> va
+                    <span class="highlight-var">readlines()</span> qanday natija berishini solishtiring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="fileContent1" placeholder="Fayl mazmuni (satrlarni | bilan ajrating)" value="Salom|Dunyo|Python">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoRead()">read()</button>
+                        <button onclick="demoReadlines()">readlines()</button>
+                    </div>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Satrma-Satr O'qish</h2>
+                <div class="description">
+                    <span class="highlight-var">for satr in f:</span> faylni bir satrdan o'qiydi. Quyidagi tugmani
+                    bossangiz, har bir satr qanday navbatma-navbat o'qilishini ko'rasiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="fileContent2" placeholder="Fayl mazmuni (satrlarni | bilan ajrating)" value="Birinchi|Ikkinchi|Uchinchi">
+                        <button onclick="demoLineByLine()">Satrma-satr o'qish</button>
+                    </div>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Rejimni Tanlang</h2>
+                <div class="description">
+                    Rejimni tanlang va <span class="highlight-var">open()</span> faylni qanday ochishini ko'ring.
+                    Har bir rejim boshqacha ishlaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="modeSelect">
+                            <option value="r">"r" — o'qish</option>
+                            <option value="w">"w" — yozish</option>
+                            <option value="a">"a" — qo'shish</option>
+                            <option value="x">"x" — yaratish</option>
+                        </select>
+                        <button onclick="demoMode()">Ochib ko'rish</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Fayl tayyorlang</strong>
+                            <p>Notepad bilan shartlar.txt fayli yarating va unga bir necha satr matn yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>with bilan oching</strong>
+                            <p>with open("shartlar.txt") as f: yozib faylni xavfsiz oching</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>read() bilan o'qing</strong>
+                            <p>f.read() ishlatib butun mazmunni chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>for bilan satrlarni chiqaring</strong>
+                            <p>for satr in f: yordamida har bir satrni alohida chop eting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 84: Fayllar — 2: with, context manager</p>
+                    <p style="opacity: 0.9;">
+                        Fayllarni ochish va o'qishni o'rgandingiz!<br>
+                        Endi faylga ma'lumot yozishni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getLines(id) {
+            const raw = document.getElementById(id).value;
+            return raw.split('|');
+        }
+
+        function demoRead() {
+            const lines = getLines('fileContent1');
+            const text = lines.join('\n');
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = '>>> f.read()\n>>> "' + text.replace(/\n/g, '\\n') + '"\n\n# print() bilan ko\'rinishi:\n' + text;
+        }
+
+        function demoReadlines() {
+            const lines = getLines('fileContent1');
+            const listText = lines.map((l, i) =>
+                "'" + l + (i < lines.length - 1 ? "\\n" : "") + "'"
+            ).join(', ');
+            const result = document.getElementById('result1');
+            result.classList.add('show');
+            result.innerHTML = '>>> f.readlines()\n>>> [' + listText + ']\n\n# Natija: ' + lines.length + ' ta elementli list';
+        }
+
+        function demoLineByLine() {
+            const lines = getLines('fileContent2');
+            const result = document.getElementById('result2');
+            result.classList.add('show');
+            let out = '# for satr in f:\n';
+            lines.forEach((l, i) => {
+                out += (i + 1) + '-aylanish -> "' + l + '"\n';
+            });
+            out += '\n# Chiqarilgan natija:\n' + lines.join('\n');
+            result.innerHTML = out;
+        }
+
+        function demoMode() {
+            const mode = document.getElementById('modeSelect').value;
+            const result = document.getElementById('result3');
+            result.classList.add('show');
+            let msg = '';
+            if (mode === 'r') {
+                msg = '>>> open("fayl.txt", "r")\n\nFayl O\'QISH uchun ochildi.\nMazmunini o\'qiy olasiz.\nDiqqat: fayl mavjud bo\'lishi shart, aks holda xato beradi.';
+            } else if (mode === 'w') {
+                msg = '>>> open("fayl.txt", "w")\n\nFayl YOZISH uchun ochildi.\nDIQQAT: eski mazmun butunlay o\'chadi!\nFayl bo\'lmasa, yangisi yaratiladi.';
+            } else if (mode === 'a') {
+                msg = '>>> open("fayl.txt", "a")\n\nFayl QO\'SHISH uchun ochildi.\nYangi matn eski mazmun OXIRIGA qo\'shiladi.\nEski ma\'lumot saqlanib qoladi.';
+            } else if (mode === 'x') {
+                msg = '>>> open("fayl.txt", "x")\n\nYangi fayl YARATILDI.\nAgar bunday fayl allaqachon bor bo\'lsa,\nPython xato (FileExistsError) beradi.';
+            }
+            result.innerHTML = msg;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

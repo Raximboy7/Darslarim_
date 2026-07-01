@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 81: datetime moduli</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--gray);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.35em;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .operator-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .operator-card strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .operator-card p {
+            color: var(--dark);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .operator-name {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .step-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--white);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .demo-result.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .code-with-comment {
+                grid-template-columns: 1fr;
+            }
+            .code-part {
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+        }
+        .lesson-nav .nav-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center {
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            flex: 1;
+        }
+        .lesson-nav .nav-center a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 7 — Modullar va Fayllar · Dars 81 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>datetime moduli</h1>
+                <p>Modul 7 — Modullar va Fayllar | Dars 81</p>
+            </header>
+<!--LESSON_BODY_START-->
+            <div class="section">
+                <h2>datetime moduli nima?</h2>
+                <div class="description">
+                    <span class="highlight-var">datetime</span> — sana va vaqt bilan ishlash uchun standart modul. Hozirgi vaqtni olish, sanalarni formatlash, ikki sana orasidagi farqni hisoblash — hammasi shu modul orqali.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta</pre></div>
+                    <div class="comment-part"># datetime moduli ichida datetime klassi bor (nom bir xil bo'lgani uchun ba'zan chalkashtiradi).</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>now() — hozirgi sana va vaqt</h2>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+hozir = datetime.<span class="function">now</span>()
+<span class="function">print</span>(hozir)
+
+<span class="function">print</span>(hozir.year)
+<span class="function">print</span>(hozir.month)
+<span class="function">print</span>(hozir.day)</pre></div>
+                    <div class="comment-part"># now() shu ondagi to'liq sana-vaqtni beradi. .year, .month, .day, .hour, .minute — alohida qismlariga murojaat qilamiz.</div>
+                </div>
+                <div class="output-demo">>>> 2026-07-01 14:30:52.123456<br>>>> 2026<br>>>> 7<br>>>> 1</div>
+            </div>
+
+            <div class="section">
+                <h2>strftime() — sanani chiroyli formatlash</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;"><b>strftime</b> (string format time) sanani biz xohlagan ko'rinishga o'giradi.</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+hozir = datetime.<span class="function">now</span>()
+
+<span class="function">print</span>(hozir.<span class="function">strftime</span>(<span class="string">"%d.%m.%Y"</span>))
+<span class="function">print</span>(hozir.<span class="function">strftime</span>(<span class="string">"%H:%M"</span>))
+<span class="function">print</span>(hozir.<span class="function">strftime</span>(<span class="string">"%d-%m-%Y %H:%M:%S"</span>))</pre></div>
+                    <div class="comment-part"># %d kun, %m oy, %Y to'liq yil, %H soat, %M daqiqa, %S soniya. Belgilardan xohlagancha shakl yasaysiz.</div>
+                </div>
+                <div class="output-demo">>>> 01.07.2026<br>>>> 14:30<br>>>> 01-07-2026 14:30:52</div>
+                <table class="comparison-table">
+                    <thead><tr><th>Belgi</th><th>Ma'nosi</th><th>Misol</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="highlight-var">%d</span></td><td>Kun</td><td>01</td></tr>
+                        <tr><td><span class="highlight-var">%m</span></td><td>Oy (raqam)</td><td>07</td></tr>
+                        <tr><td><span class="highlight-var">%Y</span></td><td>Yil (4 xona)</td><td>2026</td></tr>
+                        <tr><td><span class="highlight-var">%H</span></td><td>Soat (24)</td><td>14</td></tr>
+                        <tr><td><span class="highlight-var">%M</span></td><td>Daqiqa</td><td>30</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>timedelta — vaqt oralig'i</h2>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;"><b>timedelta</b> sanaga vaqt qo'shish yoki ayirish uchun ishlatiladi.</p>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+
+bugun = datetime.<span class="function">now</span>()
+ertaga = bugun + <span class="function">timedelta</span>(days=<span class="number">1</span>)
+bir_hafta = bugun + <span class="function">timedelta</span>(weeks=<span class="number">1</span>)
+
+<span class="function">print</span>(ertaga.<span class="function">strftime</span>(<span class="string">"%d.%m.%Y"</span>))
+<span class="function">print</span>(bir_hafta.<span class="function">strftime</span>(<span class="string">"%d.%m.%Y"</span>))</pre></div>
+                    <div class="comment-part"># timedelta(days=1) — bir kun. Sanaga qo'shsangiz kelajak, ayirsangiz o'tmish. days, weeks, hours, minutes ishlatiladi.</div>
+                </div>
+                <div class="output-demo">>>> 02.07.2026<br>>>> 08.07.2026</div>
+            </div>
+
+            <div class="section">
+                <h2>Amaliyot: yosh yoki qolgan kunlar</h2>
+                <div class="code-with-comment">
+                    <div class="code-part"><pre><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+yangi_yil = datetime(<span class="number">2027</span>, <span class="number">1</span>, <span class="number">1</span>)
+bugun = datetime.<span class="function">now</span>()
+
+farq = yangi_yil - bugun
+<span class="function">print</span>(<span class="string">"Yangi yilgacha:"</span>, farq.days, <span class="string">"kun"</span>)</pre></div>
+                    <div class="comment-part"># Ikki datetime ni ayirsak, timedelta chiqadi. Uning .days xususiyati orqali necha kun qolganini bilamiz.</div>
+                </div>
+                <div class="output-demo">>>> Yangi yilgacha: 184 kun</div>
+            </div>
+
+            <div class="section">
+                <h2>Xulosa</h2>
+                <div class="info-box">
+                    <strong>Eslab qoling</strong>
+                    <p>
+                        • <span class="highlight-var">datetime.now()</span> — hozirgi sana va vaqt<br>
+                        • <span class="highlight-var">.year, .month, .day</span> — qismlariga murojaat<br>
+                        • <span class="highlight-var">strftime("%d.%m.%Y")</span> — chiroyli formatlash<br>
+                        • <span class="highlight-var">timedelta(days=1)</span> — vaqt qo'shish/ayirish<br>
+                        • Ikki sana ayirmasi — necha kun/soat farqi
+                    </p>
+                </div>
+            </div>
+<!--LESSON_BODY_END-->
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 82: time va benchmark</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

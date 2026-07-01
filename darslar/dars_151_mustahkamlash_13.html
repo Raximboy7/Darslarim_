@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 151: Ilg'or regex</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 13 — Regex va Type Hints · Dars 151 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Ilg'or Regex</h1>
+                <p>Modul 13 — Regex va Type Hints | Dars 151</p>
+            </header>
+
+            <div class="section">
+                <h2>Bu Darsda Nima O'rganamiz?</h2>
+                <div class="description">
+                    Oldingi darsda oddiy patternlarni topishni ko'rdik. Endi esa eng kuchli qism —
+                    <strong>guruhlar (groups)</strong> bilan ishlashni o'rganamiz. Guruhlar yordamida
+                    matndan kerakli <strong>bo'laklarni ajratib olamiz</strong>: masalan sanadan kun, oy va yilni;
+                    yoki telefon raqamidan kodni. Bu regexning eng foydali imkoniyatlaridan biridir.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Guruhlash — Qavslar ( )</h2>
+                <div class="description">
+                    Pattern ichidagi <span class="highlight-var">( )</span> qavslar bir bo'lakni
+                    <strong>guruh</strong> qilib belgilaydi. Topilgandan keyin har bir guruhni alohida
+                    <span class="highlight-var">.group(1)</span>, <span class="highlight-var">.group(2)</span> orqali olamiz.
+                    <span class="highlight-var">.group(0)</span> esa butun moslikni qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        matn = <span class="string">"2024-06-30"</span><br>
+                        natija = re.<span class="function">search</span>(<span class="string">r"(\d{4})-(\d{2})-(\d{2})"</span>, matn)<br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="number">0</span>))  <span class="comment"># butun moslik</span><br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="number">1</span>))  <span class="comment"># 1-guruh: yil</span><br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="number">2</span>))  <span class="comment"># 2-guruh: oy</span><br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="number">3</span>))  <span class="comment"># 3-guruh: kun</span>
+                    </div>
+                    <div class="comment-part">
+                        # Har bir ( ) ichidagi qism alohida guruhga aylanadi. Sanash 1 dan boshlanadi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 2024-06-30<br>
+                    >>> 2024<br>
+                    >>> 06<br>
+                    >>> 30
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>Guruhlar 1 dan sanaladi (0 emas!). <span class="highlight-var">.group(0)</span> har doim butun moslikni beradi.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Nomli Guruhlar (?P&lt;nom&gt;...)</h2>
+                <div class="description">
+                    Raqam bilan eslab qolish qiyin. Shuning uchun guruhga <strong>nom</strong> berish mumkin:
+                    <span class="highlight-var">(?P&lt;nom&gt;...)</span>. Keyin uni
+                    <span class="highlight-var">.group("nom")</span> orqali olamiz. Bu kodni ancha o'qishli qiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        matn = <span class="string">"2024-06-30"</span><br>
+                        p = <span class="string">r"(?P&lt;yil&gt;\d{4})-(?P&lt;oy&gt;\d{2})-(?P&lt;kun&gt;\d{2})"</span><br>
+                        natija = re.<span class="function">search</span>(p, matn)<br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="string">"yil"</span>))<br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="string">"oy"</span>))<br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="string">"kun"</span>))
+                    </div>
+                    <div class="comment-part">
+                        # (?P&lt;nom&gt;...) — guruhga nom beradi. Endi raqam emas, nom bilan chaqiramiz.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 2024<br>
+                    >>> 06<br>
+                    >>> 30
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Non-capturing Guruhlar (?:...)</h2>
+                <div class="description">
+                    Ba'zan qavs faqat <strong>guruhlash</strong> uchun kerak, lekin uni alohida saqlashni xohlamaymiz.
+                    Bunda <span class="highlight-var">(?:...)</span> ishlatamiz — "saqlamaydigan guruh".
+                    U mosliklarni guruhlaydi, lekin <span class="highlight-var">.group()</span> raqamiga kirmaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        matn = <span class="string">"https://example.com"</span><br>
+                        <span class="comment"># http yoki https — lekin uni saqlashga hojat yo'q</span><br>
+                        p = <span class="string">r"(?:https?)://(\w+\.\w+)"</span><br>
+                        natija = re.<span class="function">search</span>(p, matn)<br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>(<span class="number">1</span>))  <span class="comment"># faqat domen</span>
+                    </div>
+                    <div class="comment-part">
+                        # (?:...) guruhlaydi, ammo .group() ga raqam sifatida kirmaydi. Domen 1-guruh bo'ladi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> example.com
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4. Lookahead va Lookbehind (g'oya)</h2>
+                <div class="description">
+                    Ba'zida biz "oldidan/orqasidan nima kelishini" tekshirmoqchimiz, ammo uni
+                    <strong>natijaga olmaymiz</strong>. Bu — lookahead va lookbehind.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Sintaksis</th><th>Nomi</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>(?=...)</code></td><td>Lookahead</td><td>Oldinda shu narsa bo'lsa mos keladi</td></tr>
+                        <tr><td><code>(?&lt;=...)</code></td><td>Lookbehind</td><td>Orqada shu narsa bo'lsa mos keladi</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        matn = <span class="string">"narx: 5000 so'm"</span><br>
+                        <span class="comment"># "so'm" dan oldingi raqamni ol (so'm natijaga kirmaydi)</span><br>
+                        natija = re.<span class="function">search</span>(<span class="string">r"\d+(?= so'm)"</span>, matn)<br>
+                        <span class="function">print</span>(natija.<span class="function">group</span>())
+                    </div>
+                    <div class="comment-part">
+                        # (?= so'm) — raqamdan keyin " so'm" kelishini tekshiradi, lekin uni olmaydi.
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 5000
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy tushuntirish</strong>
+                    <p>Lookahead — "shartni tekshir, lekin natijaga qo'shma". Boshlovchilar uchun: hozircha guruhlarni mukammal o'rganing, lookahead esa keyin kerak bo'ladi.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5. Guruhlar Bilan Ma'lumot Ajratish</h2>
+                <div class="description">
+                    Guruhlarning eng katta foydasi — bir matndan bir nechta bo'lakni <strong>bir vaqtda</strong>
+                    ajratib olish. <span class="highlight-var">.groups()</span> hamma guruhlarni
+                    tuple ko'rinishida qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        tel = <span class="string">"+998 90 123 45 67"</span><br>
+                        p = <span class="string">r"\+(\d{3}) (\d{2}) (\d{3}) (\d{2}) (\d{2})"</span><br>
+                        m = re.<span class="function">search</span>(p, tel)<br>
+                        <span class="function">print</span>(m.<span class="function">groups</span>())  <span class="comment"># hamma guruhlar</span><br>
+                        davlat, kod = m.<span class="function">group</span>(<span class="number">1</span>), m.<span class="function">group</span>(<span class="number">2</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"Davlat: {davlat}, Kod: {kod}"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # .groups() hamma guruhni tuple qilib qaytaradi: ('998', '90', '123', '45', '67')
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ('998', '90', '123', '45', '67')<br>
+                    >>> Davlat: 998, Kod: 90
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">( )</span> — guruh yaratadi, <span class="highlight-var">.group(1)</span> bilan olinadi<br>
+                    • <span class="highlight-var">(?P&lt;nom&gt;...)</span> — nomli guruh, <span class="highlight-var">.group("nom")</span><br>
+                    • <span class="highlight-var">(?:...)</span> — guruhlaydi, lekin saqlamaydi<br>
+                    • <span class="highlight-var">(?=...)</span> / <span class="highlight-var">(?&lt;=...)</span> — lookahead / lookbehind<br>
+                    • <span class="highlight-var">.groups()</span> — barcha guruhlarni tuple qilib beradi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Sanani Bo'laklarga Ajratish</h2>
+                <div class="description">
+                    Sanani yozing (masalan <span class="highlight-var">2024-06-30</span>). Guruhlar yordamida
+                    yil, oy va kunni ajratib olamiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="dateInput" placeholder="YYYY-MM-DD" value="2024-06-30">
+                        <button onclick="demoDate()">Ajrat</button>
+                    </div>
+                    <div class="demo-result" id="resultDate"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Nomli Guruh Natijasi</h2>
+                <div class="description">
+                    Email kiriting. Pattern nomli guruhlar bilan <strong>foydalanuvchi</strong> va
+                    <strong>domen</strong> qismlarini ajratadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="emailInput" placeholder="email kiriting" value="ali@example.com">
+                        <button onclick="demoEmail()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultEmail"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: O'z Patterningizni Sinang</h2>
+                <div class="description">
+                    O'z patterningizni yozing (qavslar <span class="highlight-var">( )</span> bilan guruh qiling) va
+                    matnga sinab ko'ring. Topilgan guruhlar pastda ko'rsatiladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="userPattern" placeholder="pattern" value="(\d+)-(\d+)">
+                        <input type="text" id="userText" placeholder="matn" value="kod 12-34 bor">
+                        <button onclick="demoCustom()">Sina</button>
+                    </div>
+                    <div class="demo-result" id="resultCustom"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>re modulini import qiling</strong>
+                            <p>Faylning boshida import re yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Sana patternini yozing</strong>
+                            <p>(?P&lt;kun&gt;\d{2})/(?P&lt;oy&gt;\d{2})/(?P&lt;yil&gt;\d{4}) ko'rinishida nomli guruhlar tuzing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>"15/06/2024" ga qo'llang</strong>
+                            <p>re.search() bilan toping va natijani saqlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Guruhlarni chiqaring</strong>
+                            <p>.group("kun"), .group("oy"), .group("yil") ni chop eting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 152: HTTP / HTTPS</p>
+                    <p style="opacity: 0.9;">
+                        Guruhlar bilan ma'lumot ajratishni o'rgandingiz!<br>
+                        Endi katta matnlarni tozalash va qayta ishlashni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoDate() {
+            const t = document.getElementById('dateInput').value;
+            const m = t.match(/(\d{4})-(\d{2})-(\d{2})/);
+            const result = document.getElementById('resultDate');
+            result.classList.add('show');
+            if (m) {
+                result.innerHTML = `>>> re.search(r"(\\d{4})-(\\d{2})-(\\d{2})", "${t}")<br>` +
+                    `>>> group(0) = ${m[0]}<br>` +
+                    `>>> group(1) yil = ${m[1]}<br>` +
+                    `>>> group(2) oy  = ${m[2]}<br>` +
+                    `>>> group(3) kun = ${m[3]}`;
+            } else {
+                result.innerHTML = `>>> "${t}" mos kelmadi (format: YYYY-MM-DD)`;
+            }
+        }
+
+        function demoEmail() {
+            const t = document.getElementById('emailInput').value;
+            const m = t.match(/([\w.]+)@([\w.]+)/);
+            const result = document.getElementById('resultEmail');
+            result.classList.add('show');
+            if (m) {
+                result.innerHTML = `>>> pattern: (?P&lt;foydalanuvchi&gt;[\\w.]+)@(?P&lt;domen&gt;[\\w.]+)<br>` +
+                    `>>> group("foydalanuvchi") = ${m[1]}<br>` +
+                    `>>> group("domen") = ${m[2]}`;
+            } else {
+                result.innerHTML = `>>> "${t}" email formatiga mos kelmadi`;
+            }
+        }
+
+        function demoCustom() {
+            const p = document.getElementById('userPattern').value;
+            const t = document.getElementById('userText').value;
+            const result = document.getElementById('resultCustom');
+            result.classList.add('show');
+            try {
+                const re = new RegExp(p);
+                const m = t.match(re);
+                if (m) {
+                    let out = `>>> re.search(r"${p}", "${t}")<br>>>> group(0) = ${m[0]}`;
+                    for (let i = 1; i < m.length; i++) {
+                        out += `<br>>>> group(${i}) = ${m[i]}`;
+                    }
+                    if (m.length === 1) {
+                        out += `<br>>>> (guruh yo'q — qavs ( ) qo'shing)`;
+                    }
+                    result.innerHTML = out;
+                } else {
+                    result.innerHTML = `>>> "${t}" patternga mos kelmadi`;
+                }
+            } catch (e) {
+                result.innerHTML = `>>> Pattern xato: ${e.message}`;
+            }
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>
