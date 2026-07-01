@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 148: Django — kirish</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FAYL DARAXTI */
+        .file-tree {
+            background: #1f2937;
+            color: #d4d4d4;
+            padding: 18px 22px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            line-height: 1.9;
+            margin: 10px 0;
+        }
+        .file-tree .folder { color: #60a5fa; font-weight: bold; }
+        .file-tree .file { color: #fbbf24; }
+        .file-tree .note { color: #6b7280; font-style: italic; }
+
+        /* MVT OQIMI */
+        .flow-box { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin: 15px 0; }
+        .flow-step {
+            flex: 1;
+            min-width: 130px;
+            background: var(--white);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            opacity: 0.4;
+            transition: all 0.4s ease;
+        }
+        .flow-step.active { opacity: 1; transform: translateY(-4px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.25); background: var(--primary-light); }
+        .flow-step .flow-icon { font-size: 1.8em; margin-bottom: 6px; }
+        .flow-step .flow-name { font-weight: bold; color: var(--primary-dark); margin-bottom: 4px; }
+        .flow-step .flow-desc { font-size: 0.8em; color: var(--gray); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; pointer-events: none; box-shadow: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 20 — Django (Web Framework) · Dars 148 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Django — Kirish</h1>
+                <p>Modul 20 — Django (Web Framework) | Dars 148</p>
+            </header>
+
+            <div class="section">
+                <h2>Django Nima?</h2>
+                <div class="description">
+                    <strong>Django</strong> — bu Python tilida yozilgan <strong>to'liq web framework</strong>.
+                    "Framework" — bu tayyor qurilish materiallari to'plami: siz har bir narsani noldan
+                    yozmaysiz, balki tayyor qismlardan foydalanib tez sayt quryasiz.
+                    Django katta va kuchli loyihalar uchun mo'ljallangan.
+                </div>
+                <div class="info-box">
+                    <strong>"Batareyalari bilan keladi" (batteries included)</strong>
+                    <p>
+                        Django ichida hamma narsa tayyor: ma'lumotlar bazasi bilan ishlash,
+                        foydalanuvchini ro'yxatdan o'tkazish, admin paneli, xavfsizlik himoyasi va boshqalar.
+                        Shuning uchun u <span class="highlight-var">Flask</span> dan kattaroq va to'liqroq.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Django'ni O'rnatish</h2>
+                <div class="description">
+                    Django'ni <span class="highlight-var">pip</span> orqali o'rnatamiz. Bu boshqa
+                    kutubxonalarni o'rnatishga juda o'xshaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        pip install django
+                    </div>
+                    <div class="comment-part">
+                        # Terminalda yozing — Django o'rnatiladi
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        django-admin --version
+                    </div>
+                    <div class="comment-part">
+                        # O'rnatilganini tekshirish — versiya raqami chiqadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 5.0.6
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Loyiha Yaratish</h2>
+                <div class="description">
+                    Yangi Django loyihasini <span class="highlight-var">django-admin startproject</span>
+                    buyrug'i bilan yaratamiz. U barcha kerakli papka va fayllarni avtomatik tayyorlaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        django-admin startproject mysite
+                    </div>
+                    <div class="comment-part">
+                        # "mysite" nomli yangi loyiha yaratiladi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>
+                        <span class="highlight-var">mysite</span> — bu loyiha nomi. Uni xohlagancha o'zgartirishingiz mumkin.
+                        Buyruq ishlagach, yangi <span class="highlight-var">mysite/</span> papkasi paydo bo'ladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Serverni Ishga Tushirish</h2>
+                <div class="description">
+                    Loyiha papkasi ichiga kirib, <span class="highlight-var">manage.py</span> orqali
+                    test serverini ishga tushiramiz. Bu sizning kompyuteringizda kichik web-server ochadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        cd mysite<br>
+                        python manage.py runserver
+                    </div>
+                    <div class="comment-part">
+                        # Loyihaga kiramiz va serverni ishga tushiramiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Starting development server at http://127.0.0.1:8000/<br>
+                    >>> Quit the server with CONTROL-C.
+                </div>
+                <div class="info-box">
+                    <strong>Saytni ko'rish</strong>
+                    <p>
+                        Brauzerda <span class="highlight-var">http://127.0.0.1:8000/</span> manzilini oching.
+                        Django'ning xush kelibsiz sahifasi (raketa rasmi bilan) chiqadi. Tabriklaymiz — sayt ishlamoqda!
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>MVT Arxitektura</h2>
+                <div class="description">
+                    Django <strong>MVT</strong> tartibida ishlaydi: <strong>Model — View — Template</strong>.
+                    Bu — kodni uchta vazifaga ajratib, tartibli saqlash usuli.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qism</th><th>Vazifasi</th><th>Sodda izoh</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Model</code></td><td>Ma'lumotlar bazasi bilan ishlaydi</td><td>Ma'lumot qayerda saqlanadi</td></tr>
+                        <tr><td><code>View</code></td><td>Mantiq (logika) ni boshqaradi</td><td>Nima qilish kerakligini hal qiladi</td></tr>
+                        <tr><td><code>Template</code></td><td>HTML sahifani chiqaradi</td><td>Foydalanuvchi nimani ko'radi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Oqim (qanday ishlaydi)</strong>
+                    <p>
+                        Foydalanuvchi saytga so'rov yuboradi → <span class="highlight-var">View</span> uni qabul qiladi →
+                        kerak bo'lsa <span class="highlight-var">Model</span> dan ma'lumot oladi →
+                        natijani <span class="highlight-var">Template</span> ga joylab, foydalanuvchiga qaytaradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Flask vs Django Farqi</h2>
+                <div class="description">
+                    Ikkalasi ham Python web framework, lekin <strong>Flask kichik (mikro)</strong>,
+                    <strong>Django katta (to'liq)</strong>. Flask — yengil, lekin ko'p narsani o'zingiz qo'shasiz.
+                    Django — og'irroq, lekin hammasi tayyor.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>Flask</th><th>Django</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Hajmi</td><td>Kichik (mikro)</td><td>Katta (to'liq)</td></tr>
+                        <tr><td>Admin panel</td><td>Yo'q (o'zingiz qilasiz)</td><td>Tayyor bor</td></tr>
+                        <tr><td>Ma'lumotlar bazasi (ORM)</td><td>Qo'shimcha kerak</td><td>Ichida bor</td></tr>
+                        <tr><td>Tuzilma</td><td>Erkin</td><td>Qat'iy (MVT)</td></tr>
+                        <tr><td>Qachon yaxshi</td><td>Kichik loyiha</td><td>Katta loyiha</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Django — to'liq web framework, Flask dan kattaroq<br>
+                    • O'rnatish: <span class="highlight-var">pip install django</span><br>
+                    • Loyiha: <span class="highlight-var">django-admin startproject mysite</span><br>
+                    • Server: <span class="highlight-var">python manage.py runserver</span><br>
+                    • Arxitektura: <span class="highlight-var">Model — View — Template (MVT)</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Loyiha Tuzilmasi</h2>
+                <div class="description">
+                    <span class="highlight-var">startproject</span> qanday papka va fayllar yaratadi?
+                    Tugmani bosing — fayl daraxti chiqadi va har bir faylning vazifasini bilib oling.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="showTree()">Tuzilmani ko'rsat</button>
+                        <button onclick="hideTree()">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultTree"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: MVT Oqimi</h2>
+                <div class="description">
+                    So'rov saytga kirganda nima bo'ladi? "Keyingi qadam" tugmasini bosib,
+                    Model → View → Template oqimini bosqichma-bosqich kuzating.
+                </div>
+                <div class="interactive-demo">
+                    <div class="flow-box" id="flowBox">
+                        <div class="flow-step" id="flow-0">
+                            <div class="flow-icon">🌐</div>
+                            <div class="flow-name">So'rov</div>
+                            <div class="flow-desc">Foydalanuvchi saytni ochadi</div>
+                        </div>
+                        <div class="flow-step" id="flow-1">
+                            <div class="flow-icon">⚙️</div>
+                            <div class="flow-name">View</div>
+                            <div class="flow-desc">So'rovni qabul qiladi</div>
+                        </div>
+                        <div class="flow-step" id="flow-2">
+                            <div class="flow-icon">🗄️</div>
+                            <div class="flow-name">Model</div>
+                            <div class="flow-desc">Bazadan ma'lumot oladi</div>
+                        </div>
+                        <div class="flow-step" id="flow-3">
+                            <div class="flow-icon">🖼️</div>
+                            <div class="flow-name">Template</div>
+                            <div class="flow-desc">HTML tayyorlaydi</div>
+                        </div>
+                        <div class="flow-step" id="flow-4">
+                            <div class="flow-icon">✅</div>
+                            <div class="flow-name">Javob</div>
+                            <div class="flow-desc">Sahifa foydalanuvchiga</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="flowNext()">Keyingi qadam →</button>
+                        <button onclick="flowReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Flask vs Django</h2>
+                <div class="description">
+                    Loyihangiz uchun qaysi biri mos? Xususiyatni tanlang — Flask yoki Django
+                    qaysi biri yaxshiroq ekanini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="compareFw('admin')">Admin panel</button>
+                        <button onclick="compareFw('kichik')">Kichik loyiha</button>
+                        <button onclick="compareFw('katta')">Katta loyiha</button>
+                        <button onclick="compareFw('baza')">Ma'lumotlar bazasi</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Django'ni o'rnating</strong>
+                            <p>Terminalda <span class="highlight-var">pip install django</span> yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Loyiha yarating</strong>
+                            <p><span class="highlight-var">django-admin startproject mysite</span> buyrug'ini ishlating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Serverni ishga tushiring</strong>
+                            <p><span class="highlight-var">cd mysite</span> va <span class="highlight-var">python manage.py runserver</span></p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Saytni oching</strong>
+                            <p>Brauzerda <span class="highlight-var">http://127.0.0.1:8000/</span> manzilini oching</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 149: Loyiha va app tuzilishi</p>
+                    <p style="opacity: 0.9;">
+                        Django loyihasini yaratishni o'rgandingiz!<br>
+                        Endi loyiha ichida "app" (ilova) yaratishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTree() {
+            const result = document.getElementById('resultTree');
+            result.classList.add('show');
+            result.innerHTML = `
+<div class="file-tree">
+<span class="folder">mysite/</span>            <span class="note"># tashqi papka (loyiha ildizi)</span><br>
+├── <span class="file">manage.py</span>       <span class="note"># buyruqlarni ishga tushiruvchi fayl</span><br>
+└── <span class="folder">mysite/</span>        <span class="note"># sozlamalar paketi</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">__init__.py</span> <span class="note"># bu papka — Python paketi</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">settings.py</span> <span class="note"># barcha sozlamalar</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">urls.py</span>     <span class="note"># manzillar (URL) jadvali</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">asgi.py</span>     <span class="note"># server ulanishi (asinxron)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="file">wsgi.py</span>     <span class="note"># server ulanishi (oddiy)</span>
+</div>`;
+        }
+
+        function hideTree() {
+            const result = document.getElementById('resultTree');
+            result.classList.remove('show');
+            result.innerHTML = '';
+        }
+
+        let flowIndex = -1;
+        const flowMsgs = [
+            'Qadam 1: Foydalanuvchi brauzerda saytni ochadi va so\'rov yuboradi.',
+            'Qadam 2: View so\'rovni qabul qiladi va nima qilish kerakligini hal qiladi.',
+            'Qadam 3: View kerak bo\'lsa Model orqali bazadan ma\'lumot oladi.',
+            'Qadam 4: Olingan ma\'lumot Template (HTML) ichiga joylanadi.',
+            'Qadam 5: Tayyor sahifa foydalanuvchiga javob qilib qaytariladi. Oqim tugadi!'
+        ];
+
+        function flowNext() {
+            flowIndex++;
+            if (flowIndex > 4) flowIndex = 4;
+            for (let i = 0; i <= 4; i++) {
+                const el = document.getElementById('flow-' + i);
+                el.classList.toggle('active', i <= flowIndex);
+            }
+            const result = document.getElementById('resultFlow');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + flowMsgs[flowIndex];
+        }
+
+        function flowReset() {
+            flowIndex = -1;
+            for (let i = 0; i <= 4; i++) {
+                document.getElementById('flow-' + i).classList.remove('active');
+            }
+            const result = document.getElementById('resultFlow');
+            result.classList.remove('show');
+            result.innerHTML = '';
+        }
+
+        function compareFw(kind) {
+            const data = {
+                admin: { f: 'Yo\'q — admin panelni o\'zingiz yozasiz', d: 'Tayyor admin panel bor', win: 'Django' },
+                kichik: { f: 'Juda mos — yengil va tez', d: 'Ortiqcha og\'ir bo\'lishi mumkin', win: 'Flask' },
+                katta: { f: 'Ko\'p narsani qo\'lda qo\'shasiz', d: 'Juda mos — hammasi tayyor', win: 'Django' },
+                baza: { f: 'Qo\'shimcha kutubxona kerak', d: 'ORM ichida bor', win: 'Django' }
+            };
+            const r = data[kind];
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML = `>>> Flask: ${r.f}<br>>>> Django: ${r.d}<br>>>> G\'olib: ${r.win} ✅`;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

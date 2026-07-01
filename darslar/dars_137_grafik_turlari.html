@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 137: Grafik turlari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); color: var(--dark); cursor: pointer; flex: 1; min-width: 140px; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chart-canvas {
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            display: block;
+            margin: 12px auto;
+            max-width: 100%;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 19 — Vizualizatsiya va ML asoslari · Dars 137 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Grafik Turlari</h1>
+                <p>Modul 19 — Vizualizatsiya va ML asoslari | Dars 137</p>
+            </header>
+
+            <div class="section">
+                <h2>Nima uchun turli grafiklar bor?</h2>
+                <div class="description">
+                    Har bir grafik turi <strong>ma'lum bir savolga</strong> javob beradi. Noto'g'ri grafik
+                    tanlasangiz, ma'lumot chiroyli ko'rinishi mumkin, lekin <strong>noto'g'ri xulosa</strong>
+                    beradi. Shuning uchun avval o'zingizga savol bering:
+                    <span class="highlight-var">men nimani ko'rsatmoqchiman?</span> — trendmi, taqqoslashmi,
+                    ulushmi, taqsimotmi yoki bog'liqlikmi?
+                </div>
+                <div class="info-box">
+                    <strong>Oltin qoida</strong>
+                    <p>
+                        Grafik turini ma'lumotga emas, <strong>savolingizga qarab</strong> tanlang.
+                        Bir xil ma'lumotni turli grafiklarda ko'rsatish mumkin, lekin har biri boshqa
+                        narsani ta'kidlaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Qaysi grafik qachon kerak?</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Grafik</th><th>Funksiya</th><th>Qachon ishlatiladi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>plt.plot()</code></td><td>Chiziqli</td><td>Vaqt bo'yicha trend, o'zgarish</td></tr>
+                        <tr><td><code>plt.bar()</code></td><td>Ustunli</td><td>Kategoriyalarni taqqoslash</td></tr>
+                        <tr><td><code>plt.pie()</code></td><td>Doiraviy</td><td>Butundagi ulush (foiz)</td></tr>
+                        <tr><td><code>plt.hist()</code></td><td>Gistogramma</td><td>Sonlar taqsimoti</td></tr>
+                        <tr><td><code>plt.scatter()</code></td><td>Nuqtali</td><td>Ikki o'zgaruvchi bog'liqligi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>1. Chiziqli grafik — plt.plot()</h2>
+                <div class="description">
+                    <strong>Trend</strong>ni ko'rsatadi: qiymat vaqt o'tishi bilan qanday o'zgaryapti.
+                    Misol: oylik daromad, harorat o'zgarishi, foydalanuvchilar soni.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br>
+                        <br>
+                        oylar = [<span class="string">"Yan"</span>, <span class="string">"Fev"</span>, <span class="string">"Mar"</span>, <span class="string">"Apr"</span>]<br>
+                        daromad = [<span class="number">100</span>, <span class="number">150</span>, <span class="number">130</span>, <span class="number">200</span>]<br>
+                        <br>
+                        plt.<span class="function">plot</span>(oylar, daromad)  <span class="comment"># chiziq chizadi</span><br>
+                        plt.<span class="function">title</span>(<span class="string">"Oylik daromad"</span>)<br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # plot() nuqtalarni chiziq bilan bog'laydi — trend yaqqol ko'rinadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Ustunli grafik — plt.bar()</h2>
+                <div class="description">
+                    <strong>Taqqoslash</strong> uchun. Har bir kategoriya alohida ustun bo'ladi.
+                    Misol: shaharlar aholisi, mahsulotlar sotuvi, talabalar bahosi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        mevalar = [<span class="string">"Olma"</span>, <span class="string">"Banan"</span>, <span class="string">"Uzum"</span>]<br>
+                        soni = [<span class="number">50</span>, <span class="number">30</span>, <span class="number">70</span>]<br>
+                        <br>
+                        plt.<span class="function">bar</span>(mevalar, soni)  <span class="comment"># ustunlar chizadi</span><br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # bar() qaysi kategoriya katta-kichikligini darrov ko'rsatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Doiraviy grafik — plt.pie()</h2>
+                <div class="description">
+                    <strong>Ulush</strong>ni (foiz) ko'rsatadi: har bir qism butundan qancha olgan.
+                    Misol: byudjet taqsimoti, bozor ulushi. Eslatma: 5-6 tadan ko'p bo'lakda chalkash bo'ladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        qismlar = [<span class="string">"Ovqat"</span>, <span class="string">"Ijara"</span>, <span class="string">"Boshqa"</span>]<br>
+                        ulush = [<span class="number">40</span>, <span class="number">35</span>, <span class="number">25</span>]<br>
+                        <br>
+                        plt.<span class="function">pie</span>(ulush, labels=qismlar, autopct=<span class="string">"%1.0f%%"</span>)<br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # autopct foizni har bo'lakda yozadi — ulush aniq ko'rinadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4. Gistogramma — plt.hist()</h2>
+                <div class="description">
+                    <strong>Taqsimot</strong>ni ko'rsatadi: sonlar qaysi oraliqda ko'p to'plangan.
+                    Ustunlidan farqi — bu yerda sonlar avtomatik <span class="highlight-var">guruhlarga (bin)</span>
+                    bo'linadi. Misol: yoshlar taqsimoti, baho taqsimoti.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        yoshlar = [<span class="number">21</span>, <span class="number">22</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">40</span>]<br>
+                        <br>
+                        plt.<span class="function">hist</span>(yoshlar, bins=<span class="number">4</span>)  <span class="comment"># 4 ta guruhga bo'ladi</span><br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # hist() bir o'zgaruvchining qanday tarqalganini ko'rsatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5. Nuqtali grafik — plt.scatter()</h2>
+                <div class="description">
+                    <strong>Bog'liqlik</strong>ni ko'rsatadi: ikki o'zgaruvchi bir-biriga ta'sir qiladimi.
+                    Misol: bo'y va vazn, reklama xarajati va sotuv. Nuqtalar yuqoriga ketsa — musbat bog'liqlik.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        boy = [<span class="number">150</span>, <span class="number">160</span>, <span class="number">170</span>, <span class="number">180</span>]<br>
+                        vazn = [<span class="number">50</span>, <span class="number">60</span>, <span class="number">68</span>, <span class="number">80</span>]<br>
+                        <br>
+                        plt.<span class="function">scatter</span>(boy, vazn)  <span class="comment"># har juftlik bitta nuqta</span><br>
+                        plt.<span class="function">show</span>()
+                    </div>
+                    <div class="comment-part">
+                        # scatter() ikki son orasidagi aloqani ko'rsatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">plot</span> — trend (vaqt bo'yicha o'zgarish)<br>
+                    • <span class="highlight-var">bar</span> — taqqoslash (kategoriyalar)<br>
+                    • <span class="highlight-var">pie</span> — ulush (foiz, butundan qism)<br>
+                    • <span class="highlight-var">hist</span> — taqsimot (sonlar guruhlari)<br>
+                    • <span class="highlight-var">scatter</span> — bog'liqlik (ikki o'zgaruvchi)
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Grafik Turini Tanlang</h2>
+                <div class="description">
+                    Grafik turini tanlang — bir xil ma'lumot shu turda qanday chizilishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="chartKind" onchange="drawChosen()">
+                            <option value="plot">Chiziqli (plot)</option>
+                            <option value="bar">Ustunli (bar)</option>
+                            <option value="pie">Doiraviy (pie)</option>
+                            <option value="hist">Gistogramma (hist)</option>
+                            <option value="scatter">Nuqtali (scatter)</option>
+                        </select>
+                        <button onclick="drawChosen()">Chiz</button>
+                    </div>
+                    <canvas id="canvas1" class="chart-canvas" width="560" height="280"></canvas>
+                    <div class="demo-result" id="result1"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Bir Ma'lumot — Turli Grafiklar</h2>
+                <div class="description">
+                    Bir xil sotuv ma'lumotini ustunli va doiraviy ko'rinishda solishtiring.
+                    Har biri boshqa savolga javob beradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="drawSame('bar')">Ustunli ko'rinish</button>
+                        <button onclick="drawSame('pie')">Doiraviy ko'rinish</button>
+                    </div>
+                    <canvas id="canvas2" class="chart-canvas" width="560" height="280"></canvas>
+                    <div class="demo-result" id="result2"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Qaysi Grafik Kerak?</h2>
+                <div class="description">
+                    Maqsadingizni tanlang — qaysi grafik turi mosligini va sababini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="goalKind">
+                            <option value="trend">Vaqt bo'yicha o'zgarishni ko'rsatish</option>
+                            <option value="compare">Kategoriyalarni taqqoslash</option>
+                            <option value="share">Foiz ulushini ko'rsatish</option>
+                            <option value="dist">Sonlar taqsimotini ko'rsatish</option>
+                            <option value="relation">Ikki o'zgaruvchi bog'liqligi</option>
+                        </select>
+                        <button onclick="recommend()">Tavsiya ol</button>
+                    </div>
+                    <div class="demo-result" id="result3"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: O'z Sonlaringizni Chizing</h2>
+                <div class="description">
+                    Vergul bilan ajratilgan sonlar kiriting va ustunli grafikda ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="numInput" placeholder="Masalan: 10,25,15,40,30" value="10,25,15,40,30">
+                        <button onclick="drawCustom()">Chiz</button>
+                    </div>
+                    <canvas id="canvas4" class="chart-canvas" width="560" height="280"></canvas>
+                    <div class="demo-result" id="result4"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ma'lumot tayyorlang</strong>
+                            <p>4 ta shahar nomi va ularning aholisi ro'yxatini tuzing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>To'g'ri grafikni tanlang</strong>
+                            <p>Shaharlarni taqqoslash uchun qaysi grafik kerak? (bar)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Ulushni ko'rsating</strong>
+                            <p>Xuddi shu ma'lumotni plt.pie() bilan foiz ulush sifatida chizing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Sarlavha qo'shing</strong>
+                            <p>Har bir grafikka plt.title() bilan tushunarli nom bering</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 138: seaborn bilan vizualizatsiya</p>
+                    <p style="opacity: 0.9;">
+                        Grafik turlarini va qachon ishlatishni o'rgandingiz!<br>
+                        Endi Seaborn bilan yanada chiroyli grafiklar chizishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const COLORS = ['#10b981', '#0891b2', '#fbbf24', '#f87171', '#a78bfa', '#34d399'];
+
+        function clearCanvas(ctx, w, h) {
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        function drawAxes(ctx, x0, y0, w, h) {
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x0, 20);
+            ctx.lineTo(x0, y0);
+            ctx.lineTo(x0 + w, y0);
+            ctx.stroke();
+        }
+
+        function drawLine(ctx) {
+            const W = 560, H = 280, x0 = 50, y0 = 240, plotW = 480, plotH = 200;
+            clearCanvas(ctx, W, H);
+            drawAxes(ctx, x0, y0, plotW, plotH);
+            const data = [100, 150, 130, 200, 180];
+            const max = 220;
+            ctx.strokeStyle = COLORS[0];
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            data.forEach((v, i) => {
+                const x = x0 + (plotW / (data.length - 1)) * i;
+                const y = y0 - (v / max) * plotH;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.fillStyle = COLORS[1];
+            data.forEach((v, i) => {
+                const x = x0 + (plotW / (data.length - 1)) * i;
+                const y = y0 - (v / max) * plotH;
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawBars(ctx, data, labels) {
+            const W = 560, H = 280, x0 = 50, y0 = 240, plotW = 480, plotH = 200;
+            clearCanvas(ctx, W, H);
+            drawAxes(ctx, x0, y0, plotW, plotH);
+            const max = Math.max(...data, 1);
+            const bw = plotW / data.length * 0.6;
+            const gap = plotW / data.length;
+            ctx.font = '11px Monaco, monospace';
+            data.forEach((v, i) => {
+                const x = x0 + gap * i + (gap - bw) / 2;
+                const bh = (v / max) * plotH;
+                ctx.fillStyle = COLORS[i % COLORS.length];
+                ctx.fillRect(x, y0 - bh, bw, bh);
+                ctx.fillStyle = '#1f2937';
+                ctx.textAlign = 'center';
+                ctx.fillText(v, x + bw / 2, y0 - bh - 6);
+                if (labels) ctx.fillText(labels[i], x + bw / 2, y0 + 16);
+            });
+        }
+
+        function drawPie(ctx, data, labels) {
+            const W = 560, H = 280;
+            clearCanvas(ctx, W, H);
+            const cx = 180, cy = 140, r = 110;
+            const total = data.reduce((a, b) => a + b, 0);
+            let start = -Math.PI / 2;
+            ctx.font = '12px Monaco, monospace';
+            data.forEach((v, i) => {
+                const ang = (v / total) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, start, start + ang);
+                ctx.closePath();
+                ctx.fillStyle = COLORS[i % COLORS.length];
+                ctx.fill();
+                start += ang;
+            });
+            // legend
+            ctx.textAlign = 'left';
+            data.forEach((v, i) => {
+                const ly = 50 + i * 26;
+                ctx.fillStyle = COLORS[i % COLORS.length];
+                ctx.fillRect(330, ly, 16, 16);
+                ctx.fillStyle = '#1f2937';
+                const pct = Math.round((v / total) * 100);
+                ctx.fillText((labels ? labels[i] : v) + ' — ' + pct + '%', 354, ly + 13);
+            });
+        }
+
+        function drawHist(ctx) {
+            const data = [3, 7, 12, 8, 4, 2];
+            drawBars(ctx, data, ['0-9', '10-19', '20-29', '30-39', '40-49', '50+']);
+        }
+
+        function drawScatter(ctx) {
+            const W = 560, H = 280, x0 = 50, y0 = 240, plotW = 480, plotH = 200;
+            clearCanvas(ctx, W, H);
+            drawAxes(ctx, x0, y0, plotW, plotH);
+            const pts = [[1,2],[2,3],[3,3],[4,5],[5,6],[6,6],[7,8],[8,9]];
+            const maxX = 9, maxY = 10;
+            ctx.fillStyle = COLORS[1];
+            pts.forEach(([px, py]) => {
+                const x = x0 + (px / maxX) * plotW;
+                const y = y0 - (py / maxY) * plotH;
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawChosen() {
+            const kind = document.getElementById('chartKind').value;
+            const ctx = document.getElementById('canvas1').getContext('2d');
+            const labels = ['A', 'B', 'C', 'D'];
+            let msg = '';
+            if (kind === 'plot') { drawLine(ctx); msg = '>>> plt.plot() — trend (vaqt bo\'yicha o\'zgarish)'; }
+            else if (kind === 'bar') { drawBars(ctx, [50, 30, 70, 40], labels); msg = '>>> plt.bar() — kategoriyalarni taqqoslash'; }
+            else if (kind === 'pie') { drawPie(ctx, [40, 35, 25], ['Ovqat', 'Ijara', 'Boshqa']); msg = '>>> plt.pie() — foiz ulush'; }
+            else if (kind === 'hist') { drawHist(ctx); msg = '>>> plt.hist() — sonlar taqsimoti'; }
+            else if (kind === 'scatter') { drawScatter(ctx); msg = '>>> plt.scatter() — bog\'liqlik'; }
+            const r = document.getElementById('result1');
+            r.classList.add('show');
+            r.innerHTML = msg;
+        }
+
+        function drawSame(kind) {
+            const ctx = document.getElementById('canvas2').getContext('2d');
+            const data = [40, 25, 20, 15];
+            const labels = ['Olma', 'Banan', 'Uzum', 'Shaftoli'];
+            let msg = '';
+            if (kind === 'bar') {
+                drawBars(ctx, data, labels);
+                msg = '>>> Ustunli: qaysi meva ko\'p sotilganini taqqoslaydi';
+            } else {
+                drawPie(ctx, data, labels);
+                msg = '>>> Doiraviy: har meva umumiy sotuvdan necha foiz olganini ko\'rsatadi';
+            }
+            const r = document.getElementById('result2');
+            r.classList.add('show');
+            r.innerHTML = msg;
+        }
+
+        function recommend() {
+            const g = document.getElementById('goalKind').value;
+            const map = {
+                trend: ['plt.plot()', 'Chiziqli grafik — vaqt bo\'yicha o\'zgarishni eng yaxshi ko\'rsatadi'],
+                compare: ['plt.bar()', 'Ustunli grafik — kategoriyalarni yonma-yon taqqoslaydi'],
+                share: ['plt.pie()', 'Doiraviy grafik — butundagi foiz ulushni ko\'rsatadi'],
+                dist: ['plt.hist()', 'Gistogramma — sonlar qaysi oraliqda to\'plangani ko\'rinadi'],
+                relation: ['plt.scatter()', 'Nuqtali grafik — ikki o\'zgaruvchi bog\'liqligini ochadi']
+            };
+            const [fn, why] = map[g];
+            const r = document.getElementById('result3');
+            r.classList.add('show');
+            r.innerHTML = '>>> Tavsiya: ' + fn + '<br>>>> ' + why;
+        }
+
+        function drawCustom() {
+            const raw = document.getElementById('numInput').value;
+            const data = raw.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+            const ctx = document.getElementById('canvas4').getContext('2d');
+            const r = document.getElementById('result4');
+            r.classList.add('show');
+            if (data.length === 0) {
+                clearCanvas(ctx, 560, 280);
+                r.innerHTML = '>>> Iltimos, vergul bilan ajratilgan sonlar kiriting';
+                return;
+            }
+            const labels = data.map((_, i) => 'x' + (i + 1));
+            drawBars(ctx, data, labels);
+            r.innerHTML = '>>> plt.bar([' + data.join(', ') + '])<br>>>> Eng katta: ' + Math.max(...data) + ', Eng kichik: ' + Math.min(...data);
+        }
+
+        // dastlabki ko'rinish
+        drawChosen();
+        drawSame('bar');
+        drawCustom();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

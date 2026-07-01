@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 68: Tree va Graph</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TREE / GRAPH VIZUALIZATSIYA */
+        .node-circle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 46px; height: 46px;
+            background: #1f2937; color: #fbbf24;
+            border-radius: 50%;
+            font-family: monospace; font-weight: bold; font-size: 1.05em;
+            border: 3px solid transparent;
+            transition: all 0.35s ease;
+        }
+        .node-circle.hit {
+            border-color: var(--primary); background: var(--primary); color: var(--white);
+            transform: scale(1.12);
+        }
+        .node-circle.visited { background: var(--primary-dark); color: var(--white); border-color: var(--primary-dark); }
+
+        svg .edge { stroke: #94a3b8; stroke-width: 3; transition: stroke 0.3s ease; }
+        svg .edge.active { stroke: var(--primary); stroke-width: 4; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        .order-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 34px; height: 34px; padding: 0 8px;
+            background: var(--primary); color: var(--white);
+            border-radius: 8px; font-family: monospace; font-weight: bold;
+            margin: 4px;
+        }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #cbd5e1; color: #64748b; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 12 — Algoritmlar va optimizatsiya · Dars 68 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Tree va Graph (Daraxt va Graf)</h1>
+                <p>Modul 12 — Algoritmlar va optimizatsiya | Dars 68</p>
+            </header>
+
+            <div class="section">
+                <h2>Tree (Daraxt) Nima?</h2>
+                <div class="description">
+                    <strong>Tree</strong> — bu ma'lumotlarni <strong>pog'onali (ierarxik)</strong> ko'rinishda
+                    saqlaydigan tuzilma. Xuddi haqiqiy daraxtga o'xshaydi, lekin teskari: <strong>ildiz tepada</strong>,
+                    shoxlar pastga tarqaladi.
+                </div>
+                <div class="info-box">
+                    <strong>Asosiy atamalar</strong>
+                    <p>
+                        • <span class="highlight-var">Ildiz (root)</span> — eng tepadagi tugun, hammasi shundan boshlanadi<br>
+                        • <span class="highlight-var">Tugun (node)</span> — daraxtdagi har bir element<br>
+                        • <span class="highlight-var">Ota (parent)</span> — tepada turgan tugun<br>
+                        • <span class="highlight-var">Bola (child)</span> — pastda turgan, ulangan tugun<br>
+                        • <span class="highlight-var">Barg (leaf)</span> — bolasi yo'q tugun (eng pastdagilar)
+                    </p>
+                </div>
+                <div class="example-box">
+                    <div class="example-title">Misol: oddiy daraxt diagrammasi</div>
+                    <svg viewBox="0 0 360 200" width="100%" style="max-width:360px; display:block; margin:0 auto;">
+                        <line class="edge" x1="180" y1="40" x2="100" y2="110"></line>
+                        <line class="edge" x1="180" y1="40" x2="260" y2="110"></line>
+                        <line class="edge" x1="100" y1="110" x2="60" y2="175"></line>
+                        <line class="edge" x1="100" y1="110" x2="140" y2="175"></line>
+                        <line class="edge" x1="260" y1="110" x2="260" y2="175"></line>
+                        <circle cx="180" cy="40" r="22" fill="#10b981"></circle><text x="180" y="46" text-anchor="middle" fill="#fff" font-weight="bold">A</text>
+                        <circle cx="100" cy="110" r="22" fill="#1f2937"></circle><text x="100" y="116" text-anchor="middle" fill="#fbbf24" font-weight="bold">B</text>
+                        <circle cx="260" cy="110" r="22" fill="#1f2937"></circle><text x="260" y="116" text-anchor="middle" fill="#fbbf24" font-weight="bold">C</text>
+                        <circle cx="60" cy="175" r="20" fill="#1f2937"></circle><text x="60" y="181" text-anchor="middle" fill="#fbbf24" font-weight="bold">D</text>
+                        <circle cx="140" cy="175" r="20" fill="#1f2937"></circle><text x="140" y="181" text-anchor="middle" fill="#fbbf24" font-weight="bold">E</text>
+                        <circle cx="260" cy="175" r="20" fill="#1f2937"></circle><text x="260" y="181" text-anchor="middle" fill="#fbbf24" font-weight="bold">F</text>
+                    </svg>
+                    <p style="margin-top:10px; color:var(--gray); font-size:0.9em;">
+                        Bu yerda <strong>A</strong> — ildiz, <strong>B</strong> va <strong>C</strong> uning bolalari,
+                        <strong>D, E, F</strong> — barglar (bolasi yo'q).
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Binary Tree (Ikkilik Daraxt)</h2>
+                <div class="description">
+                    <strong>Binary Tree</strong> — bu maxsus daraxt: har bir tugunda <strong>ko'pi bilan 2 ta bola</strong>
+                    bo'ladi. Ularni <span class="highlight-var">chap bola</span> va <span class="highlight-var">o'ng bola</span>
+                    deb ataymiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Node</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, qiymat):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.qiymat = qiymat<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.chap = <span class="keyword">None</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ong = <span class="keyword">None</span>
+                    </div>
+                    <div class="comment-part">
+                        # Har tugunda qiymat, chap va o'ng bola bor<br>
+                        # Bola bo'lmasa None turadi
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ildiz = <span class="function">Node</span>(<span class="number">10</span>)<br>
+                        ildiz.chap = <span class="function">Node</span>(<span class="number">5</span>)<br>
+                        ildiz.ong = <span class="function">Node</span>(<span class="number">15</span>)
+                    </div>
+                    <div class="comment-part">
+                        # 10 — ildiz, 5 — chap bola, 15 — o'ng bola
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Tree Traversal — Daraxtni Aylanib Chiqish</h2>
+                <div class="description">
+                    Daraxtdagi <strong>barcha tugunlarni bir marta ko'rib chiqish</strong>ga
+                    <strong>traversal (ziyorat)</strong> deyiladi. Ikki asosiy usul bor:
+                    <strong>DFS</strong> va <strong>BFS</strong>.
+                </div>
+                <h3>DFS — Depth First Search (Chuqurlik bo'yicha)</h3>
+                <div class="info-box">
+                    <strong>G'oya: avval chuqurga tushamiz</strong>
+                    <p>
+                        Bir shoxni <strong>oxirigacha</strong> kuzatib boramiz, so'ng orqaga qaytib boshqa shoxga o'tamiz.
+                        Xuddi labirintda bir yo'lni oxirigacha tekshirib, keyin orqaga qaytgandek.
+                    </p>
+                </div>
+                <h3>BFS — Breadth First Search (Kenglik bo'yicha)</h3>
+                <div class="info-box">
+                    <strong>G'oya: avval pog'onama-pog'ona</strong>
+                    <p>
+                        Daraxtni <strong>qavat-qavat</strong> ko'rib chiqamiz: avval ildiz, keyin uning barcha bolalari,
+                        keyin keyingi qavat. Xuddi suvga tosh tashlasak, to'lqin tarqalgandek.
+                    </p>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Usul</th><th>Yo'nalish</th><th>Yordamchi tuzilma</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>DFS</code></td><td>Chuqurga (pastga)</td><td>Stack (yoki rekursiya)</td></tr>
+                        <tr><td><code>BFS</code></td><td>Kenglikka (qavat-qavat)</td><td>Queue (navbat)</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">dfs</span>(tugun):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> tugun <span class="keyword">is</span> <span class="keyword">None</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(tugun.qiymat)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">dfs</span>(tugun.chap)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">dfs</span>(tugun.ong)
+                    </div>
+                    <div class="comment-part">
+                        # DFS rekursiya bilan: avval o'zi, keyin chap, keyin o'ng<br>
+                        # Bu "preorder" tartibi deyiladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Graph (Graf) Nima?</h2>
+                <div class="description">
+                    <strong>Graph</strong> — bu <strong>tugunlar (nodes)</strong> va ularni bog'lovchi
+                    <strong>ulanishlar (edges)</strong> dan iborat tuzilma. Daraxtdan farqi: grafda
+                    <strong>ilmoqlar (sikllar) bo'lishi mumkin</strong> va ildiz shart emas.
+                </div>
+                <div class="info-box">
+                    <strong>Tree vs Graph</strong>
+                    <p>
+                        • Tree — bu <strong>maxsus graf</strong>: ildizi bor, sikli yo'q<br>
+                        • Graph — istalgan tugunlar bir-biriga ulanishi mumkin<br>
+                        • Grafda tugun bir nechta "qo'shni" tugunga bog'lanadi
+                    </p>
+                </div>
+                <h3>Graf turlari</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tur</th><th>Tushuntirish</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Yo'naltirilmagan</code></td><td>Ulanish ikki tomonlama (A↔B)</td><td>Do'stlik (Facebook)</td></tr>
+                        <tr><td><code>Yo'naltirilgan</code></td><td>Ulanish bir tomonlama (A→B)</td><td>Kuzatish (Instagram)</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        graf = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"A"</span>: [<span class="string">"B"</span>, <span class="string">"C"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"B"</span>: [<span class="string">"A"</span>, <span class="string">"D"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"C"</span>: [<span class="string">"A"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"D"</span>: [<span class="string">"B"</span>]<br>
+                        }
+                    </div>
+                    <div class="comment-part">
+                        # Grafni dictionary bilan saqlash<br>
+                        # Har tugun ro'yxatda o'z qo'shnilarini ko'rsatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Real Hayotdagi Misollar</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Joy</th><th>Tugun</th><th>Ulanish</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Oila daraxti</td><td>Odamlar</td><td>Ota-bola munosabati</td></tr>
+                        <tr><td>Ijtimoiy tarmoq</td><td>Foydalanuvchilar</td><td>Do'stlik / obuna</td></tr>
+                        <tr><td>Xarita / GPS</td><td>Shaharlar</td><td>Yo'llar</td></tr>
+                        <tr><td>Fayllar tizimi</td><td>Papkalar / fayllar</td><td>Ichida joylashish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Tree — pog'onali tuzilma: ildiz, tugun, barg<br>
+                    • Binary Tree — har tugunda ko'pi bilan 2 bola<br>
+                    • DFS — chuqurga, BFS — qavat-qavat<br>
+                    • Graph — tugunlar + ulanishlar, sikl bo'lishi mumkin<br>
+                    • Tree — bu sodda graf ko'rinishi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Daraxt Tuzilmasi Vizualizatori</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom:12px; color:var(--dark);">Tugmani bosing — daraxt qismlari yoritiladi.</p>
+                    <svg id="treeSvg" viewBox="0 0 360 210" width="100%" style="max-width:360px; display:block; margin:0 auto 10px;">
+                        <line class="edge" id="ed-AB" x1="180" y1="35" x2="100" y2="110"></line>
+                        <line class="edge" id="ed-AC" x1="180" y1="35" x2="260" y2="110"></line>
+                        <line class="edge" id="ed-BD" x1="100" y1="110" x2="60" y2="180"></line>
+                        <line class="edge" id="ed-BE" x1="100" y1="110" x2="140" y2="180"></line>
+                        <line class="edge" id="ed-CF" x1="260" y1="110" x2="260" y2="180"></line>
+                        <g id="tn-A"><circle cx="180" cy="35" r="22" fill="#1f2937"></circle><text x="180" y="41" text-anchor="middle" fill="#fbbf24" font-weight="bold">A</text></g>
+                        <g id="tn-B"><circle cx="100" cy="110" r="22" fill="#1f2937"></circle><text x="100" y="116" text-anchor="middle" fill="#fbbf24" font-weight="bold">B</text></g>
+                        <g id="tn-C"><circle cx="260" cy="110" r="22" fill="#1f2937"></circle><text x="260" y="116" text-anchor="middle" fill="#fbbf24" font-weight="bold">C</text></g>
+                        <g id="tn-D"><circle cx="60" cy="180" r="20" fill="#1f2937"></circle><text x="60" y="186" text-anchor="middle" fill="#fbbf24" font-weight="bold">D</text></g>
+                        <g id="tn-E"><circle cx="140" cy="180" r="20" fill="#1f2937"></circle><text x="140" y="186" text-anchor="middle" fill="#fbbf24" font-weight="bold">E</text></g>
+                        <g id="tn-F"><circle cx="260" cy="180" r="20" fill="#1f2937"></circle><text x="260" y="186" text-anchor="middle" fill="#fbbf24" font-weight="bold">F</text></g>
+                    </svg>
+                    <div class="btn-row">
+                        <button onclick="showTreePart('root')">Ildiz</button>
+                        <button onclick="showTreePart('children')">Bolalar</button>
+                        <button onclick="showTreePart('leaves')">Barglar</button>
+                        <button onclick="showTreePart('reset')">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultTree"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: DFS va BFS Ziyorat Tartibi</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom:12px; color:var(--dark);">
+                        Yuqoridagi daraxt uchun ziyorat tartibini ko'ring. Tartib raqamlari pastda chiqadi.
+                    </p>
+                    <div class="btn-row">
+                        <button onclick="runOrder('dfs')">DFS (chuqurlik)</button>
+                        <button onclick="runOrder('bfs')">BFS (kenglik)</button>
+                    </div>
+                    <div id="orderBadges" style="margin:10px 0; text-align:center;"></div>
+                    <div class="demo-result" id="resultOrder"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Graf Qo'shnilarini Ko'rish</h2>
+                <div class="interactive-demo">
+                    <p style="margin-bottom:12px; color:var(--dark);">
+                        Tugunni tanlang — uning to'g'ridan-to'g'ri ulangan qo'shnilari yoritiladi.
+                    </p>
+                    <svg id="graphSvg" viewBox="0 0 360 220" width="100%" style="max-width:360px; display:block; margin:0 auto 10px;">
+                        <line class="edge" id="ge-A-B" x1="80" y1="60" x2="280" y2="60"></line>
+                        <line class="edge" id="ge-A-C" x1="80" y1="60" x2="80" y2="170"></line>
+                        <line class="edge" id="ge-B-C" x1="280" y1="60" x2="80" y2="170"></line>
+                        <line class="edge" id="ge-B-D" x1="280" y1="60" x2="280" y2="170"></line>
+                        <line class="edge" id="ge-C-D" x1="80" y1="170" x2="280" y2="170"></line>
+                        <g id="gn-A"><circle cx="80" cy="60" r="24" fill="#1f2937"></circle><text x="80" y="66" text-anchor="middle" fill="#fbbf24" font-weight="bold">A</text></g>
+                        <g id="gn-B"><circle cx="280" cy="60" r="24" fill="#1f2937"></circle><text x="280" y="66" text-anchor="middle" fill="#fbbf24" font-weight="bold">B</text></g>
+                        <g id="gn-C"><circle cx="80" cy="170" r="24" fill="#1f2937"></circle><text x="80" y="176" text-anchor="middle" fill="#fbbf24" font-weight="bold">C</text></g>
+                        <g id="gn-D"><circle cx="280" cy="170" r="24" fill="#1f2937"></circle><text x="280" y="176" text-anchor="middle" fill="#fbbf24" font-weight="bold">D</text></g>
+                    </svg>
+                    <div class="btn-row">
+                        <button onclick="showNeighbors('A')">A</button>
+                        <button onclick="showNeighbors('B')">B</button>
+                        <button onclick="showNeighbors('C')">C</button>
+                        <button onclick="showNeighbors('D')">D</button>
+                    </div>
+                    <div class="demo-result" id="resultGraph"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Node klassini yozing</strong>
+                            <p>qiymat, chap va ong maydonlari bilan Binary Tree tugunini yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Kichik daraxt tuzing</strong>
+                            <p>Ildiz 10, chap bola 5, o'ng bola 15 qilib ulang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>DFS funksiyasini yozing</strong>
+                            <p>Rekursiya bilan barcha tugun qiymatlarini chop eting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Grafni dictionary qiling</strong>
+                            <p>4 ta tugunli grafni yarating va bir tugunning qo'shnilarini chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 69: Hashing va dictionarylar</p>
+                    <p style="opacity: 0.9;">
+                        Tree va Graph tuzilmalarini o'rgandingiz!<br>
+                        Endi ma'lumotni tez topish uchun hashing g'oyasini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- Misol 1: daraxt qismlari ----
+        function setTreeNode(id, on) {
+            const c = document.querySelector('#tn-' + id + ' circle');
+            const t = document.querySelector('#tn-' + id + ' text');
+            if (!c) return;
+            c.setAttribute('fill', on ? '#10b981' : '#1f2937');
+            t.setAttribute('fill', on ? '#ffffff' : '#fbbf24');
+        }
+        function clearTree() {
+            ['A','B','C','D','E','F'].forEach(id => setTreeNode(id, false));
+        }
+        function showTreePart(kind) {
+            clearTree();
+            const result = document.getElementById('resultTree');
+            result.classList.add('show');
+            if (kind === 'root') {
+                setTreeNode('A', true);
+                result.innerHTML = '>>> Ildiz (root): A<br>>>> Daraxt shundan boshlanadi';
+            } else if (kind === 'children') {
+                setTreeNode('B', true); setTreeNode('C', true);
+                result.innerHTML = '>>> A ning bolalari: B, C';
+            } else if (kind === 'leaves') {
+                setTreeNode('D', true); setTreeNode('E', true); setTreeNode('F', true);
+                result.innerHTML = '>>> Barglar (bolasi yo\'q): D, E, F';
+            } else {
+                result.innerHTML = '>>> Tozalandi';
+            }
+        }
+
+        // ---- Misol 2: DFS / BFS tartibi ----
+        const dfsOrder = ['A','B','D','E','C','F'];
+        const bfsOrder = ['A','B','C','D','E','F'];
+        function setOrderNode(id, on) {
+            const c = document.querySelector('#tn-' + id + ' circle');
+            const t = document.querySelector('#tn-' + id + ' text');
+            if (!c) return;
+            c.setAttribute('fill', on ? '#059669' : '#1f2937');
+            t.setAttribute('fill', on ? '#ffffff' : '#fbbf24');
+        }
+        function runOrder(kind) {
+            clearTree();
+            ['A','B','C','D','E','F'].forEach(id => setOrderNode(id, false));
+            const order = kind === 'dfs' ? dfsOrder : bfsOrder;
+            const badges = document.getElementById('orderBadges');
+            badges.innerHTML = '';
+            const result = document.getElementById('resultOrder');
+            result.classList.add('show');
+            result.innerHTML = '>>> ' + (kind === 'dfs' ? 'DFS' : 'BFS') + ' tartibi: ' + order.join(' → ');
+            order.forEach((id, step) => {
+                setTimeout(() => {
+                    setOrderNode(id, true);
+                    const b = document.createElement('span');
+                    b.className = 'order-badge';
+                    b.textContent = (step + 1) + ':' + id;
+                    badges.appendChild(b);
+                }, step * 450);
+            });
+        }
+
+        // ---- Misol 3: graf qo'shnilari ----
+        const graf = {
+            'A': ['B', 'C'],
+            'B': ['A', 'C', 'D'],
+            'C': ['A', 'B', 'D'],
+            'D': ['B', 'C']
+        };
+        function edgeId(x, y) {
+            return [x, y].sort().join('-');
+        }
+        function setGraphNode(id, mode) {
+            const c = document.querySelector('#gn-' + id + ' circle');
+            const t = document.querySelector('#gn-' + id + ' text');
+            if (!c) return;
+            let fill = '#1f2937', tc = '#fbbf24';
+            if (mode === 'self') { fill = '#10b981'; tc = '#ffffff'; }
+            else if (mode === 'neighbor') { fill = '#059669'; tc = '#ffffff'; }
+            c.setAttribute('fill', fill);
+            t.setAttribute('fill', tc);
+        }
+        function showNeighbors(id) {
+            ['A','B','C','D'].forEach(n => setGraphNode(n, 'off'));
+            document.querySelectorAll('#graphSvg .edge').forEach(e => e.classList.remove('active'));
+            setGraphNode(id, 'self');
+            const ns = graf[id];
+            ns.forEach(n => {
+                setGraphNode(n, 'neighbor');
+                const e = document.getElementById('ge-' + edgeId(id, n));
+                if (e) e.classList.add('active');
+            });
+            const result = document.getElementById('resultGraph');
+            result.classList.add('show');
+            result.innerHTML = '>>> graf["' + id + '"]<br>>>> [' + ns.map(n => "'" + n + "'").join(', ') + ']';
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

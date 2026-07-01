@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 110: Proyekt 5 — Data Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, textarea, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        textarea { width: 100%; background: var(--white); resize: vertical; min-height: 90px; font-family: 'Monaco', monospace; }
+        select { background: var(--white); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.88em;
+        }
+        .data-table th {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0e7490 100%);
+            color: var(--white);
+            padding: 10px 12px;
+            text-align: left;
+        }
+        .data-table td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; color: var(--dark); }
+        .data-table tr:nth-child(even) td { background: #f9fafb; }
+        .data-table tr:hover td { background: var(--primary-light); }
+
+        /* BAR CHART */
+        .bar-chart { margin-top: 12px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .bar-label { width: 90px; font-size: 0.85em; color: var(--dark); font-weight: bold; flex-shrink: 0; text-align: right; }
+        .bar-track { flex: 1; background: #e5e7eb; border-radius: 6px; overflow: hidden; height: 26px; }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 6px;
+            width: 0;
+            transition: width 0.8s ease-out;
+            display: flex; align-items: center; justify-content: flex-end;
+            color: var(--white); font-size: 0.78em; font-weight: bold; padding-right: 8px;
+            white-space: nowrap;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 16 — Yakuniy loyihalar · Dars 110 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Proyekt 5 — Ma'lumot Tahlili</h1>
+                <p>Modul 16 — Yakuniy loyihalar | Dars 110</p>
+            </header>
+
+            <div class="section">
+                <h2>Bu Proyektda Nima Quramiz?</h2>
+                <div class="description">
+                    Bu darsda biz <strong>ma'lumot tahlili</strong> (data analysis) proyektini quramiz.
+                    Faylda saqlangan raqamlarni o'qib olamiz, ulardan <strong>statistika</strong> hisoblaymiz
+                    (o'rtacha, eng katta, eng kichik, yig'indi) va natijani <strong>jadval</strong> hamda
+                    <strong>diagramma</strong> ko'rinishida ko'rsatamiz. Bu — ma'lumot ustida ishlovchi
+                    dasturchining eng asosiy ishi.
+                </div>
+                <div class="info-box">
+                    <strong>Real hayotdan misol</strong>
+                    <p>
+                        Do'kon har kuni qancha pul tushganini yozib boradi. Oxirida bizga kerak:
+                        jami daromad qancha? O'rtacha kunlik daromad qancha? Eng yaxshi va eng yomon kun qaysi?
+                        Mana shu savollarga javob berish — ma'lumot tahlili.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>CSV Fayl Nima?</h2>
+                <div class="description">
+                    <strong>CSV</strong> (Comma-Separated Values) — bu jadval ma'lumotini saqlovchi oddiy
+                    matnli fayl. Har bir qator — bitta yozuv, ustunlar esa <span class="highlight-var">,</span>
+                    (vergul) bilan ajratiladi. Excel jadvalini ham CSV ko'rinishida saqlash mumkin.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        kun,daromad<br>
+                        Dushanba,<span class="number">120</span><br>
+                        Seshanba,<span class="number">95</span><br>
+                        Chorshanba,<span class="number">140</span><br>
+                        Payshanba,<span class="number">80</span>
+                    </div>
+                    <div class="comment-part">
+                        # sotuv.csv fayli ichi: birinchi qator — ustun nomlari (sarlavha), keyingi qatorlar — ma'lumot
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1-Qadam: Faylni O'qish</h2>
+                <div class="description">
+                    Faylni <span class="highlight-var">open()</span> bilan ochamiz. <span class="highlight-var">with</span>
+                    ishlatsak, fayl avtomatik yopiladi. Har bir qatorni o'qib, vergul bo'yicha
+                    <span class="highlight-var">.split(",")</span> qilamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"sotuv.csv"</span>) <span class="keyword">as</span> fayl:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;qatorlar = fayl.<span class="function">readlines</span>()<br>
+                        <br>
+                        sarlavha = qatorlar[<span class="number">0</span>].<span class="function">strip</span>().<span class="function">split</span>(<span class="string">","</span>)<br>
+                        malumot = qatorlar[<span class="number">1</span>:]&nbsp;&nbsp;<span class="comment"># sarlavhadan keyingi qatorlar</span>
+                    </div>
+                    <div class="comment-part">
+                        # readlines() — barcha qatorlarni ro'yxat qiladi. strip() qator oxiridagi yangi qator belgisini olib tashlaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-Qadam: Raqamlarni Ajratib Olish</h2>
+                <div class="description">
+                    Fayldan o'qilgan har bir narsa <strong>matn (string)</strong> bo'ladi. Hisoblash uchun
+                    ularni <span class="highlight-var">int()</span> yoki <span class="highlight-var">float()</span>
+                    bilan songa aylantirishimiz kerak.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        daromadlar = []<br>
+                        <span class="keyword">for</span> qator <span class="keyword">in</span> malumot:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ustunlar = qator.<span class="function">strip</span>().<span class="function">split</span>(<span class="string">","</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;daromadlar.<span class="function">append</span>(<span class="function">int</span>(ustunlar[<span class="number">1</span>]))<br>
+                        <br>
+                        <span class="function">print</span>(daromadlar)
+                    </div>
+                    <div class="comment-part">
+                        # ustunlar[1] — ikkinchi ustun (daromad). int() bilan songa aylantiramiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [120, 95, 140, 80]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3-Qadam: Statistika Hisoblash</h2>
+                <div class="description">
+                    Endi Python'ning tayyor funksiyalari yordamida statistikani hisoblaymiz.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Funksiya</th><th>Vazifasi</th><th>Misol → Natija</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>sum(lst)</code></td><td>Yig'indi</td><td>[120,95,140,80] → 435</td></tr>
+                        <tr><td><code>max(lst)</code></td><td>Eng katta</td><td>[120,95,140,80] → 140</td></tr>
+                        <tr><td><code>min(lst)</code></td><td>Eng kichik</td><td>[120,95,140,80] → 80</td></tr>
+                        <tr><td><code>len(lst)</code></td><td>Nechta element</td><td>[120,95,140,80] → 4</td></tr>
+                        <tr><td><code>sum/len</code></td><td>O'rtacha</td><td>435 / 4 → 108.75</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        jami = <span class="function">sum</span>(daromadlar)<br>
+                        ortacha = jami / <span class="function">len</span>(daromadlar)<br>
+                        eng_kop = <span class="function">max</span>(daromadlar)<br>
+                        eng_kam = <span class="function">min</span>(daromadlar)<br>
+                        <br>
+                        <span class="function">print</span>(<span class="string">f"Jami: {jami}"</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"O'rtacha: {ortacha:.2f}"</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"Eng yuqori: {eng_kop}"</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"Eng past: {eng_kam}"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # {ortacha:.2f} — sonni 2 xona aniqlikda chiqaradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Jami: 435<br>
+                    >>> O'rtacha: 108.75<br>
+                    >>> Eng yuqori: 140<br>
+                    >>> Eng past: 80
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>pandas bilan Tahlil (g'oya)</h2>
+                <div class="description">
+                    Katta loyihalarda dasturchilar <strong>pandas</strong> kutubxonasidan foydalanishadi.
+                    U ma'lumotni <span class="highlight-var">DataFrame</span> (aqlli jadval) ichida saqlaydi va
+                    bitta qator kod bilan statistikani hisoblaydi. Quyida xuddi shu vazifa pandas bilan.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> pandas <span class="keyword">as</span> pd<br>
+                        <br>
+                        df = pd.<span class="function">read_csv</span>(<span class="string">"sotuv.csv"</span>)&nbsp;&nbsp;<span class="comment"># faylni o'qish</span><br>
+                        ustun = df[<span class="string">"daromad"</span>]&nbsp;&nbsp;<span class="comment"># ustun tanlash</span><br>
+                        <br>
+                        <span class="function">print</span>(ustun.<span class="function">sum</span>())&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># yig'indi</span><br>
+                        <span class="function">print</span>(ustun.<span class="function">mean</span>())&nbsp;&nbsp;&nbsp;<span class="comment"># o'rtacha</span><br>
+                        <span class="function">print</span>(ustun.<span class="function">max</span>())&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># eng katta</span><br>
+                        <span class="function">print</span>(df.<span class="function">describe</span>())&nbsp;&nbsp;<span class="comment"># to'liq statistika hisobot</span>
+                    </div>
+                    <div class="comment-part">
+                        # pandas bilan kod ancha qisqa. read_csv faylni o'zi o'qiydi va songa aylantiradi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>
+                        pandas tashqi kutubxona — uni <span class="highlight-var">pip install pandas</span>
+                        buyrug'i bilan o'rnatish kerak. Oddiy Python versiyasi esa hech narsasiz ishlaydi.
+                        Avval oddiy yo'lni tushuning, keyin pandas hayotingizni osonlashtiradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq Dastur (oddiy Python)</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"sotuv.csv"</span>) <span class="keyword">as</span> fayl:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;qatorlar = fayl.<span class="function">readlines</span>()<br>
+                        <br>
+                        daromadlar = []<br>
+                        <span class="keyword">for</span> qator <span class="keyword">in</span> qatorlar[<span class="number">1</span>:]:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;qism = qator.<span class="function">strip</span>().<span class="function">split</span>(<span class="string">","</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;daromadlar.<span class="function">append</span>(<span class="function">int</span>(qism[<span class="number">1</span>]))<br>
+                        <br>
+                        <span class="function">print</span>(<span class="string">f"Jami: {sum(daromadlar)}"</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"O'rtacha: {sum(daromadlar)/len(daromadlar):.1f}"</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"Eng yuqori: {max(daromadlar)}"</span>)<br>
+                        <span class="function">print</span>(<span class="string">f"Eng past: {min(daromadlar)}"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Bu dastur faylni o'qiydi, raqamlarni ajratadi va statistikani chiqaradi — hammasi bitta joyda
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Statistika Hisoblovchi</h2>
+                <div class="description">
+                    Pastdagi katakka CSV ma'lumotni yozing (har qatorda <span class="highlight-var">nom,son</span>).
+                    Dastur ustundagi sonlarni o'qib, o'rtacha, eng katta va eng kichik qiymatlarni hisoblaydi.
+                </div>
+                <div class="interactive-demo">
+                    <textarea id="statData">Dushanba,120
+Seshanba,95
+Chorshanba,140
+Payshanba,80
+Juma,160</textarea>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button onclick="demoStat()">Statistikani hisobla</button>
+                    </div>
+                    <div class="demo-result" id="resultStat"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Jadval Ko'rinishi</h2>
+                <div class="description">
+                    Xuddi shu ma'lumotni chiroyli <strong>jadval</strong> ko'rinishida ko'rsatamiz —
+                    pandas <span class="highlight-var">DataFrame</span> ekranda shunday ko'rinadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoTable()">Jadvalni ko'rsat</button>
+                    </div>
+                    <div id="tableBox"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Bar Diagramma</h2>
+                <div class="description">
+                    Raqamlarni <strong>ko'rish</strong> oson bo'lishi uchun ularni
+                    <strong>diagramma (grafik)</strong> ko'rinishida chizamiz. Eng baland ustun — eng katta qiymat.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoChart()">Diagrammani chiz</button>
+                    </div>
+                    <div class="bar-chart" id="chartBox"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: O'z Ma'lumotingizni Tahlil Qiling</h2>
+                <div class="description">
+                    Bu yerda hamma narsa birga: ma'lumotni yozing, tugmani bosing —
+                    statistika, jadval va diagramma birdaniga chiqadi.
+                </div>
+                <div class="interactive-demo">
+                    <textarea id="allData">Olma,45
+Banan,30
+Uzum,70
+Anor,25</textarea>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button onclick="demoAll()">Hammasini tahlil qil</button>
+                    </div>
+                    <div class="demo-result" id="resultAll"></div>
+                    <div id="allTableBox"></div>
+                    <div class="bar-chart" id="allChartBox"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ma'lumot tayyorlang</strong>
+                            <p>5 ta kun va harorat (yoki narx) bo'lgan CSV faylni yaratib oling: kun,harorat</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Faylni o'qing</strong>
+                            <p>open() va readlines() bilan o'qib, sonlarni int() ga aylantirib ro'yxatga yig'ing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Statistikani hisoblang</strong>
+                            <p>sum(), max(), min() va o'rtacha qiymatni chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Natijani ko'rsating</strong>
+                            <p>Eng yuqori kunni topib, f-string bilan chiroyli hisobot chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 111: Proyekt 6 — Web Scraper</p>
+                    <p style="opacity: 0.9;">
+                        Ma'lumot tahlilini o'rgandingiz!<br>
+                        Endi internetdan ma'lumot yig'ishni (web scraping) ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CSV matnni o'qib, {nomlar, sonlar} qaytaradi
+        function parseData(text) {
+            const nomlar = [];
+            const sonlar = [];
+            const lines = text.split('\n');
+            for (const line of lines) {
+                const t = line.trim();
+                if (!t) continue;
+                const parts = t.split(',');
+                if (parts.length < 2) continue;
+                const son = parseFloat(parts[1].trim());
+                if (isNaN(son)) continue;
+                nomlar.push(parts[0].trim());
+                sonlar.push(son);
+            }
+            return { nomlar, sonlar };
+        }
+
+        function demoStat() {
+            const data = parseData(document.getElementById('statData').value);
+            const result = document.getElementById('resultStat');
+            result.classList.add('show');
+            if (data.sonlar.length === 0) {
+                result.innerHTML = '>>> Ma\'lumot topilmadi. Har qatorda "nom,son" yozing.';
+                return;
+            }
+            const jami = data.sonlar.reduce((a, b) => a + b, 0);
+            const ortacha = jami / data.sonlar.length;
+            const engKop = Math.max(...data.sonlar);
+            const engKam = Math.min(...data.sonlar);
+            const engKopNom = data.nomlar[data.sonlar.indexOf(engKop)];
+            const engKamNom = data.nomlar[data.sonlar.indexOf(engKam)];
+            result.innerHTML =
+                `>>> Yozuvlar soni: ${data.sonlar.length}<br>` +
+                `>>> Jami: ${jami}<br>` +
+                `>>> O'rtacha: ${ortacha.toFixed(2)}<br>` +
+                `>>> Eng yuqori: ${engKop} (${engKopNom})<br>` +
+                `>>> Eng past: ${engKam} (${engKamNom})`;
+        }
+
+        function buildTable(data, boxId) {
+            const box = document.getElementById(boxId);
+            if (data.sonlar.length === 0) {
+                box.innerHTML = '';
+                return;
+            }
+            let html = '<table class="data-table"><thead><tr><th>#</th><th>Nom</th><th>Son</th></tr></thead><tbody>';
+            for (let i = 0; i < data.nomlar.length; i++) {
+                html += `<tr><td>${i}</td><td>${data.nomlar[i]}</td><td>${data.sonlar[i]}</td></tr>`;
+            }
+            html += '</tbody></table>';
+            box.innerHTML = html;
+        }
+
+        function demoTable() {
+            const data = parseData(document.getElementById('statData').value);
+            buildTable(data, 'tableBox');
+        }
+
+        function buildChart(data, boxId) {
+            const box = document.getElementById(boxId);
+            if (data.sonlar.length === 0) {
+                box.innerHTML = '';
+                return;
+            }
+            const maxVal = Math.max(...data.sonlar);
+            let html = '';
+            for (let i = 0; i < data.nomlar.length; i++) {
+                const pct = maxVal > 0 ? (data.sonlar[i] / maxVal) * 100 : 0;
+                html += `<div class="bar-row">
+                    <div class="bar-label">${data.nomlar[i]}</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:0">${data.sonlar[i]}</div></div>
+                </div>`;
+            }
+            box.innerHTML = html;
+            // animatsiya: keyingi kadrda kenglikni o'rnatamiz
+            requestAnimationFrame(() => {
+                const fills = box.querySelectorAll('.bar-fill');
+                fills.forEach((f, i) => {
+                    const pct = maxVal > 0 ? (data.sonlar[i] / maxVal) * 100 : 0;
+                    f.style.width = pct + '%';
+                });
+            });
+        }
+
+        function demoChart() {
+            const data = parseData(document.getElementById('statData').value);
+            buildChart(data, 'chartBox');
+        }
+
+        function demoAll() {
+            const data = parseData(document.getElementById('allData').value);
+            const result = document.getElementById('resultAll');
+            result.classList.add('show');
+            if (data.sonlar.length === 0) {
+                result.innerHTML = '>>> Ma\'lumot topilmadi.';
+                document.getElementById('allTableBox').innerHTML = '';
+                document.getElementById('allChartBox').innerHTML = '';
+                return;
+            }
+            const jami = data.sonlar.reduce((a, b) => a + b, 0);
+            const ortacha = jami / data.sonlar.length;
+            const engKop = Math.max(...data.sonlar);
+            const engKopNom = data.nomlar[data.sonlar.indexOf(engKop)];
+            result.innerHTML =
+                `>>> Jami: ${jami}<br>` +
+                `>>> O'rtacha: ${ortacha.toFixed(2)}<br>` +
+                `>>> Eng yuqori: ${engKop} (${engKopNom})`;
+            buildTable(data, 'allTableBox');
+            buildChart(data, 'allChartBox');
+        }
+
+        // dastlabki ko'rinish
+        demoStat();
+        demoTable();
+        demoChart();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

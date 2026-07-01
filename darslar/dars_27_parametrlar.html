@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 27: Funksiyalarda parametrlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ARGUMENT VISUALIZER */
+        .arg-viz { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .arg-cell { text-align: center; }
+        .arg-box {
+            min-width: 44px; height: 42px;
+            padding: 0 10px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #34d399;
+            border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 1.0em;
+            border: 2px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+        .arg-idx { font-size: 0.72em; color: var(--gray); margin-top: 4px; font-family: monospace; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 6 — Funksiyalar · Dars 27 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Funksiyalarda Parametrlar</h1>
+                <p>Modul 6 — Funksiyalar | Dars 27</p>
+            </header>
+
+            <div class="section">
+                <h2>Parametr va Argument Nima?</h2>
+                <div class="description">
+                    <strong>Parametr</strong> — bu funksiya e'lon qilinganda qavs ichida yoziladigan o'zgaruvchi nomi.
+                    <strong>Argument</strong> — bu funksiyani chaqirganda unga beriladigan haqiqiy qiymat.
+                    Oddiy qilib aytganda: parametr — bu "quti", argument — bu "qutiga solinadigan narsa".
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">salomlash</span>(ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Salom, "</span> + ism)<br>
+                        <br>
+                        <span class="function">salomlash</span>(<span class="string">"Ali"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # ism — parametr<br>
+                        # "Ali" — argument
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom, Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Positional (Tartib Bo'yicha)</h2>
+                <div class="description">
+                    Argumentlar <strong>tartib bo'yicha</strong> beriladi: birinchi qiymat birinchi parametrga,
+                    ikkinchi qiymat ikkinchi parametrga tushadi. Tartibni adashtirsangiz, natija ham o'zgaradi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">bolish</span>(birinchi, ikkinchi):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> birinchi <span class="operator">/</span> ikkinchi<br>
+                        <br>
+                        <span class="function">print</span>(<span class="function">bolish</span>(<span class="number">10</span>, <span class="number">2</span>))
+                    </div>
+                    <div class="comment-part">
+                        # birinchi = 10<br>
+                        # ikkinchi = 2<br>
+                        # 10 / 2
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 5.0
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Keyword (Nom Bilan)</h2>
+                <div class="description">
+                    Argumentni <span class="highlight-var">nom=qiymat</span> ko'rinishida bersangiz, tartib muhim emas.
+                    Python qaysi qiymat qaysi parametrga tegishli ekanini nomidan biladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">tanishtir</span>(ism, shahar):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(ism, <span class="string">"—"</span>, shahar)<br>
+                        <br>
+                        <span class="function">tanishtir</span>(shahar=<span class="string">"Toshkent"</span>, ism=<span class="string">"Ali"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # tartib teskari,<br>
+                        # lekin nom bilan<br>
+                        # to'g'ri tushadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali — Toshkent
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Standart (Default) Qiymat</h2>
+                <div class="description">
+                    Parametrga <strong>standart qiymat</strong> berib qo'yish mumkin. Agar argument berilmasa,
+                    Python standart qiymatdan foydalanadi. Bu parametrni "ixtiyoriy" qiladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">salom</span>(ism, til=<span class="string">"uz"</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> til <span class="operator">==</span> <span class="string">"uz"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Salom, "</span> + ism)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Hello, "</span> + ism)<br>
+                        <br>
+                        <span class="function">salom</span>(<span class="string">"Ali"</span>)<br>
+                        <span class="function">salom</span>(<span class="string">"Bob"</span>, <span class="string">"en"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # til berilmadi → "uz"<br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        # 1-chaqiruv<br>
+                        # 2-chaqiruv: til = "en"
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom, Ali<br>
+                    >>> Hello, Bob
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Muhim qoida</strong>
+                    <p>
+                        Standart qiymatli parametrlar har doim <strong>oxirida</strong> turishi lozim.
+                        Majburiy parametr (standart qiymatsiz) standartlidan keyin kelolmaydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4. *args — Ko'p Pozitsion Argument</h2>
+                <div class="description">
+                    Funksiyaga <strong>nechta argument</strong> kelishini oldindan bilmasangiz,
+                    <span class="highlight-var">*args</span> ishlatiladi. Barcha qo'shimcha argumentlar bitta
+                    <strong>tuple</strong> ichiga yig'iladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">qoshish</span>(<span class="operator">*</span>sonlar):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">sum</span>(sonlar)<br>
+                        <br>
+                        <span class="function">print</span>(<span class="function">qoshish</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>))
+                    </div>
+                    <div class="comment-part">
+                        # sonlar = (1, 2, 3, 4, 5)<br>
+                        # sum() yig'indini<br>
+                        # qaytaradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 15
+                </div>
+
+                <div class="info-box">
+                    <strong>Eslatma</strong>
+                    <p>
+                        <span class="highlight-var">args</span> shunchaki nom — istalgan nom qo'yish mumkin.
+                        Muhimi — oldidagi bitta yulduzcha <span class="highlight-var">*</span>.
+                        Lekin an'anaga ko'ra <span class="highlight-var">*args</span> deb yoziladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5. **kwargs — Nomli Argumentlar</h2>
+                <div class="description">
+                    Ikkita yulduzcha <span class="highlight-var">**kwargs</span> — bu nomli argumentlarni
+                    <strong>dictionary (lug'at)</strong> ichiga yig'adi. Har bir nom kalit, qiymat esa qiymat bo'ladi.
+                </div>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">info</span>(<span class="operator">**</span>malumotlar):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> k, v <span class="keyword">in</span> malumotlar.<span class="function">items</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(k, <span class="string">"="</span>, v)<br>
+                        <br>
+                        <span class="function">info</span>(ism=<span class="string">"Ali"</span>, yosh=<span class="number">20</span>)
+                    </div>
+                    <div class="comment-part">
+                        # malumotlar =<br>
+                        # {"ism": "Ali",<br>
+                        #  "yosh": 20}
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ism = Ali<br>
+                    >>> yosh = 20
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Hammasini Solishtirish</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Tur</th><th>Yozilishi</th><th>Nima yig'adi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Positional</td><td><code>def f(a, b)</code></td><td>Tartib bo'yicha</td></tr>
+                        <tr><td>Keyword</td><td><code>f(a=1, b=2)</code></td><td>Nom bo'yicha</td></tr>
+                        <tr><td>Standart</td><td><code>def f(a, b=2)</code></td><td>Ixtiyoriy qiymat</td></tr>
+                        <tr><td>*args</td><td><code>def f(*args)</code></td><td>tuple (pozitsion)</td></tr>
+                        <tr><td>**kwargs</td><td><code>def f(**kwargs)</code></td><td>dict (nomli)</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="concept-card">
+                    <strong>To'g'ri tartib</strong>
+                    <p>Bir funksiyada barchasini birga ishlatganda tartib quyidagicha bo'lishi lozim:</p>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="keyword">def</span> <span class="function">f</span>(a, b=<span class="number">2</span>, <span class="operator">*</span>args, <span class="operator">**</span>kwargs):
+                        </div>
+                    </div>
+                    <p>oddiy → standart → *args → **kwargs</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: keyword'dan keyin positional</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">tanishtir</span>(ism=<span class="string">"Ali"</span>, <span class="string">"Toshkent"</span>)  <span style="color:#f87171;"># XATO!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Nomli argumentdan keyin tartib bo'yicha argument berib bo'lmaydi.
+                        Python <span class="highlight-var">SyntaxError</span> beradi.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: avval positional, keyin keyword</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">tanishtir</span>(<span class="string">"Ali"</span>, shahar=<span class="string">"Toshkent"</span>)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> Ali — Toshkent
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Positional</span> — tartib bo'yicha, <span class="highlight-var">keyword</span> — nom bilan<br>
+                    • Standart qiymatli parametrlar oxirida turadi<br>
+                    • <span class="highlight-var">*args</span> → tuple, <span class="highlight-var">**kwargs</span> → dict<br>
+                    • Tartib: oddiy → standart → *args → **kwargs
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: *args Yig'indisi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="argsInput" placeholder="Sonlar (probel bilan)" value="1 2 3 4 5">
+                        <button onclick="demoArgs()">Yig'</button>
+                    </div>
+                    <div class="arg-viz" id="argsViz"></div>
+                    <div class="demo-result" id="resultArgs"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">def qoshish(*sonlar): return sum(sonlar)</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Keyword Argument Tartibi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="kwIsm" placeholder="ism" value="Ali" style="min-width:80px;">
+                        <input type="text" id="kwShahar" placeholder="shahar" value="Toshkent" style="min-width:90px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoKeyword('positional')">Positional</button>
+                        <button onclick="demoKeyword('keyword')">Keyword (teskari)</button>
+                    </div>
+                    <div class="demo-result" id="resultKeyword"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Tartibni o'zgartirsangiz ham nom bilan natija bir xil.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: **kwargs Ma'lumot Kartasi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="kwKey" placeholder="kalit (masalan: yosh)" value="yosh" style="min-width:90px;">
+                        <input type="text" id="kwVal" placeholder="qiymat" value="20" style="min-width:80px;">
+                        <button onclick="demoKwargAdd()">Qo'sh</button>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoKwargShow()">info() chaqir</button>
+                        <button onclick="demoKwargReset()">Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultKwargs"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">def info(**malumotlar): for k,v in malumotlar.items()</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Standart Qiymat</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="defIsm" placeholder="ism" value="Ali" style="min-width:80px;">
+                        <input type="number" id="defKarra" placeholder="necha marta" value="3" style="min-width:90px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoDefault(true)">karra bilan</button>
+                        <button onclick="demoDefault(false)">standart (1)</button>
+                    </div>
+                    <div class="demo-result" id="resultDefault"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">def takrorla(ism, karra=1)</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: Eng Katta Sonni Topish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="maxInput" placeholder="Sonlar (probel bilan)" value="12 47 8 33 5">
+                        <button onclick="demoMax()">Topish</button>
+                    </div>
+                    <div class="demo-result" id="resultMax"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">def eng_katta(*sonlar): return max(sonlar)</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Funksiya yarating</strong>
+                            <p>def ortacha(*sonlar): — *args bilan</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>O'rtachani hisoblang</strong>
+                            <p>sum(sonlar) / len(sonlar) ni qaytaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>**kwargs qo'shing</strong>
+                            <p>def karta(**m): kalit=qiymat ma'lumot oling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Natijani chiqaring</strong>
+                            <p>print() bilan o'rtacha va kartani ekranga chiqaring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 28: Scope va o'zgaruvchilar</p>
+                    <p style="opacity: 0.9;">
+                        Parametr turlarini o'rgandingiz!<br>
+                        Endi o'zgaruvchilar funksiya ichida va tashqarisida qanday yashashini ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseNums(text) {
+            return text.trim().split(/\s+/)
+                .map(s => Number(s))
+                .filter(n => !isNaN(n));
+        }
+
+        function demoArgs() {
+            const nums = parseNums(document.getElementById('argsInput').value);
+            const viz = document.getElementById('argsViz');
+            viz.innerHTML = '';
+            nums.forEach((n, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'arg-cell';
+                cell.innerHTML = `<div class="arg-box">${n}</div><div class="arg-idx">[${i}]</div>`;
+                viz.appendChild(cell);
+            });
+            const yigindi = nums.reduce((a, b) => a + b, 0);
+            const result = document.getElementById('resultArgs');
+            result.classList.add('show');
+            result.innerHTML = `>>> qoshish(${nums.join(', ')})<br>>>> sonlar = (${nums.join(', ')})  # tuple<br>>>> ${yigindi}`;
+        }
+
+        function demoKeyword(mode) {
+            const ism = document.getElementById('kwIsm').value || "Ali";
+            const shahar = document.getElementById('kwShahar').value || "Toshkent";
+            const result = document.getElementById('resultKeyword');
+            result.classList.add('show');
+            if (mode === 'positional') {
+                result.innerHTML = `>>> tanishtir("${ism}", "${shahar}")<br>>>> ${ism} — ${shahar}`;
+            } else {
+                result.innerHTML = `>>> tanishtir(shahar="${shahar}", ism="${ism}")<br># tartib teskari, nom bilan to'g'ri<br>>>> ${ism} — ${shahar}`;
+            }
+        }
+
+        let kwargsStore = {};
+        function demoKwargAdd() {
+            const key = document.getElementById('kwKey').value.trim();
+            const val = document.getElementById('kwVal').value.trim();
+            if (!key) return;
+            kwargsStore[key] = val;
+            renderKwargs(`"${key}" = "${val}" qo'shildi`);
+        }
+        function demoKwargReset() {
+            kwargsStore = {};
+            const result = document.getElementById('resultKwargs');
+            result.classList.add('show');
+            result.innerHTML = `>>> malumotlar = {}  # bo'sh`;
+        }
+        function renderKwargs(msg) {
+            const result = document.getElementById('resultKwargs');
+            result.classList.add('show');
+            const dictStr = Object.entries(kwargsStore)
+                .map(([k, v]) => `'${k}': '${v}'`).join(', ');
+            result.innerHTML = `# ${msg}<br>>>> malumotlar = {${dictStr}}`;
+        }
+        function demoKwargShow() {
+            const result = document.getElementById('resultKwargs');
+            result.classList.add('show');
+            const keys = Object.keys(kwargsStore);
+            if (keys.length === 0) {
+                result.innerHTML = `>>> info()  # hech narsa berilmadi`;
+                return;
+            }
+            const lines = keys.map(k => `>>> ${k} = ${kwargsStore[k]}`).join('<br>');
+            const callStr = keys.map(k => `${k}="${kwargsStore[k]}"`).join(', ');
+            result.innerHTML = `>>> info(${callStr})<br>${lines}`;
+        }
+
+        function demoDefault(useKarra) {
+            const ism = document.getElementById('defIsm').value || "Ali";
+            let karra = parseInt(document.getElementById('defKarra').value);
+            const result = document.getElementById('resultDefault');
+            result.classList.add('show');
+            if (!useKarra || isNaN(karra) || karra < 1) karra = 1;
+            const out = Array(karra).fill(ism).join(' ');
+            if (useKarra) {
+                result.innerHTML = `>>> takrorla("${ism}", ${karra})<br>>>> ${out}`;
+            } else {
+                result.innerHTML = `>>> takrorla("${ism}")  # karra = 1 (standart)<br>>>> ${out}`;
+            }
+        }
+
+        function demoMax() {
+            const nums = parseNums(document.getElementById('maxInput').value);
+            const result = document.getElementById('resultMax');
+            result.classList.add('show');
+            if (nums.length === 0) {
+                result.innerHTML = `>>> Avval son kiriting`;
+                return;
+            }
+            const eng = Math.max(...nums);
+            result.innerHTML = `>>> eng_katta(${nums.join(', ')})<br>>>> sonlar = (${nums.join(', ')})<br>>>> max(sonlar) = ${eng}`;
+        }
+
+        // dastlabki ko'rinish
+        demoArgs();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

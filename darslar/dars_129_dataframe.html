@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 129: Pandas — DataFrame</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); cursor: pointer; min-width: 110px; }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DATAFRAME JADVAL */
+        .df-table {
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .df-table th, .df-table td {
+            padding: 9px 16px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .df-table thead th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+        }
+        .df-table tbody th {
+            background: var(--light);
+            color: var(--gray);
+            font-weight: bold;
+        }
+        .df-table td.hit { background: var(--primary-light); color: var(--primary-dark); font-weight: bold; }
+        .df-table tr.hit td, .df-table tr.hit th { background: var(--primary-light); color: var(--primary-dark); font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 18 — NumPy va Pandas · Dars 129 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Pandas — DataFrame</h1>
+                <p>Modul 18 — NumPy va Pandas | Dars 129</p>
+            </header>
+
+            <div class="section">
+                <h2>DataFrame Nima?</h2>
+                <div class="description">
+                    <strong>DataFrame</strong> — bu Pandas kutubxonasidagi <strong>ikki o'lchovli jadval</strong>.
+                    U xuddi <strong>Excel jadvali</strong> kabi: <strong>qatorlar</strong> (satrlar) va
+                    <strong>ustunlar</strong> (columnlar) dan iborat. Har bir ustunning nomi va har bir qatorning
+                    indeksi (raqami) bor.
+                </div>
+                <div class="info-box">
+                    <strong>Series va DataFrame farqi</strong>
+                    <p>
+                        • <span class="highlight-var">Series</span> — bitta ustun (1 o'lchovli)<br>
+                        • <span class="highlight-var">DataFrame</span> — ko'p ustun, butun jadval (2 o'lchovli)<br>
+                        DataFrame ni bir nechta Series birikmasi deb tasavvur qiling.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>DataFrame Yaratish (dict orqali)</h2>
+                <div class="description">
+                    Eng oson usul — <strong>dictionary</strong> ishlatish. Har bir
+                    <span class="highlight-var">kalit</span> — ustun nomi, har bir
+                    <span class="highlight-var">ro'yxat</span> — o'sha ustunning qiymatlari bo'ladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> pandas <span class="keyword">as</span> pd<br>
+                        <br>
+                        ma'lumot = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"ism"</span>: [<span class="string">"Ali"</span>, <span class="string">"Vali"</span>, <span class="string">"Guli"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"yosh"</span>: [<span class="number">25</span>, <span class="number">30</span>, <span class="number">22</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"shahar"</span>: [<span class="string">"Toshkent"</span>, <span class="string">"Samarqand"</span>, <span class="string">"Buxoro"</span>]<br>
+                        }<br>
+                        df = pd.<span class="function">DataFrame</span>(ma'lumot)<br>
+                        <span class="function">print</span>(df)
+                    </div>
+                    <div class="comment-part">
+                        # dict dan jadval yasaymiz. Kalitlar — ustun nomlari
+                    </div>
+                </div>
+                <div class="output-demo">>>>    ism  yosh     shahar
+0   Ali    25   Toshkent
+1  Vali    30  Samarqand
+2  Guli    22     Buxoro</div>
+            </div>
+
+            <div class="section">
+                <h2>Ustun Tanlash</h2>
+                <div class="description">
+                    Bitta ustunni olish uchun <span class="highlight-var">df['ustun_nomi']</span> yozamiz.
+                    Bir nechta ustun uchun ichkari ro'yxat ishlatamiz:
+                    <span class="highlight-var">df[['a', 'b']]</span> (ikkita kvadrat qavs!).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(df[<span class="string">"ism"</span>])<br>
+                        <span class="comment"># bitta ustun → Series</span><br>
+                        <br>
+                        <span class="function">print</span>(df[[<span class="string">"ism"</span>, <span class="string">"yosh"</span>]])<br>
+                        <span class="comment"># bir nechta ustun → DataFrame</span>
+                    </div>
+                    <div class="comment-part">
+                        # Bitta qavs — Series, ikkita qavs — jadval qaytaradi
+                    </div>
+                </div>
+                <div class="output-demo">>>> 0     Ali
+1    Vali
+2    Guli
+Name: ism, dtype: object</div>
+            </div>
+
+            <div class="section">
+                <h2>Qator Tanlash (loc va iloc)</h2>
+                <div class="description">
+                    Qatorlarni tanlash uchun ikkita asosiy usul bor:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Usul</th><th>Nima bilan tanlaydi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>.loc[]</code></td><td>Indeks <strong>nomi</strong> bo'yicha</td><td><code>df.loc[0]</code></td></tr>
+                        <tr><td><code>.iloc[]</code></td><td>Indeks <strong>raqami</strong> (pozitsiya) bo'yicha</td><td><code>df.iloc[0]</code></td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(df.<span class="function">loc</span>[<span class="number">1</span>])<br>
+                        <span class="comment"># indeksi 1 bo'lgan qator (Vali)</span><br>
+                        <br>
+                        <span class="function">print</span>(df.<span class="function">iloc</span>[<span class="number">0</span>])<br>
+                        <span class="comment"># birinchi qator (pozitsiya 0)</span>
+                    </div>
+                    <div class="comment-part">
+                        # loc — nom bo'yicha, iloc — raqam bo'yicha
+                    </div>
+                </div>
+                <div class="output-demo">>>> ism          Vali
+yosh           30
+shahar  Samarqand
+Name: 1, dtype: object</div>
+            </div>
+
+            <div class="section">
+                <h2>Jadvalni Ko'rish Metodlari</h2>
+                <div class="description">
+                    Katta jadvallarni tez tekshirish uchun foydali metodlar:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>df.head()</code></td><td>Birinchi 5 qatorni ko'rsatadi</td></tr>
+                        <tr><td><code>df.tail()</code></td><td>Oxirgi 5 qatorni ko'rsatadi</td></tr>
+                        <tr><td><code>df.info()</code></td><td>Ustunlar, tiplar va xotira haqida ma'lumot</td></tr>
+                        <tr><td><code>df.describe()</code></td><td>Raqamli ustunlar statistikasi (o'rtacha, min, max...)</td></tr>
+                        <tr><td><code>df.shape</code></td><td>(qatorlar, ustunlar) soni</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="function">print</span>(df.<span class="function">head</span>(<span class="number">2</span>))<br>
+                        <span class="comment"># dastlabki 2 qator</span><br>
+                        <span class="function">print</span>(df.shape)<br>
+                        <span class="comment"># (3, 3) — 3 qator, 3 ustun</span>
+                    </div>
+                    <div class="comment-part">
+                        # head() ichiga son yozsak, shuncha qator chiqadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Ustun Qo'shish va O'chirish</h2>
+                <div class="description">
+                    Yangi ustun qo'shish — xuddi dictionary ga kalit qo'shgandek oson.
+                    O'chirish uchun <span class="highlight-var">.drop()</span> ishlatamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        df[<span class="string">"ball"</span>] = [<span class="number">90</span>, <span class="number">85</span>, <span class="number">95</span>]<br>
+                        <span class="comment"># yangi "ball" ustuni qo'shildi</span><br>
+                        <br>
+                        df = df.<span class="function">drop</span>(<span class="string">"ball"</span>, axis=<span class="number">1</span>)<br>
+                        <span class="comment"># ustunni o'chirish (axis=1 — ustun)</span>
+                    </div>
+                    <div class="comment-part">
+                        # axis=1 → ustun, axis=0 → qator o'chiradi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Eslab Qoling</strong>
+                    <p>
+                        • <span class="highlight-var">df['nom']</span> — bitta ustun, <span class="highlight-var">df[['a','b']]</span> — bir nechta ustun<br>
+                        • <span class="highlight-var">.loc[]</span> nom bo'yicha, <span class="highlight-var">.iloc[]</span> raqam bo'yicha<br>
+                        • <span class="highlight-var">.describe()</span> faqat raqamli ustunlarni hisoblaydi<br>
+                        • Ustun o'chirishda <span class="highlight-var">axis=1</span> bo'lishi shart
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: dict dan DataFrame Yasash</h2>
+                <div class="interactive-demo">
+                    <div class="description" style="margin-bottom:12px;">
+                        Talaba ismi, yoshi va ballini kiriting — Pandas uni jadvalga aylantiradi.
+                    </div>
+                    <div class="demo-input">
+                        <input type="text" id="newName" placeholder="ism" value="Sardor" style="min-width:90px;">
+                        <input type="number" id="newAge" placeholder="yosh" value="24" style="min-width:70px;">
+                        <input type="number" id="newScore" placeholder="ball" value="88" style="min-width:70px;">
+                        <button onclick="addRow()">Qo'shish</button>
+                        <button onclick="resetDf()">Tozalash</button>
+                    </div>
+                    <div id="buildTable"></div>
+                    <div class="demo-result" id="resultBuild"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Ustun va Qator Tanlash (loc / iloc)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <select id="selKind">
+                            <option value="col">Ustun tanlash</option>
+                            <option value="loc">Qator (.loc)</option>
+                            <option value="iloc">Qator (.iloc)</option>
+                        </select>
+                        <select id="selValue"></select>
+                        <button onclick="doSelect()">Tanla</button>
+                    </div>
+                    <div id="selTable"></div>
+                    <div class="demo-result" id="resultSelect"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: describe() Statistikasi</h2>
+                <div class="interactive-demo">
+                    <div class="description" style="margin-bottom:12px;">
+                        Raqamli ustun uchun <span class="highlight-var">describe()</span> avtomatik statistika chiqaradi.
+                    </div>
+                    <div class="demo-input">
+                        <select id="descCol">
+                            <option value="yosh">yosh</option>
+                            <option value="ball">ball</option>
+                        </select>
+                        <button onclick="doDescribe()">describe()</button>
+                    </div>
+                    <div class="demo-result" id="resultDescribe"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>DataFrame yarating</strong>
+                            <p>3 ta mahsulot: "nom", "narx", "soni" ustunlari bilan dict tuzing va pd.DataFrame() ga bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Ustun tanlang</strong>
+                            <p>df["narx"] bilan faqat narxlar ustunini chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Qator oling</strong>
+                            <p>df.iloc[0] bilan birinchi mahsulot ma'lumotini ko'ring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Statistikani chiqaring</strong>
+                            <p>df.describe() bilan narx va soni bo'yicha o'rtacha, min, max ni toping</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 130: Fayldan o'qish (CSV/Excel)</p>
+                    <p style="opacity: 0.9;">
+                        DataFrame yaratish va tanlashni o'rgandingiz!<br>
+                        Endi tayyor fayllardan (CSV, Excel) ma'lumot o'qishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Misol 1: dict dan DataFrame yasash ---
+        let rows = [
+            { ism: "Ali", yosh: 25, ball: 90 },
+            { ism: "Vali", yosh: 30, ball: 85 }
+        ];
+
+        function renderBuild() {
+            const box = document.getElementById('buildTable');
+            let html = '<table class="df-table"><thead><tr><th></th><th>ism</th><th>yosh</th><th>ball</th></tr></thead><tbody>';
+            rows.forEach((r, i) => {
+                html += `<tr><th>${i}</th><td>${r.ism}</td><td>${r.yosh}</td><td>${r.ball}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            box.innerHTML = html;
+        }
+
+        function addRow() {
+            const ism = document.getElementById('newName').value || "Nomsiz";
+            const yosh = parseInt(document.getElementById('newAge').value) || 0;
+            const ball = parseInt(document.getElementById('newScore').value) || 0;
+            rows.push({ ism, yosh, ball });
+            renderBuild();
+            const result = document.getElementById('resultBuild');
+            result.classList.add('show');
+            result.innerHTML = `>>> df.shape\n>>> (${rows.length}, 3)   # ${rows.length} qator, 3 ustun`;
+            fillSelectOptions();
+        }
+
+        function resetDf() {
+            rows = [
+                { ism: "Ali", yosh: 25, ball: 90 },
+                { ism: "Vali", yosh: 30, ball: 85 }
+            ];
+            renderBuild();
+            const result = document.getElementById('resultBuild');
+            result.classList.add('show');
+            result.innerHTML = `>>> df = pd.DataFrame(ma'lumot)\n>>> df.shape = (2, 3)`;
+            fillSelectOptions();
+        }
+
+        // --- Misol 2: tanlash (statik jadval) ---
+        const df2 = [
+            { ism: "Ali", yosh: 25, shahar: "Toshkent" },
+            { ism: "Vali", yosh: 30, shahar: "Samarqand" },
+            { ism: "Guli", yosh: 22, shahar: "Buxoro" }
+        ];
+        const cols2 = ["ism", "yosh", "shahar"];
+
+        function renderSelTable(hitCol, hitRow) {
+            const box = document.getElementById('selTable');
+            let html = '<table class="df-table"><thead><tr><th></th>';
+            cols2.forEach(c => {
+                html += `<th${c === hitCol ? ' class="hit"' : ''}>${c}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            df2.forEach((r, i) => {
+                const rowHit = (i === hitRow) ? ' class="hit"' : '';
+                html += `<tr${rowHit}><th>${i}</th>`;
+                cols2.forEach(c => {
+                    const cellHit = (c === hitCol) ? ' class="hit"' : '';
+                    html += `<td${cellHit}>${r[c]}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            box.innerHTML = html;
+        }
+
+        function fillSelectOptions() {
+            const kind = document.getElementById('selKind').value;
+            const sel = document.getElementById('selValue');
+            sel.innerHTML = '';
+            if (kind === 'col') {
+                cols2.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; });
+            } else {
+                df2.forEach((_, i) => { sel.innerHTML += `<option value="${i}">${i}</option>`; });
+            }
+        }
+
+        document.getElementById('selKind').addEventListener('change', fillSelectOptions);
+
+        function doSelect() {
+            const kind = document.getElementById('selKind').value;
+            const val = document.getElementById('selValue').value;
+            const result = document.getElementById('resultSelect');
+            result.classList.add('show');
+            if (kind === 'col') {
+                renderSelTable(val, -1);
+                const vals = df2.map((r, i) => `${i}    ${r[val]}`).join('\n');
+                result.innerHTML = `>>> df["${val}"]\n${vals}\nName: ${val}, dtype: object`;
+            } else {
+                const i = parseInt(val);
+                renderSelTable(null, i);
+                const r = df2[i];
+                const lines = cols2.map(c => `${c.padEnd(8)} ${r[c]}`).join('\n');
+                const method = kind === 'loc' ? `df.loc[${i}]` : `df.iloc[${i}]`;
+                result.innerHTML = `>>> ${method}\n${lines}\nName: ${i}, dtype: object`;
+            }
+        }
+
+        // --- Misol 3: describe() ---
+        const data3 = {
+            yosh: [25, 30, 22, 28, 35],
+            ball: [90, 85, 95, 70, 88]
+        };
+
+        function doDescribe() {
+            const col = document.getElementById('descCol').value;
+            const arr = data3[col];
+            const n = arr.length;
+            const sum = arr.reduce((a, b) => a + b, 0);
+            const mean = sum / n;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const min = sorted[0];
+            const max = sorted[n - 1];
+            const variance = arr.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1);
+            const std = Math.sqrt(variance);
+            const q = (p) => {
+                const pos = (n - 1) * p;
+                const base = Math.floor(pos);
+                const rest = pos - base;
+                return sorted[base] + (sorted[base + 1] !== undefined ? rest * (sorted[base + 1] - sorted[base]) : 0);
+            };
+            const result = document.getElementById('resultDescribe');
+            result.classList.add('show');
+            result.innerHTML =
+`>>> df["${col}"].describe()
+count     ${n.toFixed(2)}
+mean      ${mean.toFixed(2)}
+std       ${std.toFixed(2)}
+min       ${min.toFixed(2)}
+25%       ${q(0.25).toFixed(2)}
+50%       ${q(0.50).toFixed(2)}
+75%       ${q(0.75).toFixed(2)}
+max       ${max.toFixed(2)}
+Name: ${col}, dtype: float64`;
+        }
+
+        // dastlabki ko'rinish
+        renderBuild();
+        renderSelTable(null, -1);
+        fillSelectOptions();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

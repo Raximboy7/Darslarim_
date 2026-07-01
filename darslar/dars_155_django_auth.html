@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 155: Autentifikatsiya</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* AUTH FLOW VISUALIZER */
+        .flow-viz { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin: 15px 0; }
+        .flow-step {
+            background: #1f2937; color: #d4d4d4;
+            border: 2px solid #374151;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: monospace; font-size: 0.85em;
+            text-align: center; min-width: 110px;
+            transition: all 0.4s ease;
+        }
+        .flow-step.active { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .flow-arrow { color: var(--gray); font-size: 1.3em; font-weight: bold; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 20 — Django (Web Framework) · Dars 155 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Autentifikatsiya</h1>
+                <p>Modul 20 — Django (Web Framework) | Dars 155</p>
+            </header>
+
+            <div class="section">
+                <h2>Autentifikatsiya Nima?</h2>
+                <div class="description">
+                    <strong>Autentifikatsiya</strong> — bu foydalanuvchining
+                    <strong>kim ekanligini tekshirish</strong> jarayoni. Ya'ni sayt: "Sen
+                    haqiqatan ham o'sha odammisan?" deb so'raydi. Foydalanuvchi
+                    <span class="highlight-var">login</span> (ism) va
+                    <span class="highlight-var">parol</span> kiritadi, sayt esa ularni
+                    bazadagi ma'lumotlar bilan solishtiradi.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy misol</strong>
+                    <p>
+                        Telegramga kirganda telefon raqam va parol so'raydi-ku? Mana shu —
+                        autentifikatsiya. Sayt seni tanib oladi va "bu Ali" deydi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Django Auth Tizimi</h2>
+                <div class="description">
+                    Django'da tayyor autentifikatsiya tizimi bor —
+                    <span class="highlight-var">django.contrib.auth</span>. Sen parolni
+                    qo'lda tekshirish, sessiya yaratish kabi murakkab ishlarni yozishing
+                    shart emas — hammasi tayyor.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># settings.py ichida allaqachon bor:</span><br>
+                        INSTALLED_APPS = [<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'django.contrib.auth'</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'django.contrib.contenttypes'</span>,<br>
+                        ]
+                    </div>
+                    <div class="comment-part">
+                        # Bu ilovalar autentifikatsiyani ta'minlaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>User Modeli</h2>
+                <div class="description">
+                    Har bir foydalanuvchi <span class="highlight-var">User</span> modelida
+                    saqlanadi. Unda <strong>username</strong>, <strong>password</strong>,
+                    <strong>email</strong> kabi maydonlar bor.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> django.contrib.auth.models <span class="keyword">import</span> User<br><br>
+                        <span class="comment"># Yangi foydalanuvchi yaratish</span><br>
+                        user = User.objects.<span class="function">create_user</span>(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;username=<span class="string">"ali"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;password=<span class="string">"maxfiy123"</span><br>
+                        )
+                    </div>
+                    <div class="comment-part">
+                        # create_user() parolni avtomatik hash qiladi (himoyalaydi)
+                    </div>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Maydon</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>username</code></td><td>Foydalanuvchi ismi (login)</td></tr>
+                        <tr><td><code>password</code></td><td>Parol (hash holatda saqlanadi)</td></tr>
+                        <tr><td><code>email</code></td><td>Elektron pochta</td></tr>
+                        <tr><td><code>is_authenticated</code></td><td>Kirgan-kirmaganini bildiradi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Ro'yxatdan O'tish (register)</h2>
+                <div class="description">
+                    Yangi foydalanuvchi birinchi marta kelganda
+                    <span class="highlight-var">ro'yxatdan o'tadi</span> — ya'ni o'z login va
+                    parolini yaratadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> django.contrib.auth.models <span class="keyword">import</span> User<br><br>
+                        <span class="keyword">def</span> <span class="function">register</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> request.method <span class="operator">==</span> <span class="string">"POST"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;User.objects.<span class="function">create_user</span>(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username=request.POST[<span class="string">"username"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password=request.POST[<span class="string">"password"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">render</span>(request, <span class="string">"register.html"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Forma yuborilsa — yangi User yaratiladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Kirish (login)</h2>
+                <div class="description">
+                    Kirish uchun <span class="highlight-var">authenticate()</span> parolni
+                    tekshiradi, <span class="highlight-var">login()</span> esa
+                    foydalanuvchini saytga kiritadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> django.contrib.auth <span class="keyword">import</span> authenticate, login<br><br>
+                        <span class="keyword">def</span> <span class="function">login_view</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;user = <span class="function">authenticate</span>(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username=request.POST[<span class="string">"username"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password=request.POST[<span class="string">"password"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> user <span class="keyword">is</span> <span class="keyword">not</span> <span class="boolean">None</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">login</span>(request, user)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"home"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # authenticate parolni tekshiradi, login kiritadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Chiqish (logout)</h2>
+                <div class="description">
+                    Foydalanuvchi ishni tugatganda <span class="highlight-var">logout()</span>
+                    uni saytdan chiqaradi — sessiyani o'chiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> django.contrib.auth <span class="keyword">import</span> logout<br><br>
+                        <span class="keyword">def</span> <span class="function">logout_view</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">logout</span>(request)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">redirect</span>(<span class="string">"login"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # logout sessiyani tozalaydi va login sahifaga qaytaradi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>login_required Dekorator</h2>
+                <div class="description">
+                    Ba'zi sahifalarni faqat <strong>kirgan</strong> foydalanuvchilar
+                    ko'rishi kerak. <span class="highlight-var">@login_required</span>
+                    dekoratori sahifani himoya qiladi — kirmagan odam avtomatik login
+                    sahifaga yuboriladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> django.contrib.auth.decorators <span class="keyword">import</span> login_required<br><br>
+                        <span class="operator">@login_required</span><br>
+                        <span class="keyword">def</span> <span class="function">profile</span>(request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">render</span>(request, <span class="string">"profile.html"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Kirmagan foydalanuvchi bu sahifani ko'ra olmaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sessiyalar (Sessions)</h2>
+                <div class="description">
+                    <strong>Sessiya</strong> — bu sayt sening kirganingni "eslab qolishi".
+                    Login qilganingdan keyin sayt senga maxsus
+                    <span class="highlight-var">cookie</span> beradi. Shu cookie tufayli har
+                    safar parol so'ramaydi — seni tanib oladi.
+                </div>
+                <div class="info-box">
+                    <strong>Sessiya qanday ishlaydi</strong>
+                    <p>
+                        Login → sayt cookie beradi → brauzer cookie'ni saqlaydi → keyingi
+                        so'rovlarda cookie yuboriladi → sayt seni taniydi. Logout
+                        qilsang — cookie o'chadi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Parol Xavfsizligi (hash)</h2>
+                <div class="description">
+                    Django parolni <strong>ochiq matn</strong> sifatida saqlamaydi! U
+                    parolni <span class="highlight-var">hash</span> qiladi — ya'ni
+                    o'qib bo'lmaydigan uzun belgilarga aylantiradi. Shuning uchun baza
+                    o'g'irlansa ham, parollarni hech kim bila olmaydi.
+                </div>
+                <div class="output-demo">
+                    parol: "maxfiy123"<br>
+                    bazada: pbkdf2_sha256$870000$kT9x...$h8Lq2v...
+                </div>
+                <div class="info-box">
+                    <strong>Muhim qoida</strong>
+                    <p>
+                        Parolni hech qachon to'g'ridan-to'g'ri yozma. Doimo
+                        <span class="highlight-var">create_user()</span> yoki
+                        <span class="highlight-var">set_password()</span> ishlat — ular
+                        avtomatik hash qiladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Autentifikatsiya = kim ekanligini tekshirish (login)<br>
+                    • <span class="highlight-var">create_user()</span> — ro'yxatdan o'tkazadi<br>
+                    • <span class="highlight-var">authenticate()</span> + <span class="highlight-var">login()</span> — kiritadi<br>
+                    • <span class="highlight-var">logout()</span> — chiqaradi<br>
+                    • <span class="highlight-var">@login_required</span> — sahifani himoya qiladi<br>
+                    • Parol doimo hash holatda saqlanadi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Login Oqimi</h2>
+                <div class="description">
+                    Foydalanuvchi login va parol kiritadi → sayt tekshiradi → to'g'ri
+                    bo'lsa kiritadi. Quyida har qadamni ko'rsatuvchi demo.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="loginUser" placeholder="username" value="ali">
+                        <input type="text" id="loginPass" placeholder="parol" value="maxfiy123">
+                        <button onclick="demoLoginFlow()">Kirish</button>
+                    </div>
+                    <div class="flow-viz" id="flowViz">
+                        <div class="flow-step" id="fs0">Foydalanuvchi</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step" id="fs1">Tekshirish</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step" id="fs2">Kirish</div>
+                    </div>
+                    <div class="demo-result" id="resultLogin"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: login_required Himoyasi</h2>
+                <div class="description">
+                    Profil sahifasi <span class="highlight-var">@login_required</span> bilan
+                    himoyalangan. Kirgan bo'lsangiz — ko'rasiz, aks holda login sahifaga
+                    yuborilasiz.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="setAuth(true)">Kirgan holat</button>
+                        <button onclick="setAuth(false)">Kirmagan holat</button>
+                        <button onclick="openProfile()">/profile ochish</button>
+                    </div>
+                    <div class="demo-result" id="resultProtect"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Register / Login / Logout Holati</h2>
+                <div class="description">
+                    Quyidagi tugmalar foydalanuvchi holatini o'zgartiradi. Holatni
+                    kuzating: chiqarilgan → ro'yxatdan o'tgan → kirgan → chiqqan.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="authAction('register')">register()</button>
+                        <button onclick="authAction('login')">login()</button>
+                        <button onclick="authAction('logout')">logout()</button>
+                    </div>
+                    <div class="demo-result" id="resultState"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Parol Hash Qilish</h2>
+                <div class="description">
+                    Parol kiriting va uning bazada qanday saqlanishini ko'ring. Hech qachon
+                    asl parol ko'rinmaydi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="hashPass" placeholder="parol yozing" value="parol2024">
+                        <button onclick="demoHash()">Hash qil</button>
+                    </div>
+                    <div class="demo-result" id="resultHash"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>register view yozing</strong>
+                            <p>User.objects.create_user() bilan yangi foydalanuvchi yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>login view yozing</strong>
+                            <p>authenticate() va login() bilan foydalanuvchini kiriting</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>logout view yozing</strong>
+                            <p>logout(request) bilan chiqishni ta'minlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Profilni himoyalang</strong>
+                            <p>@login_required dekoratorini profile view ustiga qo'ying</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 156: ORM va so'rovlar</p>
+                    <p style="opacity: 0.9;">
+                        Autentifikatsiyani o'rgandingiz!<br>
+                        Endi ma'lumotlar bazasi bilan ishlashni — ORM'ni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DB = { username: "ali", password: "maxfiy123" };
+
+        function demoLoginFlow() {
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            const steps = ['fs0', 'fs1', 'fs2'];
+            steps.forEach(id => document.getElementById(id).classList.remove('active'));
+            const result = document.getElementById('resultLogin');
+            result.classList.remove('show');
+
+            // qadam 1: foydalanuvchi
+            document.getElementById('fs0').classList.add('active');
+            const ok = (u === DB.username && p === DB.password);
+            let i = 1;
+            const timer = setInterval(() => {
+                if (i === 1) {
+                    document.getElementById('fs1').classList.add('active');
+                } else if (i === 2) {
+                    if (ok) {
+                        document.getElementById('fs2').classList.add('active');
+                        result.innerHTML = `>>> authenticate("${u}", "***")<br>>>> Tekshirish: TO'G'RI<br>>>> login(request, user)<br>>>> Xush kelibsiz, ${u}!`;
+                    } else {
+                        document.getElementById('fs1').classList.remove('active');
+                        result.innerHTML = `>>> authenticate("${u}", "***")<br>>>> Tekshirish: XATO<br>>>> Login yoki parol noto'g'ri!`;
+                    }
+                    result.classList.add('show');
+                    clearInterval(timer);
+                }
+                i++;
+            }, 600);
+        }
+
+        let isAuth = false;
+        function setAuth(state) {
+            isAuth = state;
+            const result = document.getElementById('resultProtect');
+            result.classList.add('show');
+            result.innerHTML = `>>> request.user.is_authenticated = ${state ? 'True' : 'False'}<br>>>> Holat: ${state ? 'KIRGAN' : 'KIRMAGAN'}`;
+        }
+        function openProfile() {
+            const result = document.getElementById('resultProtect');
+            result.classList.add('show');
+            if (isAuth) {
+                result.innerHTML = `>>> @login_required tekshirmoqda...<br>>>> is_authenticated = True<br>>>> Ruxsat berildi: profile.html ochildi`;
+            } else {
+                result.innerHTML = `>>> @login_required tekshirmoqda...<br>>>> is_authenticated = False<br>>>> Ruxsat yo'q! /login sahifaga yuborildi`;
+            }
+        }
+
+        let userState = "chiqarilgan";
+        function authAction(action) {
+            const result = document.getElementById('resultState');
+            let msg = "";
+            if (action === 'register') {
+                userState = "ro'yxatdan o'tgan";
+                msg = `>>> User.objects.create_user("ali", "***")<br>>>> Yangi foydalanuvchi yaratildi`;
+            } else if (action === 'login') {
+                userState = "kirgan";
+                msg = `>>> login(request, user)<br>>>> Sessiya yaratildi (cookie berildi)`;
+            } else if (action === 'logout') {
+                userState = "chiqqan";
+                msg = `>>> logout(request)<br>>>> Sessiya o'chirildi (cookie tozalandi)`;
+            }
+            result.classList.add('show');
+            result.innerHTML = `${msg}<br>>>> Joriy holat: ${userState.toUpperCase()}`;
+        }
+
+        function demoHash() {
+            const p = document.getElementById('hashPass').value || "parol";
+            // soxta, lekin barqaror hash ko'rinishi
+            let h = 0;
+            for (let i = 0; i < p.length; i++) {
+                h = (h * 31 + p.charCodeAt(i)) >>> 0;
+            }
+            const chars = "abcdef0123456789";
+            let fake = "";
+            let seed = h;
+            for (let i = 0; i < 32; i++) {
+                seed = (seed * 1103515245 + 12345) >>> 0;
+                fake += chars[seed % 16];
+            }
+            const result = document.getElementById('resultHash');
+            result.classList.add('show');
+            result.innerHTML = `>>> Siz kiritgan parol: "${p}"<br>>>> Bazada saqlanadi:<br>>>> pbkdf2_sha256$870000$${fake.slice(0, 12)}$${fake.slice(12)}<br>>>> Asl parolni hech kim ko'ra olmaydi!`;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

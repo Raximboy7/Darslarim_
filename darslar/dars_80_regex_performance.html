@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 80: Regex samaradorligi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #f87171;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #dc2626; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 13 — Regex va Type Hints · Dars 80 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Regex Samaradorligi</h1>
+                <p>Modul 13 — Regex va Type Hints | Dars 80</p>
+            </header>
+
+            <div class="section">
+                <h2>Regex Tezligi Nega Muhim?</h2>
+                <div class="description">
+                    Regex (regular expression) — matn ichidan namuna (pattern) qidirishning kuchli vositasi.
+                    Lekin u <strong>har doim ham tez emas</strong>. Kichik matnda farq sezilmaydi, ammo
+                    <strong>katta fayllarda yoki minglab qatorda</strong> qidirayotganda yomon yozilgan regex
+                    dasturni soniyalarga, ba'zan daqiqalarga sekinlashtirishi mumkin.
+                </div>
+                <div class="info-box">
+                    <strong>Asosiy g'oya</strong>
+                    <p>
+                        Regex qancha "ishlash" qilishini biz boshqaramiz. To'g'ri yozilgan pattern bir o'tishda
+                        topadi, yomon yozilgani esa bir necha marta orqaga qaytib, qayta-qayta tekshiradi.
+                        Bu darsda regexni <strong>tezroq</strong> qilishning yo'llarini o'rganamiz.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. re.compile() — Oldindan Tayyorlash</h2>
+                <div class="description">
+                    Har safar <span class="highlight-var">re.search()</span> chaqirsangiz, Python pattern'ni
+                    har gal qaytadan "tushunadi" (kompilyatsiya qiladi). Agar bitta pattern'ni
+                    <strong>ko'p marta</strong> ishlatsangiz, uni bir marta
+                    <span class="highlight-var">re.compile()</span> bilan tayyorlab qo'ying — bu ancha tezroq.
+                </div>
+
+                <h3>Sekin usul — har gal qayta tayyorlaydi</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        natijalar = []<br>
+                        <span class="keyword">for</span> qator <span class="keyword">in</span> matnlar:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> re.<span class="function">search</span>(<span class="string">r"\d+"</span>, qator):  <span class="comment"># har gal qayta tayyorlaydi</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natijalar.<span class="function">append</span>(qator)
+                    </div>
+                    <div class="comment-part">
+                        # Pattern har aylanishda qaytadan tahlil qilinadi — ortiqcha ish
+                    </div>
+                </div>
+
+                <h3>Tez usul — bir marta tayyorla, ko'p marta ishlat</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        pattern = re.<span class="function">compile</span>(<span class="string">r"\d+"</span>)  <span class="comment"># bir marta tayyorlandi</span><br>
+                        natijalar = []<br>
+                        <span class="keyword">for</span> qator <span class="keyword">in</span> matnlar:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> pattern.<span class="function">search</span>(qator):  <span class="comment"># tayyor pattern'dan foydalanadi</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;natijalar.<span class="function">append</span>(qator)
+                    </div>
+                    <div class="comment-part">
+                        # Pattern bir marta tayyorlanadi, sikl ichida faqat ishlatiladi — tezroq
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Qachon foydali?</strong>
+                    <p>
+                        Bir pattern'ni sikl ichida yoki ko'p marta ishlatsangiz —
+                        <span class="highlight-var">re.compile()</span> ishlating. Faqat bir marta
+                        ishlatsangiz, oddiy <span class="highlight-var">re.search()</span> ham yetarli.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Ochko'z (Greedy) va Dangasa (Lazy) Kvantorlar</h2>
+                <div class="description">
+                    Kvantor <span class="highlight-var">*</span> va <span class="highlight-var">+</span> standart holatda
+                    <strong>ochko'z (greedy)</strong> bo'ladi — iloji boricha <strong>ko'proq</strong> belgini oladi.
+                    Ularga <span class="highlight-var">?</span> qo'shsangiz <strong>dangasa (lazy)</strong> bo'ladi —
+                    iloji boricha <strong>kamroq</strong> oladi.
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Kvantor</th><th>Turi</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>.*</code></td><td>Ochko'z</td><td>Iloji boricha ko'p ol</td></tr>
+                        <tr><td><code>.*?</code></td><td>Dangasa</td><td>Iloji boricha kam ol</td></tr>
+                        <tr><td><code>.+</code></td><td>Ochko'z</td><td>Kamida bitta, ko'p ol</td></tr>
+                        <tr><td><code>.+?</code></td><td>Dangasa</td><td>Kamida bitta, kam ol</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Misol: &lt;b&gt; teglarini topish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        matn = <span class="string">"&lt;b&gt;Salom&lt;/b&gt; va &lt;b&gt;Dunyo&lt;/b&gt;"</span><br><br>
+                        re.<span class="function">findall</span>(<span class="string">r"&lt;b&gt;.*&lt;/b&gt;"</span>, matn)   <span class="comment"># ochko'z</span><br>
+                        re.<span class="function">findall</span>(<span class="string">r"&lt;b&gt;.*?&lt;/b&gt;"</span>, matn)  <span class="comment"># dangasa</span>
+                    </div>
+                    <div class="comment-part">
+                        # Ochko'z — eng oxirgi &lt;/b&gt; gacha hamma narsani oladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ochko'z:  ['&lt;b&gt;Salom&lt;/b&gt; va &lt;b&gt;Dunyo&lt;/b&gt;']<br>
+                    >>> dangasa:  ['&lt;b&gt;Salom&lt;/b&gt;', '&lt;b&gt;Dunyo&lt;/b&gt;']
+                </div>
+                <div class="info-box">
+                    <strong>Xulosa</strong>
+                    <p>
+                        Ochko'z <span class="highlight-var">.*</span> avval butun matnni "yutadi", keyin orqaga
+                        qaytib mos joyni qidiradi. Dangasa <span class="highlight-var">.*?</span> esa kamdan boshlab
+                        kerakli joyni topadi. Ko'pincha aniq natija uchun dangasa to'g'riroq.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Catastrophic Backtracking (Halokatli Orqaga Qaytish)</h2>
+                <div class="description">
+                    Ba'zi yomon pattern'lar matn mos kelmaganda <strong>juda ko'p variantni</strong> tekshirishga
+                    majbur bo'ladi. Har bir variant uchun orqaga qaytib qayta urinadi — bu
+                    <strong>catastrophic backtracking</strong> deyiladi va dasturni qotirib qo'yishi mumkin.
+                </div>
+
+                <h3>Yomon pattern misoli</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># XAVFLI: ichma-ich takrorlanuvchi kvantor</span><br>
+                        pattern = <span class="string">r"(a+)+b"</span><br>
+                        matn = <span class="string">"aaaaaaaaaaaaaaaaaaaa"</span>  <span class="comment"># oxirida 'b' yo'q</span><br><br>
+                        re.<span class="function">search</span>(pattern, matn)  <span class="comment"># juda sekin!</span>
+                    </div>
+                    <div class="comment-part">
+                        # 'b' topilmaydi, regex 'a' larni har xil bo'lib ko'rishga urinadi — variantlar soni portlaydi
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <strong>Nega sekinlashadi?</strong>
+                    <p>
+                        <span class="highlight-var">(a+)+</span> da bitta narsa (a lar) ikki marta takrorlanyapti.
+                        20 ta "a" ni guruhlarga ajratishning million xil yo'li bor. "b" topilmagani uchun
+                        regex bularning <strong>hammasini</strong> sinab ko'radi. Belgilar ko'paygan sayin
+                        vaqt <strong>eksponensial</strong> oshadi.
+                    </p>
+                </div>
+
+                <h3>Qanday qochish kerak?</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qoida</th><th>Tushuntirish</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Ichma-ich kvantordan qoch</td><td><code>(a+)+</code> emas, oddiy <code>a+</code> yoz</td></tr>
+                        <tr><td>Aniq belgi-sinf ishlat</td><td><code>.*</code> o'rniga <code>[^"]*</code> kabi aniqroq</td></tr>
+                        <tr><td>Dangasa kvantor</td><td>Kerak bo'lsa <code>.*?</code> bilan cheklab qo'y</td></tr>
+                        <tr><td>Imkon bo'lsa ankor qo'y</td><td><code>^</code> va <code>$</code> qidiruvni cheklaydi</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># YAXSHI: oddiy va aniq</span><br>
+                        pattern = re.<span class="function">compile</span>(<span class="string">r"a+b"</span>)<br>
+                        pattern.<span class="function">search</span>(<span class="string">"aaaaaaaaaaaaaaaaaaaa"</span>)  <span class="comment"># tez False qaytaradi</span>
+                    </div>
+                    <div class="comment-part">
+                        # Ichma-ich guruh yo'q — orqaga qaytish minimal, natija bir zumda
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4. Ba'zan Oddiy String Metodi Tezroq</h2>
+                <div class="description">
+                    Regex kuchli, lekin <strong>har joyda kerak emas</strong>. Agar siz aniq bir so'zni
+                    qidirayotgan bo'lsangiz — regex emas, oddiy string metodi tezroq va o'qishga osonroq.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Maqsad</th><th>Regex (sekinroq)</th><th>String metodi (tezroq)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>So'z bormi?</td><td><code>re.search("xato", s)</code></td><td><code>"xato" in s</code></td></tr>
+                        <tr><td>Boshlanadimi?</td><td><code>re.match("http", s)</code></td><td><code>s.startswith("http")</code></td></tr>
+                        <tr><td>Almashtirish</td><td><code>re.sub("a","o",s)</code></td><td><code>s.replace("a","o")</code></td></tr>
+                        <tr><td>Bo'lish</td><td><code>re.split(",", s)</code></td><td><code>s.split(",")</code></td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        matn = <span class="string">"Bugun havo issiq"</span><br><br>
+                        <span class="comment"># Regex shart emas:</span><br>
+                        <span class="keyword">if</span> <span class="string">"havo"</span> <span class="keyword">in</span> matn:  <span class="comment"># sodda va tez</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Topildi"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Oddiy "in" tekshiruvi regexdan tez va aniq — namuna kerak bo'lmasa regex ishlatmang
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Qoida</strong>
+                    <p>
+                        Regexni faqat <strong>namuna (pattern)</strong> kerak bo'lganda ishlating —
+                        masalan "har qanday raqam", "elektron pochta shakli". Aniq matn uchun string
+                        metodlari yetarli va tezroq.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Ko'p marta ishlatsangiz — <span class="highlight-var">re.compile()</span> ishlating<br>
+                    • <span class="highlight-var">.*</span> ochko'z, <span class="highlight-var">.*?</span> dangasa<br>
+                    • Ichma-ich kvantor <span class="highlight-var">(a+)+</span> — catastrophic backtracking xavfi<br>
+                    • Aniq matn uchun string metodi regexdan tezroq
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Ochko'z va Dangasa Farqi</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="greedyText" placeholder="HTML matn" value="<b>Salom</b> va <b>Dunyo</b>">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoGreedy('greedy')">Ochko'z .*</button>
+                        <button onclick="demoGreedy('lazy')">Dangasa .*?</button>
+                    </div>
+                    <div class="demo-result" id="resultGreedy"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: compile() Bilan va Holda Tezlik</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="loopCount" placeholder="necha marta" value="200000" style="min-width:120px;">
+                        <button onclick="demoCompile()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultCompile"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Yomon vs Yaxshi Pattern</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="aCount" placeholder="nechta 'a'" value="26" min="1" max="40" style="min-width:120px;">
+                        <button onclick="demoBacktrack()">Sinab ko'r</button>
+                    </div>
+                    <div class="demo-result" id="resultBacktrack"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Pattern'ni tayyorlang</strong>
+                            <p>re.compile(r"\d+") bilan raqam topuvchi pattern yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Sikl ichida ishlating</strong>
+                            <p>Bir nechta qatorda tayyor pattern bilan search() qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Greedy/lazy farqini ko'ring</strong>
+                            <p>findall(r"&lt;.*&gt;") va findall(r"&lt;.*?&gt;") natijalarini solishtiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Soddaroq yo'lni tanlang</strong>
+                            <p>Aniq so'z qidirishda regex o'rniga "in" yoki .replace() ishlating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 81: Regex misollar</p>
+                    <p style="opacity: 0.9;">
+                        Regexni tezroq qilishni o'rgandingiz!<br>
+                        Endi haqiqiy hayotiy misollarda regexni qo'llaymiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function esc(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function demoGreedy(kind) {
+            const t = document.getElementById('greedyText').value;
+            const re = kind === 'greedy' ? /<b>.*<\/b>/g : /<b>.*?<\/b>/g;
+            const matches = t.match(re) || [];
+            const label = kind === 'greedy' ? "Ochko'z  r\"<b>.*</b>\"" : "Dangasa  r\"<b>.*?</b>\"";
+            const list = matches.map(m => "'" + esc(m) + "'").join(', ');
+            const result = document.getElementById('resultGreedy');
+            result.classList.add('show');
+            result.innerHTML = ">>> " + label + "<br>>>> [" + list + "]<br>>>> Topilgan bo'laklar soni: " + matches.length;
+        }
+
+        function demoCompile() {
+            let n = parseInt(document.getElementById('loopCount').value);
+            if (isNaN(n) || n < 1) n = 100000;
+            if (n > 2000000) n = 2000000;
+            const text = "Buyurtma raqami 12345 tasdiqlandi";
+
+            // compile holda: har gal yangi RegExp yaratish (kompilyatsiyaga o'xshash)
+            let t0 = performance.now();
+            for (let i = 0; i < n; i++) {
+                const r = new RegExp("\\d+");
+                r.test(text);
+            }
+            let t1 = performance.now();
+
+            // compile bilan: bir marta yaratish
+            const pre = new RegExp("\\d+");
+            let t2 = performance.now();
+            for (let i = 0; i < n; i++) {
+                pre.test(text);
+            }
+            let t3 = performance.now();
+
+            const noComp = (t1 - t0);
+            const withComp = (t3 - t2);
+            const speedup = withComp > 0 ? (noComp / withComp).toFixed(1) : "—";
+
+            const result = document.getElementById('resultCompile');
+            result.classList.add('show');
+            result.innerHTML =
+                ">>> " + n.toLocaleString('en-US') + " marta qidiruv<br>" +
+                ">>> compile() HOLDA: " + noComp.toFixed(1) + " ms<br>" +
+                ">>> compile() BILAN: " + withComp.toFixed(1) + " ms<br>" +
+                ">>> compile() taxminan " + speedup + "x tezroq";
+        }
+
+        function demoBacktrack() {
+            let k = parseInt(document.getElementById('aCount').value);
+            if (isNaN(k) || k < 1) k = 20;
+            if (k > 40) k = 40;
+            const text = "a".repeat(k); // oxirida 'b' yo'q — mos kelmaydi
+
+            // YOMON pattern: ichma-ich kvantor -> catastrophic backtracking
+            const bad = /^(a+)+b$/;
+            let t0 = performance.now();
+            bad.test(text);
+            let t1 = performance.now();
+            const badMs = (t1 - t0);
+
+            // YAXSHI pattern: oddiy
+            const good = /^a+b$/;
+            let t2 = performance.now();
+            good.test(text);
+            let t3 = performance.now();
+            const goodMs = (t3 - t2);
+
+            const result = document.getElementById('resultBacktrack');
+            result.classList.add('show');
+            result.innerHTML =
+                ">>> Matn: " + k + " ta 'a' ('b' yo'q)<br>" +
+                ">>> YOMON  r\"^(a+)+b$\":  " + badMs.toFixed(2) + " ms<br>" +
+                ">>> YAXSHI r\"^a+b$\":     " + goodMs.toFixed(2) + " ms<br>" +
+                ">>> Maslahat: 'a' sonini 28-32 ga oshirib ko'ring — yomon pattern keskin sekinlashadi!";
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

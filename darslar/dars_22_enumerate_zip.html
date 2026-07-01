@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 22: enumerate va zip</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* PAIR / ZIP VISUALIZER */
+        .pair-viz { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .pair-row {
+            display: flex; align-items: center; gap: 8px;
+            font-family: monospace; font-size: 0.95em;
+        }
+        .pair-cell {
+            min-width: 44px; height: 40px; padding: 0 10px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; font-weight: bold;
+        }
+        .cell-idx { background: var(--primary); color: var(--white); }
+        .cell-a { background: #1f2937; color: #fbbf24; }
+        .cell-b { background: #1f2937; color: #34d399; }
+        .pair-arrow { color: var(--gray); font-weight: bold; }
+        .pair-extra { opacity: 0.4; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 4 — Ma'lumot tuzilmalari · Dars 22 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>enumerate va zip</h1>
+                <p>Modul 4 — Ma'lumot tuzilmalari | Dars 22</p>
+            </header>
+
+            <div class="section">
+                <h2>Muammo: Indeks ham kerak bo'lsa-chi?</h2>
+                <div class="description">
+                    Oddiy <span class="highlight-var">for</span> sikli faqat <strong>qiymatlarni</strong> beradi.
+                    Lekin ko'pincha bizga qiymat bilan birga uning <strong>tartib raqami (indeksi)</strong> ham
+                    kerak bo'ladi. Aynan shu yerda <span class="highlight-var">enumerate()</span> va
+                    <span class="highlight-var">zip()</span> yordamga keladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        meva = [<span class="string">"olma"</span>, <span class="string">"banan"</span>]<br>
+                        <span class="keyword">for</span> m <span class="keyword">in</span> meva:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(m)
+                    </div>
+                    <div class="comment-part">
+                        # Bu yerda indeks yo'q — faqat qiymat
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> olma<br>
+                    >>> banan
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>enumerate() — indeks va qiymat birga</h2>
+                <div class="description">
+                    <span class="highlight-var">enumerate()</span> har bir element bilan birga uning
+                    indeksini ham qaytaradi. Sikl ichida ikkita o'zgaruvchi olamiz:
+                    <span class="highlight-var">indeks, qiymat</span>. Indeks <strong>0 dan</strong> boshlanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">for</span> i, harf <span class="keyword">in</span> <span class="function">enumerate</span>(<span class="string">"Salom"</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i, harf)
+                    </div>
+                    <div class="comment-part">
+                        # i — indeks, harf — qiymat
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 0 S<br>
+                    >>> 1 a<br>
+                    >>> 2 l<br>
+                    >>> 3 o<br>
+                    >>> 4 m
+                </div>
+
+                <h3>Sanashni 1 dan boshlash</h3>
+                <div class="description">
+                    Ikkinchi argument <span class="highlight-var">start</span> orqali sanashni xohlagan
+                    raqamdan boshlash mumkin. Masalan, ro'yxatni odamlarga ko'rsatganda 1 dan boshlash qulay.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        meva = [<span class="string">"olma"</span>, <span class="string">"banan"</span>, <span class="string">"uzum"</span>]<br>
+                        <span class="keyword">for</span> n, m <span class="keyword">in</span> <span class="function">enumerate</span>(meva, <span class="function">start</span>=<span class="number">1</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(n, m)
+                    </div>
+                    <div class="comment-part">
+                        # Sanash 1 dan boshlanadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1 olma<br>
+                    >>> 2 banan<br>
+                    >>> 3 uzum
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>zip() — ro'yxatlarni juftlash</h2>
+                <div class="description">
+                    <span class="highlight-var">zip()</span> ikki (yoki undan ko'p) ro'yxatni
+                    <strong>parallel</strong> aylanib, mos elementlarni juftlaydi. Xuddi "zamok" (zipper)
+                    kabi ikki tomonni birlashtiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        sonlar = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]<br>
+                        harflar = [<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]<br>
+                        <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="function">zip</span>(sonlar, harflar):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(a, b)
+                    </div>
+                    <div class="comment-part">
+                        # a — sonlardan, b — harflardan
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1 a<br>
+                    >>> 2 b<br>
+                    >>> 3 c
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ zip() qisqasi bo'yicha to'xtaydi!</strong>
+                    <p>
+                        Agar ro'yxatlar uzunligi har xil bo'lsa, <span class="highlight-var">zip()</span>
+                        eng <strong>qisqa</strong> ro'yxat tugashi bilan to'xtaydi. Ortiqcha elementlar
+                        e'tiborga olinmaydi.
+                    </p>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ismlar = [<span class="string">"Ali"</span>, <span class="string">"Vali"</span>, <span class="string">"Guli"</span>]<br>
+                        yosh = [<span class="number">20</span>, <span class="number">25</span>]<br>
+                        <span class="keyword">for</span> ism, y <span class="keyword">in</span> <span class="function">zip</span>(ismlar, yosh):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(ism, y)
+                    </div>
+                    <div class="comment-part">
+                        # "Guli" juftsiz qoladi — chiqmaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali 20<br>
+                    >>> Vali 25
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Taqqoslash</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Funksiya</th><th>Vazifasi</th><th>Qaytaradi (har qadam)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>enumerate(x)</code></td><td>Bitta ro'yxatga indeks qo'shadi</td><td>indeks, qiymat</td></tr>
+                        <tr><td><code>zip(x, y)</code></td><td>Ikki ro'yxatni juftlaydi</td><td>x dan, y dan</td></tr>
+                        <tr><td><code>enumerate(x, 1)</code></td><td>Sanashni 1 dan boshlaydi</td><td>1, qiymat ...</td></tr>
+                        <tr><td><code>zip(x, y, z)</code></td><td>Uch ro'yxatni juftlaydi</td><td>x dan, y dan, z dan</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: indeksni qo'lda boshqarish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            i = <span class="number">0</span><br>
+                            <span class="keyword">for</span> m <span class="keyword">in</span> meva:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i, m)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;i = i <span class="operator">+</span> <span class="number">1</span>  <span style="color:#f87171;"># noqulay</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Indeksni qo'lda oshirish uzun va xatoga moyil. Buni unutib qo'yish oson.
+                    </p>
+                </div>
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: enumerate() ishlatish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="keyword">for</span> i, m <span class="keyword">in</span> <span class="function">enumerate</span>(meva):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(i, m)
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        Toza, qisqa va Python uslubiga mos. Indeks avtomatik oshadi.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: zip natijasini to'g'ridan chiqarish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="function">print</span>(<span class="function">zip</span>(sonlar, harflar))
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> &lt;zip object at 0x000001&gt;
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        zip() to'g'ridan-to'g'ri ro'yxat emas. Ko'rish uchun <span class="highlight-var">for</span>
+                        sikli yoki <span class="highlight-var">list(zip(...))</span> ishlating.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">enumerate()</span> — indeks va qiymatni birga beradi<br>
+                    • Indeks 0 dan, <span class="highlight-var">start=1</span> bilan 1 dan boshlanadi<br>
+                    • <span class="highlight-var">zip()</span> — ikki yoki ko'p ro'yxatni juftlaydi<br>
+                    • <span class="highlight-var">zip()</span> eng qisqa ro'yxat tugashi bilan to'xtaydi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: enumerate() — indeks va qiymat</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="enumText" placeholder="So'z yoki vergulli ro'yxat" value="Salom">
+                        <input type="number" id="enumStart" placeholder="start" value="0" style="min-width:80px;">
+                        <button onclick="demoEnumerate()">Aylantir</button>
+                    </div>
+                    <div class="demo-result" id="resultEnum"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Maslahat: <span class="highlight-var">olma,banan,uzum</span> kabi vergul bilan ham yozsangiz bo'ladi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: zip() — ikki ro'yxatni juftlash</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="zipA" placeholder="1-ro'yxat" value="1,2,3">
+                        <input type="text" id="zipB" placeholder="2-ro'yxat" value="a,b,c">
+                        <button onclick="demoZip()">Juftla</button>
+                    </div>
+                    <div class="pair-viz" id="zipViz"></div>
+                    <div class="demo-result" id="resultZip"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Uzunliklar har xil bo'lsa, <span class="highlight-var">zip()</span> qisqasi bo'yicha to'xtaydi.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Ismlar + Yoshlar Jadvali</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="namesIn" placeholder="Ismlar" value="Ali,Vali,Guli">
+                        <input type="text" id="agesIn" placeholder="Yoshlar" value="20,25,19">
+                        <button onclick="demoTable()">Jadval yarat</button>
+                    </div>
+                    <div class="demo-result" id="resultTable"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">for ism, y in zip(ismlar, yoshlar)</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Raqamlangan Ro'yxat (start=1)</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="menuIn" placeholder="Taomlar" value="osh,manti,somsa">
+                        <button onclick="demoMenu()">Menyu chiqar</button>
+                    </div>
+                    <div class="demo-result" id="resultMenu"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    <span class="highlight-var">enumerate(menyu, start=1)</span> bilan 1 dan sanaymiz.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: enumerate + zip birga</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="combNames" placeholder="Ismlar" value="Ali,Vali,Guli">
+                        <input type="text" id="combCity" placeholder="Shaharlar" value="Toshkent,Buxoro,Xiva">
+                        <button onclick="demoCombo()">Birlashtir</button>
+                    </div>
+                    <div class="demo-result" id="resultCombo"></div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9em;">
+                    Kod: <span class="highlight-var">for i,(ism,shahar) in enumerate(zip(...), 1)</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ikki ro'yxat tayyorlang</strong>
+                            <p>mahsulotlar va narxlar ro'yxatini yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>zip() bilan juftlang</strong>
+                            <p>for nom, narx in zip(mahsulotlar, narxlar)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>enumerate qo'shing</strong>
+                            <p>Har bir qatorni 1 dan raqamlab chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Chiroyli chop eting</strong>
+                            <p>f-string bilan "1. olma — 5000 so'm" ko'rinishida</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 23: Tuzilmalarni taqqoslash</p>
+                    <p style="opacity: 0.9;">
+                        enumerate va zip ni o'rgandingiz!<br>
+                        Endi list, tuple, set va dict qachon ishlatilishini taqqoslaymiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matnni ro'yxatga aylantirish: vergulli bo'lsa bo'lakka bo'lamiz, aks holda harflarga
+        function toItems(text) {
+            if (text.includes(',')) {
+                return text.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            }
+            return [...text];
+        }
+
+        function demoEnumerate() {
+            const text = document.getElementById('enumText').value || "Salom";
+            let start = parseInt(document.getElementById('enumStart').value);
+            if (isNaN(start)) start = 0;
+            const items = toItems(text);
+            let lines = `>>> for i, x in enumerate(..., start=${start}):<br>`;
+            items.forEach((it, k) => {
+                lines += `&gt;&gt;&gt; ${start + k} ${it}<br>`;
+            });
+            const result = document.getElementById('resultEnum');
+            result.classList.add('show');
+            result.innerHTML = lines;
+        }
+
+        function demoZip() {
+            const a = toItems(document.getElementById('zipA').value);
+            const b = toItems(document.getElementById('zipB').value);
+            const n = Math.min(a.length, b.length);
+
+            // Vizualizatsiya
+            const viz = document.getElementById('zipViz');
+            viz.innerHTML = '';
+            const maxLen = Math.max(a.length, b.length);
+            for (let i = 0; i < maxLen; i++) {
+                const paired = i < n;
+                const row = document.createElement('div');
+                row.className = 'pair-row' + (paired ? '' : ' pair-extra');
+                const av = i < a.length ? a[i] : '—';
+                const bv = i < b.length ? b[i] : '—';
+                row.innerHTML = `
+                    <div class="pair-cell cell-a">${av}</div>
+                    <span class="pair-arrow">+</span>
+                    <div class="pair-cell cell-b">${bv}</div>
+                    <span class="pair-arrow">→</span>
+                    <div class="pair-cell" style="background:var(--primary-light);color:var(--primary-dark);">
+                        ${paired ? `(${av}, ${bv})` : 'juftsiz'}
+                    </div>`;
+                viz.appendChild(row);
+            }
+
+            let lines = `>>> for x, y in zip(a, b):<br>`;
+            for (let i = 0; i < n; i++) {
+                lines += `&gt;&gt;&gt; ${a[i]} ${b[i]}<br>`;
+            }
+            if (a.length !== b.length) {
+                lines += `<span style="color:#fbbf24;"># zip qisqasi (${n} ta) bo'yicha to'xtadi</span>`;
+            }
+            const result = document.getElementById('resultZip');
+            result.classList.add('show');
+            result.innerHTML = lines;
+        }
+
+        function demoTable() {
+            const names = toItems(document.getElementById('namesIn').value);
+            const ages = toItems(document.getElementById('agesIn').value);
+            const n = Math.min(names.length, ages.length);
+            let lines = `>>> for ism, yosh in zip(ismlar, yoshlar):<br>`;
+            lines += `&gt;&gt;&gt; --------------------<br>`;
+            for (let i = 0; i < n; i++) {
+                lines += `&gt;&gt;&gt; ${names[i]} — ${ages[i]} yosh<br>`;
+            }
+            lines += `&gt;&gt;&gt; --------------------`;
+            const result = document.getElementById('resultTable');
+            result.classList.add('show');
+            result.innerHTML = lines;
+        }
+
+        function demoMenu() {
+            const items = toItems(document.getElementById('menuIn').value);
+            let lines = `>>> for n, taom in enumerate(menyu, start=1):<br>`;
+            items.forEach((it, k) => {
+                lines += `&gt;&gt;&gt; ${k + 1}. ${it}<br>`;
+            });
+            const result = document.getElementById('resultMenu');
+            result.classList.add('show');
+            result.innerHTML = lines;
+        }
+
+        function demoCombo() {
+            const names = toItems(document.getElementById('combNames').value);
+            const cities = toItems(document.getElementById('combCity').value);
+            const n = Math.min(names.length, cities.length);
+            let lines = `>>> for i,(ism,shahar) in enumerate(zip(...), 1):<br>`;
+            for (let i = 0; i < n; i++) {
+                lines += `&gt;&gt;&gt; ${i + 1}. ${names[i]} — ${cities[i]}<br>`;
+            }
+            const result = document.getElementById('resultCombo');
+            result.classList.add('show');
+            result.innerHTML = lines;
+        }
+
+        // Dastlabki ko'rinish
+        demoZip();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

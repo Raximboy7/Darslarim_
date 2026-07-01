@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 164: Monitoring va loglar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DIAGRAMMA — monitoring oqimi */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--light);
+            border-radius: 10px;
+            padding: 22px 15px;
+            margin: 18px 0;
+        }
+        .flow-node {
+            background: var(--white);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px 16px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--dark);
+            font-size: 0.9em;
+            min-width: 110px;
+        }
+        .flow-node span { display: block; font-size: 1.5em; margin-bottom: 4px; }
+        .flow-node small { display: block; color: var(--gray); font-weight: normal; font-size: 0.8em; margin-top: 4px; }
+        .flow-arrow { color: var(--primary-dark); font-size: 1.5em; font-weight: bold; }
+
+        /* LOG SATRLARI */
+        .log-view {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.7;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+        .log-line { white-space: pre; padding: 2px 6px; border-radius: 4px; }
+        .log-info { color: #93c5fd; }
+        .log-warn { color: #fbbf24; }
+        .log-error { color: #f87171; background: rgba(248, 113, 113, 0.12); font-weight: bold; }
+        .log-found { outline: 2px solid var(--primary); }
+
+        /* METRIK BARLAR */
+        .metric-row { margin-bottom: 14px; }
+        .metric-label { display: flex; justify-content: space-between; font-weight: bold; color: var(--dark); font-size: 0.9em; margin-bottom: 6px; }
+        .metric-track { background: #e5e7eb; border-radius: 8px; height: 22px; overflow: hidden; }
+        .metric-fill { height: 100%; border-radius: 8px; width: 0; transition: width 0.8s ease; display: flex; align-items: center; justify-content: flex-end; color: var(--white); font-size: 0.8em; font-weight: bold; padding-right: 8px; }
+        .metric-ok { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+        .metric-warn { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .metric-crit { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+
+        /* ALERT */
+        .alert-banner {
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-top: 12px;
+            font-weight: bold;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+        .alert-banner.show { display: block; }
+        .alert-ok { background: var(--primary-light); color: var(--primary-dark); border-left: 4px solid var(--primary); }
+        .alert-fire { background: #fee2e2; color: #b91c1c; border-left: 4px solid #ef4444; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 21 — DevOps — Docker va CI/CD · Dars 164 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Monitoring va Loglar</h1>
+                <p>Modul 21 — DevOps — Docker va CI/CD | Dars 164</p>
+            </header>
+
+            <div class="section">
+                <h2>Monitoring Nima?</h2>
+                <div class="description">
+                    <strong>Monitoring</strong> — bu ishlab turgan ilovangiz holatini doimiy
+                    <strong>kuzatib borish</strong>. Xuddi shifokor bemorning yurak urishini, harorati va
+                    qon bosimini kuzatgani kabi, biz ham serverdagi ilovamizning "salomatligini" kuzatamiz:
+                    u ishlayaptimi, tez javob beryaptimi, xato bermayaptimi?
+                </div>
+                <p style="line-height:1.7; color: var(--dark);">
+                    Ilova foydalanuvchiga ko'rinmaydigan serverlarda ishlaydi. Monitoring bo'lmasa,
+                    biror narsa buzilganini faqat foydalanuvchi shikoyat qilgandan keyin bilamiz.
+                    Monitoring bilan esa muammoni <strong>foydalanuvchidan oldin</strong> sezamiz.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Nega Monitoring Kerak?</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Monitoring YO'Q bo'lsa</th><th>Monitoring BOR bo'lsa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Sayt o'chganini mijoz qo'ng'iroq qilganda bilamiz</td><td>Sayt o'chsa, darhol xabar olamiz</td></tr>
+                        <tr><td>Muammo qayerdaligini topish soatlar oladi</td><td>Loglar muammoni daqiqalarda ko'rsatadi</td></tr>
+                        <tr><td>Server to'lib qolganini sezmaymiz</td><td>Xotira to'layotganini oldindan ko'ramiz</td></tr>
+                        <tr><td>Sekinlik sababini bilmaymiz</td><td>Qaysi qism sekin ekanini metriklar aytadi</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Asosiy maqsad</strong>
+                    <p>Monitoring muammoni <strong>tez topish</strong> va ideal holatda
+                    <strong>oldini olish</strong> uchun kerak. Tez topilgan muammo — arzon muammo.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Monitoring Oqimi (Diagramma)</h2>
+                <div class="description">
+                    Ilova <strong>loglar</strong> va <strong>metriklar</strong> chiqaradi. Maxsus vositalar
+                    ularni yig'ib, chiroyli ekranda ko'rsatadi va kerak bo'lsa sizga
+                    <strong>ogohlantirish</strong> yuboradi.
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-node"><span>🖥️</span>Ilova<small>log + metrik</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node"><span>📥</span>Yig'uvchi<small>Prometheus</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node"><span>📊</span>Dashboard<small>Grafana</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node"><span>🔔</span>Alert<small>SMS / Email</small></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1) Loglar — Ilovaning Kundaligi</h2>
+                <div class="description">
+                    <strong>Log</strong> — bu ilova nima qilayotganini yozib boradigan matn satrlari.
+                    Xuddi kundalik kabi: "soat 14:05 da foydalanuvchi kirdi", "soat 14:07 da xato yuz berdi".
+                    Har satr odatda <span class="highlight-var">vaqt</span>, <span class="highlight-var">daraja</span>
+                    va <span class="highlight-var">xabar</span> dan iborat.
+                </div>
+                <h3>Loglar darajalari</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Daraja</th><th>Ma'nosi</th><th>Misol</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>INFO</code></td><td>Oddiy ma'lumot, hammasi joyida</td><td>"Foydalanuvchi kirdi"</td></tr>
+                        <tr><td><code>WARNING</code></td><td>Diqqat, e'tibor bering</td><td>"Xotira 80% to'ldi"</td></tr>
+                        <tr><td><code>ERROR</code></td><td>Xato yuz berdi</td><td>"Bazaga ulanib bo'lmadi"</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Pythonda log yozish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> logging<br>
+                        logging.<span class="function">basicConfig</span>(level=logging.INFO)<br>
+                        <br>
+                        logging.<span class="function">info</span>(<span class="string">"Foydalanuvchi kirdi"</span>)<br>
+                        logging.<span class="function">error</span>(<span class="string">"Bazaga ulanib bo'lmadi"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # logging moduli loglarni chiroyli yozadi<br>
+                        # info — oddiy xabar, error — xato xabar
+                    </div>
+                </div>
+
+                <h3>Docker loglarini ko'rish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        docker logs mening_ilovam<br>
+                        docker logs <span class="operator">-f</span> mening_ilovam
+                    </div>
+                    <div class="comment-part">
+                        # konteyner chiqargan barcha loglarni ko'rsatadi<br>
+                        # -f (follow) — yangi loglarni jonli kuzatadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2) Metriklar — Raqamli Ko'rsatkichlar</h2>
+                <div class="description">
+                    <strong>Metrik</strong> — bu vaqt o'tishi bilan o'lchanadigan raqam. Loglar "nima bo'ldi"
+                    deb aytsa, metriklar "qancha" degan savolga javob beradi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metrik</th><th>Nimani o'lchaydi</th><th>Yaxshi qiymat</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>CPU</code></td><td>Protsessor band darajasi</td><td>&lt; 70%</td></tr>
+                        <tr><td><code>Xotira (RAM)</code></td><td>Ishlatilgan operativ xotira</td><td>&lt; 80%</td></tr>
+                        <tr><td><code>So'rovlar soni</code></td><td>Soniyada nechta so'rov keladi</td><td>kuzatib turiladi</td></tr>
+                        <tr><td><code>Javob vaqti</code></td><td>So'rovga qancha vaqtda javob</td><td>&lt; 300 ms</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>3) Alerting — Ogohlantirish</h2>
+                <div class="description">
+                    <strong>Alerting</strong> — metrik xavfli <strong>chegaradan oshganda</strong> sizga
+                    avtomatik xabar yuborish. Masalan: "CPU 90% dan oshsa, menga SMS yubor". Shunda siz
+                    ekranni doimiy kuzatib o'tirmaysiz — tizim o'zi sizni chaqiradi.
+                </div>
+                <div class="info-box">
+                    <strong>Chegara (threshold)</strong>
+                    <p>Alert qoidasi: <span class="highlight-var">agar metrik &gt; chegara bo'lsa → ogohlantir</span>.
+                    Chegarani juda past qo'ysangiz — keraksiz xabarlar ko'payadi; juda baland qo'ysangiz —
+                    muammoni kech bilasiz.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Asosiy Vositalar</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Vosita</th><th>Nima qiladi (sodda)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Prometheus</code></td><td>Metriklarni yig'adi va saqlaydi (raqamlar ombori)</td></tr>
+                        <tr><td><code>Grafana</code></td><td>Metriklarni chiroyli grafik va dashboardlarda ko'rsatadi</td></tr>
+                        <tr><td><code>Sentry</code></td><td>Ilovadagi xatolarni tutib oladi va sizga xabar beradi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Health Check — Salomatlik Tekshiruvi</h2>
+                <div class="description">
+                    <strong>Health check</strong> — ilova "men tirikman" deb javob beradigan maxsus manzil
+                    (masalan <span class="highlight-var">/health</span>). Tizim har necha soniyada shu manzilga
+                    so'rov yuboradi: <span class="highlight-var">200 OK</span> kelsa — ilova sog'lom; javob
+                    kelmasa — ilova o'chgan, qayta ishga tushiriladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Oddiy health check endpoint (Flask)</span><br>
+                        <span class="function">@app</span>.route(<span class="string">"/health"</span>)<br>
+                        <span class="keyword">def</span> <span class="function">health</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> {<span class="string">"status"</span>: <span class="string">"ok"</span>}, <span class="number">200</span>
+                    </div>
+                    <div class="comment-part">
+                        # /health manziliga kirilganda "ok" qaytaradi<br>
+                        # tizim shu javobga qarab ilova tirikligini biladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Log</span> — nima bo'ldi (matn kundalik)<br>
+                    • <span class="highlight-var">Metrik</span> — qancha (raqamli ko'rsatkich)<br>
+                    • <span class="highlight-var">Alert</span> — chegaradan oshsa ogohlantirish<br>
+                    • <span class="highlight-var">Health check</span> — ilova tirikmi degan tekshiruv<br>
+                    • Vositalar: Prometheus (yig'ish), Grafana (ko'rsatish), Sentry (xatolar)
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Loglardan Muammoni Topish</h2>
+                <div class="interactive-demo">
+                    <p style="color: var(--dark); margin-bottom: 12px;">
+                        Quyida ilova loglari. Faqat <strong>ERROR</strong> satrlarini ajratib ko'rsataylik —
+                        xuddi <span class="highlight-var">docker logs | grep ERROR</span> kabi.
+                    </p>
+                    <div class="btn-row">
+                        <button onclick="filterLogs('all')">Hammasi</button>
+                        <button onclick="filterLogs('warn')">WARNING+</button>
+                        <button onclick="filterLogs('error')">Faqat ERROR</button>
+                    </div>
+                    <div class="log-view" id="logView"></div>
+                    <div class="demo-result" id="logResult"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Metriklar Dashboard</h2>
+                <div class="interactive-demo">
+                    <p style="color: var(--dark); margin-bottom: 12px;">
+                        "Yangilash" tugmasi serverdan yangi o'lchovlar olishni taqlid qiladi. Bar yashil —
+                        xavfsiz, sariq — diqqat, qizil — xavfli.
+                    </p>
+                    <div class="demo-input">
+                        <button onclick="refreshDashboard()">📊 O'lchovlarni yangilash</button>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label"><span>CPU</span><span id="cpuVal">0%</span></div>
+                        <div class="metric-track"><div class="metric-fill metric-ok" id="cpuBar"></div></div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label"><span>Xotira (RAM)</span><span id="ramVal">0%</span></div>
+                        <div class="metric-track"><div class="metric-fill metric-ok" id="ramBar"></div></div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label"><span>Javob vaqti</span><span id="latVal">0 ms</span></div>
+                        <div class="metric-track"><div class="metric-fill metric-ok" id="latBar"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Alert Ishlashi</h2>
+                <div class="interactive-demo">
+                    <p style="color: var(--dark); margin-bottom: 12px;">
+                        CPU qiymatini surgich bilan o'zgartiring. Agar u <strong>chegaradan (80%)</strong>
+                        oshsa — alert yonadi.
+                    </p>
+                    <div class="demo-input" style="align-items:center;">
+                        <label style="font-weight:bold; color: var(--dark);">CPU: <span id="alertVal">50</span>%</label>
+                        <input type="range" id="alertRange" min="0" max="100" value="50" oninput="checkAlert()" style="flex:1; min-width:160px;">
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-track"><div class="metric-fill metric-ok" id="alertBar" style="width:50%;">50%</div></div>
+                    </div>
+                    <p style="color: var(--gray); font-size: 0.85em; margin-top:8px;">Chegara (threshold): 80%</p>
+                    <div class="alert-banner alert-ok show" id="alertBanner">✅ Tizim sog'lom — hammasi joyida</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Log yozing</strong>
+                            <p>logging moduli bilan INFO va ERROR darajali ikkita log satri chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Docker loglarini ko'ring</strong>
+                            <p>docker logs -f buyrug'i bilan konteyner loglarini jonli kuzating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Health check qo'shing</strong>
+                            <p>Ilovangizga /health manzilini qo'shing va "ok" qaytaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Alert qoidasini yozing</strong>
+                            <p>Qog'ozda: "agar CPU &gt; 80% bo'lsa, xabar yubor" qoidasini tuzing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 165: Proyekt — deploy pipeline</p>
+                    <p style="opacity: 0.9;">
+                        Monitoring va loglarni o'rgandingiz!<br>
+                        Endi hamma DevOps bilimlarini birlashtirib, to'liq loyihani deploy qilamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- Misol 1: loglardan muammo topish ----
+        const logData = [
+            { lvl: 'info',  text: '14:02:10 INFO   Server ishga tushdi (port 8000)' },
+            { lvl: 'info',  text: '14:03:01 INFO   Foydalanuvchi #51 tizimga kirdi' },
+            { lvl: 'warn',  text: '14:04:22 WARN   Javob vaqti sekinlashdi (420 ms)' },
+            { lvl: 'info',  text: '14:05:05 INFO   Buyurtma #1204 yaratildi' },
+            { lvl: 'error', text: '14:05:47 ERROR  Bazaga ulanib bo\'lmadi: timeout' },
+            { lvl: 'warn',  text: '14:06:10 WARN   Xotira 82% ga yetdi' },
+            { lvl: 'error', text: '14:06:31 ERROR  To\'lov xizmati javob bermadi (500)' }
+        ];
+
+        function filterLogs(mode) {
+            const view = document.getElementById('logView');
+            const order = { info: 0, warn: 1, error: 2 };
+            const min = mode === 'all' ? 0 : (mode === 'warn' ? 1 : 2);
+            view.innerHTML = '';
+            let shown = 0, errCount = 0;
+            logData.forEach(l => {
+                if (order[l.lvl] >= min) {
+                    const div = document.createElement('div');
+                    div.className = 'log-line log-' + l.lvl + (mode === 'error' ? ' log-found' : '');
+                    div.textContent = l.text;
+                    view.appendChild(div);
+                    shown++;
+                    if (l.lvl === 'error') errCount++;
+                }
+            });
+            const res = document.getElementById('logResult');
+            res.classList.add('show');
+            if (mode === 'error') {
+                res.innerHTML = '>>> ' + shown + ' ta ERROR topildi. Muammo: baza va to\'lov xizmati!';
+            } else {
+                res.innerHTML = '>>> ' + shown + ' ta satr ko\'rsatildi (' + errCount + ' ta ERROR ichida)';
+            }
+        }
+
+        // ---- Misol 2: metriklar dashboard ----
+        function setBar(barId, valId, value, suffix, warnAt, critAt) {
+            const bar = document.getElementById(barId);
+            const widthPct = suffix === ' ms' ? Math.min(value / 5, 100) : value;
+            bar.style.width = widthPct + '%';
+            bar.textContent = value + suffix;
+            bar.className = 'metric-fill ' + (value >= critAt ? 'metric-crit' : value >= warnAt ? 'metric-warn' : 'metric-ok');
+            document.getElementById(valId).textContent = value + suffix;
+        }
+
+        function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function refreshDashboard() {
+            setBar('cpuBar', 'cpuVal', rnd(20, 95), '%', 70, 85);
+            setBar('ramBar', 'ramVal', rnd(30, 92), '%', 80, 90);
+            setBar('latBar', 'latVal', rnd(80, 480), ' ms', 300, 400);
+        }
+
+        // ---- Misol 3: alert ----
+        function checkAlert() {
+            const v = parseInt(document.getElementById('alertRange').value);
+            const threshold = 80;
+            document.getElementById('alertVal').textContent = v;
+            const bar = document.getElementById('alertBar');
+            bar.style.width = v + '%';
+            bar.textContent = v + '%';
+            const banner = document.getElementById('alertBanner');
+            banner.classList.add('show');
+            if (v > threshold) {
+                bar.className = 'metric-fill metric-crit';
+                banner.className = 'alert-banner alert-fire show';
+                banner.innerHTML = '🔔 ALERT! CPU ' + v + '% — chegaradan (80%) oshdi. Xabar yuborildi!';
+            } else {
+                bar.className = 'metric-fill ' + (v >= 70 ? 'metric-warn' : 'metric-ok');
+                banner.className = 'alert-banner alert-ok show';
+                banner.innerHTML = '✅ Tizim sog\'lom — CPU ' + v + '%, chegaradan past';
+            }
+        }
+
+        // dastlabki ko'rinish
+        filterLogs('all');
+        refreshDashboard();
+        checkAlert();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

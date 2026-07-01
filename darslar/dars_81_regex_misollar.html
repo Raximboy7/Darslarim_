@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 81: Regex misollar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, textarea {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        textarea { width: 100%; background: var(--white); font-family: 'Monaco', monospace; resize: vertical; line-height: 1.5; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 13 — Regex va Type Hints · Dars 81 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Regex — Amaliy Misollar</h1>
+                <p>Modul 13 — Regex va Type Hints | Dars 81</p>
+            </header>
+
+            <div class="section">
+                <h2>Nazariyadan Amaliyotga</h2>
+                <div class="description">
+                    Bu darsda biz oldingi darslarda o'rgangan barcha <strong>regex</strong> bilimlarini
+                    real hayot masalalariga qo'llaymiz. Bu modulning yakuniy darsi —
+                    haqiqiy dasturchilar har kuni duch keladigan to'rt katta vazifani ko'ramiz:
+                    <strong>log fayl tahlili</strong>, <strong>ma'lumot validatsiyasi</strong>,
+                    <strong>matndan ma'lumot ajratish</strong> va <strong>sana/vaqt tekshiruvi</strong>.
+                </div>
+                <div class="info-box">
+                    <strong>Har misolning tuzilishi</strong>
+                    <p>
+                        Quyidagi har bir misolni uch qadamda ko'rib chiqamiz:<br>
+                        1. <span class="highlight-var">Shart</span> — qanday muammoni hal qilyapmiz<br>
+                        2. <span class="highlight-var">Pattern</span> — qaysi regex naqshini ishlatamiz<br>
+                        3. <span class="highlight-var">Tushuntirish</span> — pattern qanday ishlaydi
+                    </p>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re
+                    </div>
+                    <div class="comment-part">
+                        # Barcha misollarda re modulini import qilamiz
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol A: Log Fayl Tahlili</h2>
+                <div class="description">
+                    <strong>Shart:</strong> Server log faylida minglab qator bor. Bizga faqat
+                    <strong>xato (ERROR)</strong> qatorlarini va ularning <strong>sanasini</strong>
+                    ajratib olish kerak.
+                </div>
+
+                <h3>1-qadam: Namuna log qatori</h3>
+                <div class="code-part">
+                    2026-06-30 14:23:01 ERROR Ulanish uzildi<br>
+                    2026-06-30 14:23:05 INFO Foydalanuvchi kirdi<br>
+                    2026-06-30 14:24:10 ERROR Fayl topilmadi
+                </div>
+
+                <h3>2-qadam: Pattern</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        log = <span class="string">"2026-06-30 14:23:01 ERROR Ulanish uzildi"</span><br>
+                        pattern = <span class="string">r"(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) ERROR (.+)"</span><br>
+                        moslik = re.<span class="function">search</span>(pattern, log)<br>
+                        <span class="keyword">if</span> moslik:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Sana:"</span>, moslik.<span class="function">group</span>(<span class="number">1</span>))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Vaqt:"</span>, moslik.<span class="function">group</span>(<span class="number">2</span>))<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Xato:"</span>, moslik.<span class="function">group</span>(<span class="number">3</span>))
+                    </div>
+                    <div class="comment-part">
+                        # Uchta guruh: sana, vaqt, xato matni
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Sana: 2026-06-30<br>
+                    >>> Vaqt: 14:23:01<br>
+                    >>> Xato: Ulanish uzildi
+                </div>
+
+                <h3>3-qadam: Tushuntirish</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Bo'lak</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>(\d{4}-\d{2}-\d{2})</code></td><td>4 raqam - 2 raqam - 2 raqam = sana</td></tr>
+                        <tr><td><code>(\d{2}:\d{2}:\d{2})</code></td><td>vaqt: soat:daqiqa:soniya</td></tr>
+                        <tr><td><code>ERROR</code></td><td>Faqat ERROR so'zi bor qatorlar mos keladi</td></tr>
+                        <tr><td><code>(.+)</code></td><td>Qolgan butun matn = xato izohi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Demo 1: Log Qatoridan Sana va Xatoni Ajratish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="logLine" placeholder="Log qatori" value="2026-06-30 14:23:01 ERROR Ulanish uzildi">
+                        <button onclick="demoLog()">Ajrat</button>
+                    </div>
+                    <div class="demo-result" id="resultLog"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol B: Ma'lumot Validatsiyasi</h2>
+                <div class="description">
+                    <strong>Shart:</strong> Foydalanuvchi kiritgan ma'lumot to'g'rimi yoki yo'qligini
+                    tekshirish kerak. Masalan <strong>parol kuchi</strong> yoki
+                    <strong>ID raqam</strong> formati.
+                </div>
+
+                <h3>Parol kuchi qoidalari</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Qoida</th><th>Pattern</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Kamida bitta katta harf</td><td><code>[A-Z]</code></td></tr>
+                        <tr><td>Kamida bitta kichik harf</td><td><code>[a-z]</code></td></tr>
+                        <tr><td>Kamida bitta raqam</td><td><code>\d</code></td></tr>
+                        <tr><td>Kamida bitta belgi</td><td><code>[!@#$%]</code></td></tr>
+                        <tr><td>Uzunligi 8+</td><td><code>.{8,}</code></td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br><br>
+                        <span class="keyword">def</span> <span class="function">parol_kuchli</span>(parol):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> <span class="function">len</span>(parol) <span class="operator">&lt;</span> <span class="number">8</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="boolean">False</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> <span class="keyword">not</span> re.<span class="function">search</span>(<span class="string">r"[A-Z]"</span>, parol):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="boolean">False</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> <span class="keyword">not</span> re.<span class="function">search</span>(<span class="string">r"\d"</span>, parol):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="boolean">False</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="boolean">True</span>
+                    </div>
+                    <div class="comment-part">
+                        # Har bir qoidani alohida search bilan tekshiramiz
+                    </div>
+                </div>
+
+                <h3>ID raqam tekshiruvi (masalan AB1234567)</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        pattern = <span class="string">r"^[A-Z]{2}\d{7}$"</span><br>
+                        <span class="function">print</span>(<span class="function">bool</span>(re.<span class="function">match</span>(pattern, <span class="string">"AB1234567"</span>)))
+                    </div>
+                    <div class="comment-part">
+                        # ^ va $ — boshidan oxirigacha aniq moslik bo'lsin
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> True
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Demo 2: Parol Kuchini Tekshirish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="pwInput" placeholder="Parol kiriting" value="Salom2026!">
+                        <button onclick="demoPassword()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultPw"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol C: Matndan Ma'lumot Ajratish</h2>
+                <div class="description">
+                    <strong>Shart:</strong> Web sahifa yoki HTML matnidan kerakli ma'lumotni
+                    ajratib olish (web scraping). Masalan <strong>HTML teglar ichidagi matn</strong>,
+                    <strong>email</strong> yoki <strong>havola (link)</strong>.
+                </div>
+
+                <h3>HTML teglardan matn ajratish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        html = <span class="string">"&lt;h1&gt;Sarlavha&lt;/h1&gt;&lt;p&gt;Matn&lt;/p&gt;"</span><br>
+                        matnlar = re.<span class="function">findall</span>(<span class="string">r"&gt;([^&lt;]+)&lt;"</span>, html)<br>
+                        <span class="function">print</span>(matnlar)
+                    </div>
+                    <div class="comment-part">
+                        # &gt; va &lt; oralig'idagi matnni topadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ['Sarlavha', 'Matn']
+                </div>
+
+                <h3>Barcha emaillarni topish</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        matn = <span class="string">"Aloqa: ali@mail.uz va vali@shop.com"</span><br>
+                        pattern = <span class="string">r"[\w.]+@[\w.]+\.\w+"</span><br>
+                        <span class="function">print</span>(re.<span class="function">findall</span>(pattern, matn))
+                    </div>
+                    <div class="comment-part">
+                        # findall — barcha mosliklarni ro'yxat qilib qaytaradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> ['ali@mail.uz', 'vali@shop.com']
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Bo'lak</th><th>Ma'nosi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>&gt;([^&lt;]+)&lt;</code></td><td>"&gt;" va "&lt;" oralig'idagi tegga tegmaydigan matn</td></tr>
+                        <tr><td><code>[^&lt;]+</code></td><td>"&lt;" dan tashqari barcha belgilar</td></tr>
+                        <tr><td><code>[\w.]+@</code></td><td>email egasi nomi, keyin "@"</td></tr>
+                        <tr><td><code>\.\w+</code></td><td>domen oxiri, masalan .uz yoki .com</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Demo 3: HTML/Matndan Ma'lumot Ajratish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <textarea id="htmlInput" rows="3" placeholder="HTML yoki matn kiriting">&lt;h1&gt;Salom&lt;/h1&gt;&lt;p&gt;Aloqa: ali@mail.uz&lt;/p&gt;</textarea>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoExtract('tags')">Teg matni</button>
+                        <button onclick="demoExtract('email')">Emaillar</button>
+                    </div>
+                    <div class="demo-result" id="resultExtract"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol D: Sana va Vaqt Formatini Tekshirish</h2>
+                <div class="description">
+                    <strong>Shart:</strong> Foydalanuvchi kiritgan sana <strong>YYYY-MM-DD</strong>
+                    formatida to'g'rimi tekshirish kerak.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> re<br>
+                        pattern = <span class="string">r"^\d{4}-\d{2}-\d{2}$"</span><br>
+                        <span class="function">print</span>(<span class="function">bool</span>(re.<span class="function">match</span>(pattern, <span class="string">"2026-06-30"</span>)))<br>
+                        <span class="function">print</span>(<span class="function">bool</span>(re.<span class="function">match</span>(pattern, <span class="string">"30/06/2026"</span>)))
+                    </div>
+                    <div class="comment-part">
+                        # Faqat YYYY-MM-DD formati mos keladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> True<br>
+                    >>> False
+                </div>
+                <div class="info-box">
+                    <strong>Diqqat</strong>
+                    <p>
+                        Regex faqat <strong>formatni</strong> tekshiradi. "2026-13-45" patternga mos keladi,
+                        ammo bunday oy va kun yo'q. Mantiqiy tekshiruv uchun <span class="highlight-var">datetime</span>
+                        moduli ishlatiladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Demo 4: Sana Formatini Tekshirish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="dateInput" placeholder="Sana (YYYY-MM-DD)" value="2026-06-30">
+                        <button onclick="demoDate()">Tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultDate"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">re.search</span> — birinchi moslikni topadi<br>
+                    • <span class="highlight-var">re.findall</span> — barcha mosliklarni ro'yxat qiladi<br>
+                    • <span class="highlight-var">re.match</span> — boshidan moslikni tekshiradi<br>
+                    • <span class="highlight-var">^...$</span> — to'liq, aniq moslik uchun<br>
+                    • Guruhlar <span class="highlight-var">( )</span> — ma'lumotni qismlarga ajratadi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Telefon raqamini tekshiring</strong>
+                            <p>+998901234567 formatini regex bilan tekshiruvchi funksiya yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Log dan vaqtlarni yig'ing</strong>
+                            <p>findall bilan log matnidagi barcha HH:MM:SS vaqtlarni ajrating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Havolalarni toping</strong>
+                            <p>Matndan barcha http yoki https bilan boshlanadigan havolalarni ajrating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Parol validatori</strong>
+                            <p>Katta harf, kichik harf, raqam va belgini tekshiruvchi to'liq funksiya yozing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Tabriklaymiz! Regex modulini yakunladingiz!</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Keyingi: Modul 13 — Web Asoslari</p>
+                    <p style="opacity: 0.9;">
+                        Endi siz log fayllarni tahlil qila olasiz, ma'lumotni tekshira olasiz
+                        va matndan kerakli qismni ajrata olasiz.<br>
+                        Keyingi modulda esa internet va veb dunyosiga qadam qo'yamiz —
+                        HTTP, so'rovlar va veb sahifalar bilan ishlashni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoLog() {
+            const line = document.getElementById('logLine').value;
+            const result = document.getElementById('resultLog');
+            const re = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) ERROR (.+)/;
+            const m = line.match(re);
+            result.classList.add('show');
+            if (m) {
+                result.innerHTML = `>>> Sana: ${m[1]}<br>>>> Vaqt: ${m[2]}<br>>>> Xato: ${m[3]}`;
+            } else {
+                result.innerHTML = `>>> Bu qatorda ERROR topilmadi (yoki format mos emas)`;
+            }
+        }
+
+        function demoPassword() {
+            const pw = document.getElementById('pwInput').value;
+            const result = document.getElementById('resultPw');
+            const checks = [
+                { ok: pw.length >= 8, txt: "Uzunligi 8+" },
+                { ok: /[A-Z]/.test(pw), txt: "Katta harf" },
+                { ok: /[a-z]/.test(pw), txt: "Kichik harf" },
+                { ok: /\d/.test(pw), txt: "Raqam" },
+                { ok: /[!@#$%^&*]/.test(pw), txt: "Maxsus belgi" }
+            ];
+            const passed = checks.filter(c => c.ok).length;
+            let lines = checks.map(c => `${c.ok ? '[+]' : '[-]'} ${c.txt}`).join('<br>');
+            let baho;
+            if (passed === 5) baho = "Kuchli parol";
+            else if (passed >= 3) baho = "O'rtacha parol";
+            else baho = "Zaif parol";
+            result.classList.add('show');
+            result.innerHTML = `${lines}<br>>>> Natija: ${baho} (${passed}/5)`;
+        }
+
+        function demoExtract(kind) {
+            const text = document.getElementById('htmlInput').value;
+            const result = document.getElementById('resultExtract');
+            result.classList.add('show');
+            if (kind === 'tags') {
+                const m = text.match(/>([^<]+)</g) || [];
+                const clean = m.map(s => s.replace(/[<>]/g, ''));
+                result.innerHTML = `>>> Teg matni:<br>>>> [${clean.map(s => `'${s}'`).join(', ')}]`;
+            } else {
+                const m = text.match(/[\w.]+@[\w.]+\.\w+/g) || [];
+                result.innerHTML = `>>> Emaillar:<br>>>> [${m.map(s => `'${s}'`).join(', ')}]`;
+            }
+        }
+
+        function demoDate() {
+            const d = document.getElementById('dateInput').value;
+            const result = document.getElementById('resultDate');
+            const re = /^\d{4}-\d{2}-\d{2}$/;
+            const ok = re.test(d);
+            result.classList.add('show');
+            result.innerHTML = `>>> re.match(r"^\\d{4}-\\d{2}-\\d{2}$", "${d}")<br>>>> ${ok ? 'True — format to\'g\'ri' : 'False — format noto\'g\'ri'}`;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

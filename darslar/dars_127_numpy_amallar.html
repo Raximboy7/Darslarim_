@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 127: NumPy amallar va indexing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ARRAY VISUALIZER */
+        .arr-viz { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+        .arr-cell { text-align: center; }
+        .arr-box {
+            min-width: 44px; height: 42px; padding: 0 8px;
+            display: flex; align-items: center; justify-content: center;
+            background: #1f2937; color: #fbbf24;
+            border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 1.05em;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .arr-box.hit { border-color: var(--primary); background: var(--primary); color: var(--white); transform: translateY(-4px); }
+        .arr-idx { font-size: 0.72em; color: var(--gray); margin-top: 4px; font-family: monospace; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 18 — NumPy va Pandas · Dars 127 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>NumPy Amallar va Indexing</h1>
+                <p>Modul 18 — NumPy va Pandas | Dars 127</p>
+            </header>
+
+            <div class="section">
+                <h2>Vektor Amallar — Bir Vaqtning O'zida</h2>
+                <div class="description">
+                    NumPy array bilan amal qilganingizda, amal <strong>har bir elementga
+                    alohida</strong> qo'llaniladi. Oddiy list uchun bunday qila olmaysiz —
+                    NumPy esa buni juda tez va sodda bajaradi. Bunga <strong>vektor amal</strong> deyiladi.
+                </div>
+
+                <h3>Array + Array</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br>
+                        a = np.<span class="function">array</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])<br>
+                        b = np.<span class="function">array</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>])<br>
+                        <span class="function">print</span>(a <span class="operator">+</span> b)
+                    </div>
+                    <div class="comment-part">
+                        # Har element o'z jufti bilan qo'shiladi: 1+10, 2+20, 3+30
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [11 22 33]
+                </div>
+
+                <h3>Array * Son (skalyar amal)</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        a = np.<span class="function">array</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])<br>
+                        <span class="function">print</span>(a <span class="operator">*</span> <span class="number">2</span>)<br>
+                        <span class="function">print</span>(a <span class="operator">+</span> <span class="number">100</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Son har bir elementga alohida qo'llaniladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [2 4 6]<br>
+                    >>> [101 102 103]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Broadcasting — Sodda Tushuncha</h2>
+                <div class="description">
+                    <strong>Broadcasting</strong> — NumPy o'lchami har xil bo'lgan narsalarni
+                    avtomatik moslab amal qilishi. Masalan, <span class="highlight-var">a * 2</span>
+                    da <span class="highlight-var">2</span> bitta son, lekin NumPy uni
+                    "cho'zib" har bir elementga qo'llaydi. Shuning uchun siz sikl yozishingiz shart emas.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        narxlar = np.<span class="function">array</span>([<span class="number">100</span>, <span class="number">200</span>, <span class="number">300</span>])<br>
+                        chegirma = narxlar <span class="operator">*</span> <span class="number">0.9</span>  <span class="comment"># 10% chegirma</span><br>
+                        <span class="function">print</span>(chegirma)
+                    </div>
+                    <div class="comment-part">
+                        # 0.9 soni har bir narxga ko'paytiriladi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [ 90. 180. 270.]
+                </div>
+                <div class="info-box">
+                    <strong>Eslab qoling</strong>
+                    <p>Vektor amallar uchun <span class="highlight-var">for</span> sikl kerak emas.
+                    NumPy hammasini bir o'zi, juda tez bajaradi.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Indexing — Bitta Elementni Olish</h2>
+                <div class="description">
+                    Xuddi list kabi, array elementlari <strong>0 dan</strong> sanaladi.
+                    Manfiy indeks oxiridan sanaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        arr = np.<span class="function">array</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>])<br>
+                        <span class="function">print</span>(arr[<span class="number">0</span>])   <span class="comment"># birinchi</span><br>
+                        <span class="function">print</span>(arr[-<span class="number">1</span>])  <span class="comment"># oxirgi</span>
+                    </div>
+                    <div class="comment-part">
+                        # arr[0] = 10, arr[-1] = 40
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 10<br>
+                    >>> 40
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Slicing — Bo'lakni Kesib Olish</h2>
+                <div class="description">
+                    <span class="highlight-var">arr[boshi:oxiri]</span> — boshidan oxirigacha
+                    (oxiri kirmaydi) kesib oladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Kod</th><th>Natija</th><th>Izoh</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>arr[1:3]</code></td><td>[20 30]</td><td>1 va 2-indekslar</td></tr>
+                        <tr><td><code>arr[:2]</code></td><td>[10 20]</td><td>boshidan 2 gacha</td></tr>
+                        <tr><td><code>arr[2:]</code></td><td>[30 40]</td><td>2 dan oxirigacha</td></tr>
+                        <tr><td><code>arr[::2]</code></td><td>[10 30]</td><td>har 2-element</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Boolean Indexing — Shartga Mos Elementlar</h2>
+                <div class="description">
+                    Eng kuchli imkoniyatlardan biri! Array ichidan <strong>shartga mos</strong>
+                    elementlarnigina ajratib olishingiz mumkin. <span class="highlight-var">arr > 5</span>
+                    har element uchun True/False qaytaradi, keyin shu maskani array ichiga qo'yasiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        arr = np.<span class="function">array</span>([<span class="number">3</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>])<br>
+                        <span class="function">print</span>(arr <span class="operator">></span> <span class="number">5</span>)<br>
+                        <span class="function">print</span>(arr[arr <span class="operator">></span> <span class="number">5</span>])
+                    </div>
+                    <div class="comment-part">
+                        # Birinchi qator: maska (True/False), ikkinchi qator: faqat mos elementlar
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [False  True False  True False]<br>
+                    >>> [8 9]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2D Array — Matritsa (Jadval)</h2>
+                <div class="description">
+                    2D array — bu satr va ustunlardan iborat <strong>jadval (matritsa)</strong>.
+                    Element olish uchun <span class="highlight-var">arr[satr, ustun]</span> ishlatiladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        m = np.<span class="function">array</span>([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]])<br>
+                        <span class="function">print</span>(m[<span class="number">0</span>, <span class="number">1</span>])  <span class="comment"># 0-satr, 1-ustun</span><br>
+                        <span class="function">print</span>(m[<span class="number">1</span>, <span class="number">2</span>])  <span class="comment"># 1-satr, 2-ustun</span>
+                    </div>
+                    <div class="comment-part">
+                        # m[0,1] = 2 (birinchi satr, ikkinchi son), m[1,2] = 6
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 2<br>
+                    >>> 6
+                </div>
+                <div class="info-box">
+                    <strong>Maslahat</strong>
+                    <p>Butun satrni olish: <span class="highlight-var">m[0]</span> → [1 2 3].
+                    Butun ustunni olish: <span class="highlight-var">m[:, 0]</span> → [1 4].</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Statistik Funksiyalar</h2>
+                <div class="description">
+                    NumPy bitta buyruq bilan butun array bo'yicha hisob-kitob qiladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Funksiya</th><th>Vazifasi</th><th>Misol [1,2,3,4]</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>arr.sum()</code></td><td>Yig'indi</td><td>10</td></tr>
+                        <tr><td><code>arr.mean()</code></td><td>O'rtacha qiymat</td><td>2.5</td></tr>
+                        <tr><td><code>arr.max()</code></td><td>Eng katta</td><td>4</td></tr>
+                        <tr><td><code>arr.min()</code></td><td>Eng kichik</td><td>1</td></tr>
+                        <tr><td><code>arr.std()</code></td><td>Standart chetlanish</td><td>1.118</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        baholar = np.<span class="function">array</span>([<span class="number">85</span>, <span class="number">90</span>, <span class="number">70</span>, <span class="number">95</span>])<br>
+                        <span class="function">print</span>(baholar.<span class="function">mean</span>())  <span class="comment"># o'rtacha baho</span><br>
+                        <span class="function">print</span>(baholar.<span class="function">max</span>())   <span class="comment"># eng yuqori</span>
+                    </div>
+                    <div class="comment-part">
+                        # Sikl yozmasdan butun array bo'yicha hisoblaymiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 85.0<br>
+                    >>> 95
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Vektor amal: <span class="highlight-var">a + b</span>, <span class="highlight-var">a * 2</span> — har elementga<br>
+                    • Indeks 0 dan boshlanadi, <span class="highlight-var">-1</span> — oxirgi element<br>
+                    • Boolean indexing: <span class="highlight-var">arr[arr > 5]</span> — shartga mos elementlar<br>
+                    • 2D array: <span class="highlight-var">m[satr, ustun]</span><br>
+                    • Statistika: <span class="highlight-var">.sum() .mean() .max() .min() .std()</span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Vektor Amallar</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="vecA" placeholder="Array A (vergul bilan)" value="1, 2, 3, 4">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoVector('+2')">+ 2</button>
+                        <button onclick="demoVector('*2')">* 2</button>
+                        <button onclick="demoVector('*10')">* 10</button>
+                        <button onclick="demoVector('+self')">A + A</button>
+                    </div>
+                    <div class="demo-result" id="resultVector"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Boolean Indexing</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="boolArr" placeholder="Array (vergul bilan)" value="3, 8, 1, 9, 5, 12">
+                        <input type="number" id="boolThr" placeholder="shart >" value="5" style="min-width:90px;">
+                        <button onclick="demoBool()">Filtrla</button>
+                    </div>
+                    <div class="arr-viz" id="boolViz"></div>
+                    <div class="demo-result" id="resultBool"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Statistik Funksiyalar</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="statArr" placeholder="Array (vergul bilan)" value="85, 90, 70, 95, 60">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoStat('sum')">sum()</button>
+                        <button onclick="demoStat('mean')">mean()</button>
+                        <button onclick="demoStat('max')">max()</button>
+                        <button onclick="demoStat('min')">min()</button>
+                    </div>
+                    <div class="demo-result" id="resultStat"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Slicing</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="sliceArr" placeholder="Array" value="10, 20, 30, 40, 50">
+                        <input type="number" id="sliceA" placeholder="boshi" value="1" style="min-width:70px;">
+                        <input type="number" id="sliceB" placeholder="oxiri" value="4" style="min-width:70px;">
+                        <button onclick="demoSlice()">Kesib ol</button>
+                    </div>
+                    <div class="arr-viz" id="sliceViz"></div>
+                    <div class="demo-result" id="resultSlice"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Array yarating</strong>
+                            <p>np.array([12, 45, 7, 88, 23, 56]) ko'rinishida array tuzing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Vektor amal qiling</strong>
+                            <p>Hamma elementni 2 ga ko'paytiring: arr * 2</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Boolean indexing</strong>
+                            <p>30 dan katta elementlarni ajrating: arr[arr > 30]</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Statistika chiqaring</strong>
+                            <p>O'rtacha, eng katta va yig'indini toping: mean(), max(), sum()</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 128: Pandas — Series</p>
+                    <p style="opacity: 0.9;">
+                        NumPy amallar va indexingni o'rgandingiz!<br>
+                        Endi ma'lumotlarni nomli ko'rinishda saqlaydigan Pandas Series bilan tanishamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseArr(id) {
+            return document.getElementById(id).value
+                .split(',')
+                .map(x => parseFloat(x.trim()))
+                .filter(x => !isNaN(x));
+        }
+
+        function fmt(arr) {
+            return '[' + arr.join(' ') + ']';
+        }
+
+        function demoVector(op) {
+            const a = parseArr('vecA');
+            let out, label;
+            if (op === '+2') { out = a.map(x => x + 2); label = 'a + 2'; }
+            else if (op === '*2') { out = a.map(x => x * 2); label = 'a * 2'; }
+            else if (op === '*10') { out = a.map(x => x * 10); label = 'a * 10'; }
+            else { out = a.map(x => x + x); label = 'a + a'; }
+            const result = document.getElementById('resultVector');
+            result.classList.add('show');
+            result.innerHTML = `>>> a = ${fmt(a)}<br>>>> ${label}<br>>>> ${fmt(out)}`;
+        }
+
+        function demoBool() {
+            const arr = parseArr('boolArr');
+            const thr = parseFloat(document.getElementById('boolThr').value) || 0;
+            const mask = arr.map(x => x > thr);
+            const kept = arr.filter(x => x > thr);
+            const box = document.getElementById('boolViz');
+            box.innerHTML = '';
+            arr.forEach((v, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'arr-cell';
+                cell.innerHTML = `
+                    <div class="arr-box ${mask[i] ? 'hit' : ''}">${v}</div>
+                    <div class="arr-idx">${i}</div>`;
+                box.appendChild(cell);
+            });
+            const result = document.getElementById('resultBool');
+            result.classList.add('show');
+            result.innerHTML = `>>> arr > ${thr}<br>>>> [${mask.map(m => m ? 'True' : 'False').join(' ')}]<br>>>> arr[arr > ${thr}]<br>>>> ${fmt(kept)}`;
+        }
+
+        function demoStat(kind) {
+            const arr = parseArr('statArr');
+            let out, label;
+            if (kind === 'sum') { out = arr.reduce((a, b) => a + b, 0); label = 'sum()'; }
+            else if (kind === 'mean') {
+                out = (arr.reduce((a, b) => a + b, 0) / arr.length);
+                out = Math.round(out * 100) / 100;
+                label = 'mean()';
+            }
+            else if (kind === 'max') { out = Math.max(...arr); label = 'max()'; }
+            else { out = Math.min(...arr); label = 'min()'; }
+            const result = document.getElementById('resultStat');
+            result.classList.add('show');
+            result.innerHTML = `>>> arr = ${fmt(arr)}<br>>>> arr.${label}<br>>>> ${out}`;
+        }
+
+        function demoSlice() {
+            const arr = parseArr('sliceArr');
+            let a = parseInt(document.getElementById('sliceA').value);
+            let b = parseInt(document.getElementById('sliceB').value);
+            if (isNaN(a)) a = 0;
+            if (isNaN(b)) b = arr.length;
+            const piece = arr.slice(a, b);
+            const box = document.getElementById('sliceViz');
+            box.innerHTML = '';
+            arr.forEach((v, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'arr-cell';
+                cell.innerHTML = `
+                    <div class="arr-box ${i >= a && i < b ? 'hit' : ''}">${v}</div>
+                    <div class="arr-idx">${i}</div>`;
+                box.appendChild(cell);
+            });
+            const result = document.getElementById('resultSlice');
+            result.classList.add('show');
+            result.innerHTML = `>>> arr[${a}:${b}]<br>>>> ${fmt(piece)}`;
+        }
+
+        // dastlabki ko'rinish
+        demoBool();
+        demoSlice();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

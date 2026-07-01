@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 133: merge va join</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button, select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        select { background: var(--white); color: var(--dark); cursor: pointer; }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DATAFRAME JADVALI */
+        .df-wrap { display: flex; flex-wrap: wrap; gap: 18px; margin: 15px 0; align-items: flex-start; }
+        .df-block { flex: 1; min-width: 180px; }
+        .df-block .df-name { font-family: monospace; font-weight: bold; color: var(--secondary); margin-bottom: 6px; }
+        .df-table { border-collapse: collapse; width: 100%; font-family: monospace; font-size: 0.85em; }
+        .df-table th { background: var(--primary-dark); color: var(--white); padding: 6px 10px; }
+        .df-table td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; background: var(--white); color: var(--dark); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db; color: #9ca3af; cursor: not-allowed; pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 18 — NumPy va Pandas · Dars 133 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>merge va join</h1>
+                <p>Modul 18 — NumPy va Pandas | Dars 133</p>
+            </header>
+
+            <div class="section">
+                <h2>Nima Uchun Birlashtirish Kerak?</h2>
+                <div class="description">
+                    Ko'pincha ma'lumot bitta jadvalda emas, <strong>bir nechta jadvalda</strong> tarqalgan
+                    bo'ladi. Masalan, bir jadvalda talabalar ismi, ikkinchisida ularning baholari.
+                    Bularni bitta jadvalga <strong>birlashtirish</strong> uchun pandas
+                    <span class="highlight-var">pd.merge()</span> va
+                    <span class="highlight-var">pd.concat()</span> ni beradi.
+                </div>
+                <div class="info-box">
+                    <strong>Ikki yo'l bor</strong>
+                    <p>
+                        • <span class="highlight-var">pd.merge()</span> — umumiy ustun bo'yicha
+                        jadvallarni <strong>moslab</strong> birlashtiradi (SQL JOIN kabi).<br>
+                        • <span class="highlight-var">pd.concat()</span> — jadvallarni shunchaki
+                        <strong>ustma-ust</strong> yoki <strong>yonma-yon</strong> qo'shadi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>pd.merge() — Umumiy Ustun Bo'yicha</h2>
+                <div class="description">
+                    <span class="highlight-var">pd.merge(df1, df2, on='ustun')</span> — ikki DataFrame ni
+                    <strong>umumiy ustun</strong> qiymatlari bir xil bo'lgan qatorlarni moslab birlashtiradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">import</span> pandas <span class="keyword">as</span> pd<br><br>
+                        ismlar = pd.<span class="function">DataFrame</span>({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"id"</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"ism"</span>: [<span class="string">"Ali"</span>, <span class="string">"Vali"</span>, <span class="string">"Guli"</span>]<br>
+                        })<br>
+                        baho = pd.<span class="function">DataFrame</span>({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"id"</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"baho"</span>: [<span class="number">90</span>, <span class="number">75</span>, <span class="number">88</span>]<br>
+                        })<br><br>
+                        natija = pd.<span class="function">merge</span>(ismlar, baho, on=<span class="string">"id"</span>)<br>
+                        <span class="function">print</span>(natija)
+                    </div>
+                    <div class="comment-part">
+                        # "id" ustuni umumiy — shu bo'yicha moslaymiz
+                    </div>
+                </div>
+                <div class="output-demo">>>> &nbsp;&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;ism&nbsp;&nbsp;baho
+&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;Ali&nbsp;&nbsp;&nbsp;&nbsp;90
+&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;Vali&nbsp;&nbsp;&nbsp;&nbsp;75
+&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;Guli&nbsp;&nbsp;&nbsp;&nbsp;88</div>
+            </div>
+
+            <div class="section">
+                <h2>how Parametri — JOIN Turlari</h2>
+                <div class="description">
+                    Agar ikki jadvaldagi <span class="highlight-var">id</span> lar to'liq mos kelmasa,
+                    qaysi qatorlar qolishini <span class="highlight-var">how</span> parametri belgilaydi.
+                    Bu SQL dagi JOIN turlariga to'g'ri keladi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>how</th><th>Ma'nosi</th><th>Qaysi qatorlar qoladi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>"inner"</code></td><td>Faqat moslar (standart)</td><td>Ikkala jadvalda ham bor id lar</td></tr>
+                        <tr><td><code>"left"</code></td><td>Chap jadval to'liq</td><td>df1 dagi barcha qatorlar</td></tr>
+                        <tr><td><code>"right"</code></td><td>O'ng jadval to'liq</td><td>df2 dagi barcha qatorlar</td></tr>
+                        <tr><td><code>"outer"</code></td><td>Hammasi</td><td>Ikkala jadvaldagi barcha qatorlar</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        natija = pd.<span class="function">merge</span>(ismlar, baho, on=<span class="string">"id"</span>, how=<span class="string">"left"</span>)
+                    </div>
+                    <div class="comment-part">
+                        # Chap jadvaldagi (ismlar) barcha qatorlar saqlanadi.
+                        # Mos baho topilmasa, o'sha joyga NaN (bo'sh) yoziladi.
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>pd.concat() — Ustma-ust va Yonma-yon</h2>
+                <div class="description">
+                    <span class="highlight-var">pd.concat()</span> moslamaydi — u jadvallarni shunchaki
+                    <strong>ulab tashlaydi</strong>. <span class="highlight-var">axis=0</span> (standart) —
+                    ustma-ust (qatorlarni qo'shadi), <span class="highlight-var">axis=1</span> — yonma-yon
+                    (ustunlarni qo'shadi).
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        guruh_a = pd.<span class="function">DataFrame</span>({<span class="string">"ism"</span>: [<span class="string">"Ali"</span>, <span class="string">"Vali"</span>]})<br>
+                        guruh_b = pd.<span class="function">DataFrame</span>({<span class="string">"ism"</span>: [<span class="string">"Guli"</span>, <span class="string">"Hasan"</span>]})<br><br>
+                        hammasi = pd.<span class="function">concat</span>([guruh_a, guruh_b])<br>
+                        <span class="function">print</span>(hammasi)
+                    </div>
+                    <div class="comment-part">
+                        # Ikki guruh ustma-ust bitta jadvalga qo'shildi
+                    </div>
+                </div>
+                <div class="output-demo">>>> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ism
+&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;Ali
+&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;Vali
+&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;Guli
+&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;Hasan</div>
+            </div>
+
+            <div class="section">
+                <h2>merge vs concat — Farqi</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>pd.merge()</th><th>pd.concat()</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Qanday ishlaydi</td><td>Umumiy ustun bo'yicha moslaydi</td><td>Shunchaki ulaydi</td></tr>
+                        <tr><td>Asosiy maqsad</td><td>Ma'lumotni boyitish</td><td>Ma'lumotni to'plash</td></tr>
+                        <tr><td>O'xshashi</td><td>SQL JOIN</td><td>Jadvallarni yopishtirish</td></tr>
+                        <tr><td>Necha jadval</td><td>Odatda 2 ta</td><td>Bir nechta (ro'yxat)</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Sodda qoida</strong>
+                    <p>
+                        Ikki jadvalda <strong>bir xil ustun</strong> bor va shu bo'yicha
+                        bog'lamoqchimisiz? → <span class="highlight-var">merge</span>.<br>
+                        Bir xil tuzilishdagi jadvallarni <strong>bir-biriga qo'shmoqchimisiz</strong>? →
+                        <span class="highlight-var">concat</span>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: merge Natijasi</h2>
+                <div class="description">
+                    Quyida ikki DataFrame berilgan. Tugmani bosing — ular
+                    <span class="highlight-var">id</span> bo'yicha birlashtiriladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="df-wrap">
+                        <div class="df-block">
+                            <div class="df-name">ismlar</div>
+                            <table class="df-table">
+                                <tr><th>id</th><th>ism</th></tr>
+                                <tr><td>1</td><td>Ali</td></tr>
+                                <tr><td>2</td><td>Vali</td></tr>
+                                <tr><td>3</td><td>Guli</td></tr>
+                            </table>
+                        </div>
+                        <div class="df-block">
+                            <div class="df-name">baholar</div>
+                            <table class="df-table">
+                                <tr><th>id</th><th>baho</th></tr>
+                                <tr><td>1</td><td>90</td></tr>
+                                <tr><td>2</td><td>75</td></tr>
+                                <tr><td>3</td><td>88</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <button onclick="demoMerge()">pd.merge(ismlar, baholar, on="id")</button>
+                    <div class="demo-result" id="resultMerge"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: how — inner va left Farqi</h2>
+                <div class="description">
+                    Bu safar jadvallar to'liq mos emas: <span class="highlight-var">ismlar</span> da id 3 bor,
+                    lekin <span class="highlight-var">baholar</span> da yo'q. <span class="highlight-var">how</span> ni
+                    tanlang va farqni ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="df-wrap">
+                        <div class="df-block">
+                            <div class="df-name">ismlar</div>
+                            <table class="df-table">
+                                <tr><th>id</th><th>ism</th></tr>
+                                <tr><td>1</td><td>Ali</td></tr>
+                                <tr><td>2</td><td>Vali</td></tr>
+                                <tr><td>3</td><td>Guli</td></tr>
+                            </table>
+                        </div>
+                        <div class="df-block">
+                            <div class="df-name">baholar</div>
+                            <table class="df-table">
+                                <tr><th>id</th><th>baho</th></tr>
+                                <tr><td>1</td><td>90</td></tr>
+                                <tr><td>2</td><td>75</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="demo-input">
+                        <select id="howSel" style="flex:1;">
+                            <option value="inner">how="inner" (faqat moslar)</option>
+                            <option value="left">how="left" (chap to'liq)</option>
+                        </select>
+                        <button onclick="demoHow()">Birlashtir</button>
+                    </div>
+                    <div class="demo-result" id="resultHow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: concat bilan Birlashtirish</h2>
+                <div class="description">
+                    Ikki guruhni <span class="highlight-var">axis</span> tanlab birlashtiring:
+                    ustma-ust (0) yoki yonma-yon (1).
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="grA" placeholder="A guruh (vergul bilan)" value="Ali,Vali">
+                        <input type="text" id="grB" placeholder="B guruh (vergul bilan)" value="Guli,Hasan">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoConcat(0)">axis=0 (ustma-ust)</button>
+                        <button onclick="demoConcat(1)">axis=1 (yonma-yon)</button>
+                    </div>
+                    <div class="demo-result" id="resultConcat"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ikki DataFrame yarating</strong>
+                            <p>Biri talaba (id, ism), ikkinchisi baho (id, ball)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>merge qiling</strong>
+                            <p>pd.merge(talaba, baho, on="id") bilan birlashtiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>how="left" sinab ko'ring</strong>
+                            <p>Bir jadvaldan bir id ni olib tashlab, natijani kuzating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>concat ishlatib ko'ring</strong>
+                            <p>Yana bir guruhni pd.concat() bilan ustma-ust qo'shing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">pd.merge(df1, df2, on="ustun")</span> — umumiy ustun bo'yicha moslaydi<br>
+                    • <span class="highlight-var">how</span>: inner / left / right / outer<br>
+                    • <span class="highlight-var">pd.concat([df1, df2])</span> — shunchaki ulaydi (axis=0 yoki 1)<br>
+                    • merge = bog'lash, concat = qo'shish
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 134: Pandas amaliy tahlil</p>
+                    <p style="opacity: 0.9;">
+                        Jadvallarni birlashtirishni o'rgandingiz!<br>
+                        Endi haqiqiy ma'lumotni to'liq tahlil qilishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ismlar = [
+            { id: 1, ism: "Ali" },
+            { id: 2, ism: "Vali" },
+            { id: 3, ism: "Guli" }
+        ];
+        const baholar = [
+            { id: 1, baho: 90 },
+            { id: 2, baho: 75 },
+            { id: 3, baho: 88 }
+        ];
+        const baholar2 = [
+            { id: 1, baho: 90 },
+            { id: 2, baho: 75 }
+        ];
+
+        function pad(s, n) {
+            s = String(s);
+            while (s.length < n) s += " ";
+            return s;
+        }
+
+        function demoMerge() {
+            let out = ">>> " + pad("id", 4) + pad("ism", 6) + "baho\n";
+            ismlar.forEach((r, i) => {
+                const b = baholar.find(x => x.id === r.id);
+                out += "    " + pad(i, 4) + pad(r.id, 4) + pad(r.ism, 6) + b.baho + "\n";
+            });
+            const result = document.getElementById('resultMerge');
+            result.classList.add('show');
+            result.textContent = out.trimEnd();
+        }
+
+        function demoHow() {
+            const how = document.getElementById('howSel').value;
+            let rows = [];
+            if (how === "inner") {
+                ismlar.forEach(r => {
+                    const b = baholar2.find(x => x.id === r.id);
+                    if (b) rows.push({ id: r.id, ism: r.ism, baho: b.baho });
+                });
+            } else { // left
+                ismlar.forEach(r => {
+                    const b = baholar2.find(x => x.id === r.id);
+                    rows.push({ id: r.id, ism: r.ism, baho: b ? b.baho : "NaN" });
+                });
+            }
+            let out = '>>> pd.merge(ismlar, baholar, on="id", how="' + how + '")\n';
+            out += "    " + pad("id", 4) + pad("ism", 6) + "baho\n";
+            rows.forEach((r, i) => {
+                out += "    " + pad(i, 4) + pad(r.id, 4) + pad(r.ism, 6) + r.baho + "\n";
+            });
+            if (how === "left") out += "\n    # id=3 ga baho yo'q -> NaN";
+            const result = document.getElementById('resultHow');
+            result.classList.add('show');
+            result.textContent = out.trimEnd();
+        }
+
+        function demoConcat(axis) {
+            const a = document.getElementById('grA').value.split(",").map(s => s.trim()).filter(Boolean);
+            const b = document.getElementById('grB').value.split(",").map(s => s.trim()).filter(Boolean);
+            let out = "";
+            if (axis === 0) {
+                out = ">>> pd.concat([A, B])\n";
+                out += "    " + pad("", 4) + "ism\n";
+                a.forEach((v, i) => { out += "    " + pad(i, 4) + v + "\n"; });
+                b.forEach((v, i) => { out += "    " + pad(i, 4) + v + "\n"; });
+                out += "\n    # ustma-ust qo'shildi (indeks takrorlanadi)";
+            } else {
+                out = ">>> pd.concat([A, B], axis=1)\n";
+                out += "    " + pad("", 4) + pad("ism_A", 8) + "ism_B\n";
+                const n = Math.max(a.length, b.length);
+                for (let i = 0; i < n; i++) {
+                    out += "    " + pad(i, 4) + pad(a[i] || "NaN", 8) + (b[i] || "NaN") + "\n";
+                }
+                out += "\n    # yonma-yon qo'shildi";
+            }
+            const result = document.getElementById('resultConcat');
+            result.classList.add('show');
+            result.textContent = out.trimEnd();
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 50: Dunder (sehrli) metodlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 9 — OOP — obyektga asoslangan dasturlash · Dars 50 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Dunder (Sehrli) Metodlar</h1>
+                <p>Modul 9 — OOP — obyektga asoslangan dasturlash | Dars 50</p>
+            </header>
+
+            <div class="section">
+                <h2>Dunder Metod Nima?</h2>
+                <div class="description">
+                    <strong>Dunder</strong> — bu "double underscore" (ikki tagchiziq) so'zining qisqartmasi.
+                    Bunday metodlarning nomi ikki tagchiziq bilan boshlanib, ikki tagchiziq bilan tugaydi:
+                    <span class="highlight-var">__init__</span>, <span class="highlight-var">__str__</span>, <span class="highlight-var">__len__</span> kabi.
+                    Ularni <strong>sehrli (magic) metodlar</strong> ham deyishadi.
+                </div>
+                <div class="description">
+                    Bu metodlar Python tomonidan <strong>avtomatik</strong> chaqiriladi. Masalan siz
+                    <span class="highlight-var">len(obyekt)</span> deb yozganingizda, Python ichkarida
+                    <span class="highlight-var">obyekt.__len__()</span> ni chaqiradi. Demak siz o'z obyektingizni
+                    Python'ning ichki (built-in) imkoniyatlari bilan ishlata olasiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nega Ular Foydali?</h2>
+                <div class="info-box">
+                    <strong>Asosiy g'oya</strong>
+                    <p>
+                        Dunder metodlar yordamida o'z klassingizni xuddi Python'ning ichki turlari
+                        (son, string, list) kabi ishlatasiz:<br><br>
+                        • <span class="highlight-var">print(obyekt)</span> — chiroyli ko'rinish beradi<br>
+                        • <span class="highlight-var">len(obyekt)</span> — uzunlikni qaytaradi<br>
+                        • <span class="highlight-var">obyekt1 + obyekt2</span> — qo'shishni amalga oshiradi<br>
+                        • <span class="highlight-var">obyekt1 == obyekt2</span> — solishtirishni amalga oshiradi<br>
+                        • <span class="highlight-var">obyekt[i]</span> — indekslash imkonini beradi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__init__ — Konstruktor</h2>
+                <div class="description">
+                    <span class="highlight-var">__init__</span> — eng ko'p ishlatiladigan dunder metod.
+                    U obyekt yaratilgan paytda <strong>avtomatik</strong> ishga tushadi va boshlang'ich
+                    qiymatlarni o'rnatadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism, yosh):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.yosh <span class="operator">=</span> yosh<br><br>
+                        t <span class="operator">=</span> <span class="function">Talaba</span>(<span class="string">"Ali"</span>, <span class="number">20</span>)<br>
+                        <span class="function">print</span>(t.ism)
+                    </div>
+                    <div class="comment-part">
+                        # __init__ obyekt yaratilganda avtomatik chaqiriladi<br>
+                        # Natija: Ali
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__str__ va __repr__ — Tasvir</h2>
+                <div class="description">
+                    <span class="highlight-var">__str__</span> — obyekt <strong>print()</strong> qilinganda
+                    qanday ko'rinishini belgilaydi (foydalanuvchi uchun chiroyli matn).
+                    <span class="highlight-var">__repr__</span> esa dasturchi uchun aniq, texnik ko'rinishni beradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__str__</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">f"Talaba: {self.ism}"</span><br><br>
+                        t <span class="operator">=</span> <span class="function">Talaba</span>(<span class="string">"Ali"</span>)<br>
+                        <span class="function">print</span>(t)
+                    </div>
+                    <div class="comment-part">
+                        # __str__ bo'lmasa: &lt;__main__.Talaba object at 0x...&gt;<br>
+                        # __str__ bilan natija: Talaba: Ali
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Talaba: Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__len__ — len() uchun</h2>
+                <div class="description">
+                    <span class="highlight-var">__len__</span> metodi <strong>len(obyekt)</strong> chaqirilganda
+                    nima qaytishini belgilaydi. U albatta butun son qaytarishi kerak.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Guruh</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, talabalar):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.talabalar <span class="operator">=</span> talabalar<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__len__</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">len</span>(self.talabalar)<br><br>
+                        g <span class="operator">=</span> <span class="function">Guruh</span>([<span class="string">"Ali"</span>, <span class="string">"Vali"</span>, <span class="string">"Guli"</span>])<br>
+                        <span class="function">print</span>(<span class="function">len</span>(g))
+                    </div>
+                    <div class="comment-part">
+                        # len(g) ichkarida g.__len__() ni chaqiradi<br>
+                        # Natija: 3
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 3
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__getitem__ — Indekslash obj[i]</h2>
+                <div class="description">
+                    <span class="highlight-var">__getitem__</span> metodi obyektni
+                    <strong>obyekt[i]</strong> ko'rinishida indekslash imkonini beradi — xuddi list yoki string kabi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Guruh</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, talabalar):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.talabalar <span class="operator">=</span> talabalar<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__getitem__</span>(self, i):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.talabalar[i]<br><br>
+                        g <span class="operator">=</span> <span class="function">Guruh</span>([<span class="string">"Ali"</span>, <span class="string">"Vali"</span>])<br>
+                        <span class="function">print</span>(g[<span class="number">0</span>])
+                    </div>
+                    <div class="comment-part">
+                        # g[0] ichkarida g.__getitem__(0) ni chaqiradi<br>
+                        # Natija: Ali
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__add__ — + Operatori</h2>
+                <div class="description">
+                    <span class="highlight-var">__add__</span> metodi ikki obyektni <strong>+</strong> belgisi
+                    bilan qo'shganda nima sodir bo'lishini belgilaydi.
+                    <span class="highlight-var">a + b</span> ichkarida <span class="highlight-var">a.__add__(b)</span> ga aylanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Pul</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, miqdor):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.miqdor <span class="operator">=</span> miqdor<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__add__</span>(self, boshqa):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">Pul</span>(self.miqdor <span class="operator">+</span> boshqa.miqdor)<br><br>
+                        natija <span class="operator">=</span> <span class="function">Pul</span>(<span class="number">100</span>) <span class="operator">+</span> <span class="function">Pul</span>(<span class="number">50</span>)<br>
+                        <span class="function">print</span>(natija.miqdor)
+                    </div>
+                    <div class="comment-part">
+                        # Pul(100) + Pul(50) → Pul(150)<br>
+                        # Natija: 150
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 150
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>__eq__ — == Solishtirish</h2>
+                <div class="description">
+                    <span class="highlight-var">__eq__</span> metodi ikki obyektni <strong>==</strong> bilan
+                    solishtirganda qanday tekshirilishini belgilaydi. U <span class="boolean">True</span> yoki
+                    <span class="boolean">False</span> qaytaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Nuqta</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, x, y):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.x <span class="operator">=</span> x<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.y <span class="operator">=</span> y<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__eq__</span>(self, boshqa):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.x <span class="operator">==</span> boshqa.x <span class="keyword">and</span> self.y <span class="operator">==</span> boshqa.y<br><br>
+                        <span class="function">print</span>(<span class="function">Nuqta</span>(<span class="number">1</span>, <span class="number">2</span>) <span class="operator">==</span> <span class="function">Nuqta</span>(<span class="number">1</span>, <span class="number">2</span>))
+                    </div>
+                    <div class="comment-part">
+                        # __eq__ bo'lmasa, faqat manzil solishtiriladi (False)<br>
+                        # __eq__ bilan natija: True
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> True
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Eng Ko'p Ishlatiladigan Dunder Metodlar</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Dunder metod</th><th>Qachon chaqiriladi</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>__init__</code></td><td><code>obj = Klass(...)</code></td><td>Konstruktor — obyekt yaratish</td></tr>
+                        <tr><td><code>__str__</code></td><td><code>print(obj)</code></td><td>Chiroyli matn ko'rinishi</td></tr>
+                        <tr><td><code>__repr__</code></td><td><code>repr(obj)</code></td><td>Texnik (dasturchi) ko'rinishi</td></tr>
+                        <tr><td><code>__len__</code></td><td><code>len(obj)</code></td><td>Uzunlikni qaytaradi</td></tr>
+                        <tr><td><code>__getitem__</code></td><td><code>obj[i]</code></td><td>Indekslash</td></tr>
+                        <tr><td><code>__add__</code></td><td><code>obj1 + obj2</code></td><td>Qo'shish</td></tr>
+                        <tr><td><code>__eq__</code></td><td><code>obj1 == obj2</code></td><td>Solishtirish</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Dunder = ikki tagchiziq <span class="highlight-var">__nom__</span><br>
+                    • Ular Python tomonidan <strong>avtomatik</strong> chaqiriladi<br>
+                    • <span class="highlight-var">__init__</span> obyekt yaratilganda ishlaydi<br>
+                    • <span class="highlight-var">__str__</span> print() uchun, <span class="highlight-var">__len__</span> len() uchun<br>
+                    • <span class="highlight-var">__add__</span> +, <span class="highlight-var">__eq__</span> == uchun
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: __add__ — Ikki Obyektni Qo'shish</h2>
+                <div class="description">
+                    <span class="highlight-var">Pul</span> obyektlarini <strong>+</strong> bilan qo'shamiz.
+                    Python ichkarida <span class="highlight-var">__add__</span> ni chaqiradi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="addA" placeholder="1-pul" value="100">
+                        <input type="number" id="addB" placeholder="2-pul" value="50">
+                        <button onclick="demoAdd()">+ Qo'shish</button>
+                    </div>
+                    <div class="demo-result" id="resultAdd"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: __len__ — len(obyekt)</h2>
+                <div class="description">
+                    Guruhga talabalar ismini vergul bilan kiriting va
+                    <span class="highlight-var">len(guruh)</span> natijasini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="lenText" placeholder="Ali,Vali,Guli" value="Ali,Vali,Guli">
+                        <button onclick="demoLen()">len()</button>
+                    </div>
+                    <div class="demo-result" id="resultLen"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: __eq__ — Ikki Obyektni Solishtirish</h2>
+                <div class="description">
+                    Ikki <span class="highlight-var">Nuqta</span> obyektini <strong>==</strong> bilan solishtiramiz.
+                    Koordinatalar bir xil bo'lsa <span class="boolean">True</span> qaytadi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="eqAx" placeholder="1-x" value="1" style="min-width:70px;">
+                        <input type="number" id="eqAy" placeholder="1-y" value="2" style="min-width:70px;">
+                        <input type="number" id="eqBx" placeholder="2-x" value="1" style="min-width:70px;">
+                        <input type="number" id="eqBy" placeholder="2-y" value="2" style="min-width:70px;">
+                        <button onclick="demoEq()">== Solishtir</button>
+                    </div>
+                    <div class="demo-result" id="resultEq"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Vektor klassi yarating</strong>
+                            <p>__init__ bilan x va y koordinatalarni saqlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>__str__ qo'shing</strong>
+                            <p>print(v) "Vektor(3, 4)" ko'rinishida chiqsin</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>__add__ qo'shing</strong>
+                            <p>v1 + v2 yangi Vektor qaytarsin (x+x, y+y)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>__eq__ qo'shing</strong>
+                            <p>v1 == v2 koordinatalar teng bo'lsa True qaytarsin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Modul:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Modul 8 — Xatolar va Test</p>
+                    <p style="opacity: 0.9;">
+                        Tabriklaymiz! Siz OOP modulini va dunder metodlarni o'rgandingiz.<br>
+                        Endi dasturdagi xatolarni boshqarish (try/except) va kodni test qilishni o'rganamiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function demoAdd() {
+            const a = parseInt(document.getElementById('addA').value) || 0;
+            const b = parseInt(document.getElementById('addB').value) || 0;
+            const out = a + b;
+            const result = document.getElementById('resultAdd');
+            result.classList.add('show');
+            result.innerHTML = `>>> Pul(${a}) + Pul(${b})<br>>>> __add__ chaqirildi<br>>>> Pul(${out}) → ${out}`;
+        }
+
+        function demoLen() {
+            const t = document.getElementById('lenText').value;
+            const parts = t.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            const n = parts.length;
+            const result = document.getElementById('resultLen');
+            result.classList.add('show');
+            result.innerHTML = `>>> guruh = Guruh([${parts.map(p => `'${p}'`).join(', ')}])<br>>>> len(guruh)<br>>>> __len__ chaqirildi → ${n}`;
+        }
+
+        function demoEq() {
+            const ax = parseInt(document.getElementById('eqAx').value) || 0;
+            const ay = parseInt(document.getElementById('eqAy').value) || 0;
+            const bx = parseInt(document.getElementById('eqBx').value) || 0;
+            const by = parseInt(document.getElementById('eqBy').value) || 0;
+            const teng = (ax === bx && ay === by);
+            const result = document.getElementById('resultEq');
+            result.classList.add('show');
+            result.innerHTML = `>>> Nuqta(${ax}, ${ay}) == Nuqta(${bx}, ${by})<br>>>> __eq__ chaqirildi<br>>>> ${teng ? 'True' : 'False'}`;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

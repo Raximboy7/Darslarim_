@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 52: Generator funksiyalari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* YIELD STEP VISUALIZER */
+        .yield-viz { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .yield-cell {
+            min-width: 70px;
+            text-align: center;
+            padding: 10px 8px;
+            background: #1f2937;
+            color: #d4d4d4;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85em;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .yield-cell.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-4px);
+        }
+        .yield-cell.done { opacity: 0.45; }
+        .yield-label { font-size: 0.72em; color: var(--gray); margin-top: 4px; }
+        .yield-cell.active .yield-label { color: var(--white); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* MEMORY BAR */
+        .mem-bar-wrap { margin: 12px 0; }
+        .mem-bar-label { font-size: 0.85em; color: var(--dark); margin-bottom: 5px; font-weight: bold; }
+        .mem-bar {
+            height: 26px;
+            border-radius: 6px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        .mem-bar-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            display: flex; align-items: center; justify-content: flex-end;
+            color: var(--white); font-size: 0.78em; font-weight: bold; padding-right: 8px;
+            white-space: nowrap;
+        }
+        .mem-fill-list { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        .mem-fill-gen { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 10 — Iterator, generator, decorator · Dars 52 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Generator Funksiyalari</h1>
+                <p>Modul 10 — Iterator, generator, decorator | Dars 52</p>
+            </header>
+
+            <div class="section">
+                <h2>Generator Nima?</h2>
+                <div class="description">
+                    <strong>Generator</strong> — bu qiymatlarni <strong>birma-bir</strong> hosil qiladigan maxsus iterator.
+                    U barcha qiymatlarni xotirada saqlamaydi — har bir qiymatni faqat <strong>kerak bo'lganda</strong> ishlab chiqaradi.
+                    Shu sababli generator <span class="highlight-var">xotirani juda tejaydi</span>.
+                </div>
+                <div class="info-box">
+                    <strong>Oddiy taqqoslash</strong>
+                    <p>
+                        List — bu butun bir savat olma: hammasini birdan tayyorlab, xotiraga joylaydi.<br>
+                        Generator — bu daraxt: har safar bitta olma uzib beradi, qolganini esa keyinga qoldiradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>yield Kalit So'zi</h2>
+                <div class="description">
+                    Generator funksiya <span class="highlight-var">return</span> emas,
+                    <span class="highlight-var">yield</span> kalit so'zidan foydalanadi.
+                    Agar funksiya ichida hech bo'lmasa bitta <span class="highlight-var">yield</span> bo'lsa,
+                    Python uni avtomatik <strong>generator</strong> qiladi.
+                </div>
+
+                <h3>return va yield farqi</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>return</th><th>yield</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Funksiyani butunlay <b>tugatadi</b></td><td>Funksiyani <b>vaqtincha to'xtatadi</b></td></tr>
+                        <tr><td>Bitta qiymat qaytaradi</td><td>Ko'p qiymat qaytarishi mumkin</td></tr>
+                        <tr><td>O'zgaruvchilar yo'qoladi</td><td>O'zgaruvchilar <b>saqlanib qoladi</b></td></tr>
+                        <tr><td>Qaytadan davom etmaydi</td><td>Keyingi safar <b>shu joydan davom etadi</b></td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">sanaq</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">yield</span> <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">yield</span> <span class="number">2</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">yield</span> <span class="number">3</span>
+                    </div>
+                    <div class="comment-part">
+                        # Uchta yield — uchta qiymatni birma-bir beradi<br>
+                        # Bu oddiy funksiya emas, generator funksiya
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Generatorni Ishlatish</h2>
+                <div class="description">
+                    Generator funksiyani chaqirganingizda kod <strong>darhol ishlamaydi</strong> —
+                    u faqat <strong>generator obyekti</strong> qaytaradi. Qiymatlarni olish uchun
+                    <span class="highlight-var">next()</span> yoki <span class="highlight-var">for</span> dan foydalanamiz.
+                </div>
+
+                <h3>next() bilan birma-bir</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        g = <span class="function">sanaq</span>()<br>
+                        <span class="function">print</span>(<span class="function">next</span>(g))<br>
+                        <span class="function">print</span>(<span class="function">next</span>(g))<br>
+                        <span class="function">print</span>(<span class="function">next</span>(g))
+                    </div>
+                    <div class="comment-part">
+                        # Har next() chaqiruvi keyingi yield gacha boradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1<br>
+                    >>> 2<br>
+                    >>> 3
+                </div>
+
+                <h3>for bilan aylanish (eng qulay yo'l)</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">for</span> son <span class="keyword">in</span> <span class="function">sanaq</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(son)
+                    </div>
+                    <div class="comment-part">
+                        # for o'zi next() ni chaqiradi va tugaganda to'xtaydi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 1<br>
+                    >>> 2<br>
+                    >>> 3
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Generator Expression</h2>
+                <div class="description">
+                    List comprehension <span class="highlight-var">[ ]</span> qavs bilan yoziladi.
+                    Agar <span class="highlight-var">( )</span> oddiy qavs ishlatsangiz, bu
+                    <strong>generator expression</strong> bo'ladi — qisqa va xotira tejovchi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        kvadratlar = (x<span class="operator">**</span><span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>))<br>
+                        <span class="function">print</span>(kvadratlar)<br>
+                        <span class="keyword">for</span> k <span class="keyword">in</span> kvadratlar:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(k)
+                    </div>
+                    <div class="comment-part">
+                        # ( ) qavs — generator, [ ] qavs — list<br>
+                        # generator obyekti birma-bir kvadratlarni beradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> &lt;generator object &lt;genexpr&gt; at 0x...&gt;<br>
+                    >>> 0<br>
+                    >>> 1<br>
+                    >>> 4<br>
+                    >>> 9<br>
+                    >>> 16
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nega Xotira Tejaydi?</h2>
+                <div class="description">
+                    Million sonni saqlash kerak bo'lsa, <strong>list</strong> hamma millionni
+                    bir vaqtda xotiraga joylaydi. <strong>Generator</strong> esa har gal faqat
+                    <strong>bitta</strong> sonni xotirada saqlaydi — qolganlari kerak bo'lganda hosil bo'ladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="string"># List — hammasini saqlaydi (ko'p xotira)</span><br>
+                        royxat = [x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1000000</span>)]<br><br>
+                        <span class="string"># Generator — birma-bir (kam xotira)</span><br>
+                        gen = (x <span class="keyword">for</span> x <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1000000</span>))
+                    </div>
+                    <div class="comment-part">
+                        # royxat ~8 MB joy egallaydi<br>
+                        # gen esa atigi bir necha bayt!
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">yield</span> funksiyani to'xtatadi va davom ettiradi<br>
+                    • Generator qiymatlarni birma-bir hosil qiladi — xotirani tejaydi<br>
+                    • <span class="highlight-var">( )</span> qavs — generator, <span class="highlight-var">[ ]</span> qavs — list<br>
+                    • Generatorni <span class="highlight-var">for</span> yoki <span class="highlight-var">next()</span> bilan o'qiymiz<br>
+                    • Generator faqat <strong>bir marta</strong> aylanadi — tugagach qaytadan o'qib bo'lmaydi
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: yield Qadam-baqadam</h2>
+                <div class="description">
+                    <span class="highlight-var">next()</span> bosing — generator keyingi
+                    <span class="highlight-var">yield</span> gacha ishlaydi, qiymat beradi va to'xtaydi.
+                    Funksiya qayerda "uxlab" turganini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="yield-viz" id="yieldViz"></div>
+                    <div class="btn-row">
+                        <button onclick="yieldNext()">next(g)</button>
+                        <button onclick="yieldReset()">Boshidan</button>
+                    </div>
+                    <div class="demo-result" id="resultYield"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Generator va List Xotira Farqi</h2>
+                <div class="description">
+                    Nechta son saqlamoqchisiz? Tugmani bosing va list bilan generator
+                    qancha xotira egallashini taqqoslang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="memCount" placeholder="sonlar soni" value="100000" min="1">
+                        <button onclick="demoMemory()">Taqqosla</button>
+                    </div>
+                    <div class="mem-bar-wrap">
+                        <div class="mem-bar-label">List (hammasini saqlaydi)</div>
+                        <div class="mem-bar"><div class="mem-bar-fill mem-fill-list" id="barList"></div></div>
+                    </div>
+                    <div class="mem-bar-wrap">
+                        <div class="mem-bar-label">Generator (birma-bir)</div>
+                        <div class="mem-bar"><div class="mem-bar-fill mem-fill-gen" id="barGen"></div></div>
+                    </div>
+                    <div class="demo-result" id="resultMemory"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Cheksiz Generator</h2>
+                <div class="description">
+                    Generator <strong>cheksiz</strong> bo'lishi ham mumkin! Quyidagi
+                    <span class="highlight-var">natural_sonlar()</span> hech qachon tugamaydi —
+                    biz undan faqat <strong>kerakli</strong> qadar son olamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">natural_sonlar</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;n = <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span> <span class="boolean">True</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">yield</span> n<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n <span class="operator">+=</span> <span class="number">1</span>
+                    </div>
+                    <div class="comment-part">
+                        # while True cheksiz, lekin yield har gal to'xtatadi<br>
+                        # shuning uchun dastur qotib qolmaydi
+                    </div>
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="infCount" placeholder="nechta son" value="5" min="1" max="50">
+                        <button onclick="demoInfinite()">Birinchi N sonni ol</button>
+                    </div>
+                    <div class="demo-result" id="resultInfinite"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Generator funksiya yozing</strong>
+                            <p>def juft_sonlar(n): 0 dan n gacha juft sonlarni yield qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>for bilan aylaning</strong>
+                            <p>juft_sonlar(10) ni for bilan aylanib har bir sonni chiqaring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Generator expression tuzing</strong>
+                            <p>(x*x for x in range(6)) yozib, uni list() ga aylantiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>next() ni sinab ko'ring</strong>
+                            <p>g = juft_sonlar(10) qilib, next(g) ni bir necha marta chaqiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 53: Decorator nima?</p>
+                    <p style="opacity: 0.9;">
+                        Generatorlar bilan xotirani tejashni o'rgandingiz!<br>
+                        Endi funksiyalarni "bezatuvchi" dekoratorlarni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Misol 1: yield qadam-baqadam =====
+        // sanaq() generatorini taqlid qilamiz: yield 10, yield 20, yield 30
+        const yieldValues = [10, 20, 30];
+        let yieldStep = 0; // nechta yield bajarildi
+
+        function renderYieldViz() {
+            const box = document.getElementById('yieldViz');
+            box.innerHTML = '';
+            yieldValues.forEach((v, i) => {
+                const cell = document.createElement('div');
+                let cls = 'yield-cell';
+                if (i < yieldStep - 1) cls += ' done';
+                if (i === yieldStep - 1) cls += ' active';
+                cell.className = cls;
+                cell.innerHTML = `yield ${v}<div class="yield-label">${i === yieldStep - 1 ? 'shu yerda turibdi' : (i < yieldStep - 1 ? 'bajarildi' : 'kutmoqda')}</div>`;
+                box.appendChild(cell);
+            });
+        }
+
+        function yieldNext() {
+            const result = document.getElementById('resultYield');
+            result.classList.add('show');
+            if (yieldStep < yieldValues.length) {
+                const v = yieldValues[yieldStep];
+                yieldStep++;
+                renderYieldViz();
+                result.innerHTML = `>>> next(g)<br>>>> ${v}<br><br>Funksiya yield ${v} da to'xtadi. Keyingi next() shu joydan davom etadi.`;
+            } else {
+                renderYieldViz();
+                result.innerHTML = `>>> next(g)<br>>>> StopIteration xatosi!<br><br>Generator tugadi. Boshqa qiymat qolmadi. "Boshidan" bosing.`;
+            }
+        }
+
+        function yieldReset() {
+            yieldStep = 0;
+            renderYieldViz();
+            const result = document.getElementById('resultYield');
+            result.classList.add('show');
+            result.innerHTML = `>>> g = sanaq()<br>>>> # Yangi generator tayyor. next(g) bosing.`;
+        }
+
+        // ===== Misol 2: xotira farqi =====
+        function demoMemory() {
+            let n = parseInt(document.getElementById('memCount').value);
+            if (isNaN(n) || n < 1) n = 1;
+            // taxminiy: har butun son ~28 bayt, list bu sonlarni hammasini saqlaydi
+            const listBytes = n * 28;
+            const genBytes = 112; // generator obyekti deyarli o'zgarmas, kichik
+            const fmt = (b) => {
+                if (b < 1024) return b + ' bayt';
+                if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+                return (b / 1024 / 1024).toFixed(2) + ' MB';
+            };
+            // bar kengligi: listni 100% qilamiz, generatorni nisbatan
+            const barList = document.getElementById('barList');
+            const barGen = document.getElementById('barGen');
+            barList.style.width = '100%';
+            barList.textContent = fmt(listBytes);
+            let genPct = (genBytes / listBytes) * 100;
+            if (genPct < 4) genPct = 4; // ko'rinib turishi uchun minimal
+            barGen.style.width = genPct + '%';
+            barGen.textContent = fmt(genBytes);
+
+            const result = document.getElementById('resultMemory');
+            result.classList.add('show');
+            const marta = Math.round(listBytes / genBytes);
+            result.innerHTML = `>>> list ${n} ta sonni saqlaydi → ~${fmt(listBytes)}<br>>>> generator esa → ~${fmt(genBytes)}<br><br>Generator taxminan ${marta.toLocaleString('en-US')} marta kam xotira ishlatadi!`;
+        }
+
+        // ===== Misol 3: cheksiz generator =====
+        function demoInfinite() {
+            let n = parseInt(document.getElementById('infCount').value);
+            if (isNaN(n) || n < 1) n = 1;
+            if (n > 50) n = 50;
+            // natural_sonlar() ni taqlid: 1, 2, 3, ...
+            const olingan = [];
+            for (let i = 1; i <= n; i++) olingan.push(i);
+            const result = document.getElementById('resultInfinite');
+            result.classList.add('show');
+            result.innerHTML = `>>> g = natural_sonlar()<br>>>> # birinchi ${n} sonni olamiz<br>>>> ${olingan.join(', ')}<br><br>Generator cheksiz, lekin biz faqat ${n} tasini oldik. Qolgani hosil bo'lmadi — dastur qotib qolmadi.`;
+        }
+
+        // dastlabki ko'rinish
+        renderYieldViz();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

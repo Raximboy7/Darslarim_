@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 28: Scope va o'zgaruvchilar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 8px; color: #b45309; }
+        .warning-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .concept-card strong { color: var(--primary-dark); display: block; margin-bottom: 10px; font-size: 1.1em; }
+        .concept-card p { color: var(--dark); margin-bottom: 10px; line-height: 1.6; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 110px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SCOPE VISUALIZER */
+        .scope-viz {
+            margin: 15px 0;
+            font-family: 'Monaco', monospace;
+        }
+        .scope-global {
+            background: #1f2937;
+            border: 2px dashed var(--secondary);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .scope-label {
+            font-size: 0.78em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .scope-global > .scope-label { color: #38bdf8; }
+        .scope-local {
+            background: rgba(16, 185, 129, 0.12);
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+        .scope-local > .scope-label { color: #34d399; }
+        .scope-var {
+            display: inline-block;
+            background: #374151;
+            color: #fbbf24;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin: 4px 6px 4px 0;
+            font-size: 0.9em;
+        }
+        .scope-var.green { background: var(--primary); color: var(--white); }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 6 — Funksiyalar · Dars 28 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Scope va O'zgaruvchilar</h1>
+                <p>Modul 6 — Funksiyalar | Dars 28</p>
+            </header>
+
+            <div class="section">
+                <h2>Scope Nima?</h2>
+                <div class="description">
+                    <strong>Scope</strong> (ko'rinish doirasi) — bu o'zgaruvchi <strong>qayerda
+                    ko'rinadi va ishlatiladi</strong> degani. Har bir o'zgaruvchining o'z "hududi" bor:
+                    ba'zilari hamma joyda ishlaydi, ba'zilari esa faqat bitta funksiya ichida yashaydi.
+                </div>
+                <p style="color: var(--dark); line-height: 1.7; margin-bottom: 15px;">
+                    Python'da ikkita asosiy scope mavjud:
+                    <span class="highlight-var">global</span> (umumiy) va
+                    <span class="highlight-var">local</span> (mahalliy).
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Global Scope</h2>
+                <div class="description">
+                    Funksiyalardan <strong>tashqarida</strong> e'lon qilingan o'zgaruvchi —
+                    <span class="highlight-var">global</span> o'zgaruvchi. U dasturning
+                    <strong>hamma joyida</strong>, jumladan funksiyalar ichida ham ko'rinadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        ism = <span class="string">"Ali"</span>  <span style="color:#6b7280;"># global</span><br><br>
+                        <span class="keyword">def</span> <span class="function">salom</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(<span class="string">"Salom, "</span> + ism)<br><br>
+                        <span class="function">salom</span>()
+                    </div>
+                    <div class="comment-part">
+                        # ism funksiya ichida ham ko'rinadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom, Ali
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Local Scope</h2>
+                <div class="description">
+                    Funksiya <strong>ichida</strong> e'lon qilingan o'zgaruvchi —
+                    <span class="highlight-var">local</span> o'zgaruvchi. U faqat <strong>shu funksiya
+                    ichida</strong> yashaydi. Funksiya tugashi bilan u o'chiriladi va tashqarida ko'rinmaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">hisobla</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;natija = <span class="number">10</span>  <span style="color:#6b7280;"># local</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(natija)<br><br>
+                        <span class="function">hisobla</span>()<br>
+                        <span class="function">print</span>(natija)  <span class="operator"># XATO!</span>
+                    </div>
+                    <div class="comment-part">
+                        # natija faqat funksiya ichida mavjud
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 10<br>
+                    NameError: name 'natija' is not defined
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Global va Local — Solishtirish</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Xususiyat</th><th>Global</th><th>Local</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Qayerda yaratiladi</td><td>Funksiyadan tashqarida</td><td>Funksiya ichida</td></tr>
+                        <tr><td>Qayerda ko'rinadi</td><td>Hamma joyda</td><td>Faqat o'sha funksiyada</td></tr>
+                        <tr><td>Qachongacha yashaydi</td><td>Dastur tugaguncha</td><td>Funksiya tugaguncha</td></tr>
+                        <tr><td>Tashqaridan o'qiladimi</td><td>Ha</td><td>Yo'q</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>global Kalit So'zi</h2>
+                <div class="description">
+                    Odatda funksiya ichida global o'zgaruvchini <strong>o'zgartirib bo'lmaydi</strong> —
+                    Python yangi local o'zgaruvchi yaratadi. Agar funksiya ichidan global o'zgaruvchining
+                    qiymatini o'zgartirmoqchi bo'lsak, <span class="highlight-var">global</span> kalit
+                    so'zidan foydalanamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        hisob = <span class="number">0</span><br><br>
+                        <span class="keyword">def</span> <span class="function">oshir</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">global</span> hisob<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;hisob = hisob + <span class="number">1</span><br><br>
+                        <span class="function">oshir</span>()<br>
+                        <span class="function">oshir</span>()<br>
+                        <span class="function">print</span>(hisob)
+                    </div>
+                    <div class="comment-part">
+                        # global hisob ni o'zgartiramiz
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> 2
+                </div>
+                <div class="warning-box">
+                    <strong>⚠️ global bilan ehtiyot bo'ling!</strong>
+                    <p>
+                        <span class="highlight-var">global</span> dan ko'p foydalanish kodni chalkash
+                        qiladi. Yaxshiroq usul — qiymatni <span class="highlight-var">return</span> bilan
+                        qaytarish. global ni faqat zarur bo'lganda ishlating.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Nested (Ichma-ich) Funksiyalar</h2>
+                <div class="description">
+                    Funksiya ichida yana funksiya bo'lishi mumkin. Ichki funksiya tashqi funksiyaning
+                    o'zgaruvchilarini <strong>o'qiy oladi</strong>. Bu hodisa
+                    <span class="highlight-var">enclosing scope</span> deb ataladi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">tashqi</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;xabar = <span class="string">"Salom"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">ichki</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">print</span>(xabar)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">ichki</span>()<br><br>
+                        <span class="function">tashqi</span>()
+                    </div>
+                    <div class="comment-part">
+                        # ichki, tashqi'ning xabar'ini ko'radi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Salom
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>O'zgaruvchini Qidirish Tartibi (LEGB)</h2>
+                <div class="description">
+                    Python o'zgaruvchini quyidagi tartibda qidiradi:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Bosqich</th><th>Qayerda</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>L</code> — Local</td><td>Joriy funksiya ichida</td></tr>
+                        <tr><td><code>E</code> — Enclosing</td><td>Tashqi funksiya ichida</td></tr>
+                        <tr><td><code>G</code> — Global</td><td>Fayl darajasida</td></tr>
+                        <tr><td><code>B</code> — Built-in</td><td>Python'ning o'zida (print, len)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Keng Tarqalgan Xato</h2>
+                <div class="example-box">
+                    <div class="example-title">❌ Xato: local o'zgaruvchiga tashqaridan kirish</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="keyword">def</span> <span class="function">hisobla</span>():<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;yigindi = <span class="number">5</span> + <span class="number">3</span><br><br>
+                            <span class="function">hisobla</span>()<br>
+                            <span class="function">print</span>(yigindi)  <span style="color:#f87171;"># NameError!</span>
+                        </div>
+                    </div>
+                    <p style="color: var(--dark); margin-top: 10px;">
+                        <span class="highlight-var">yigindi</span> faqat funksiya ichida mavjud, tashqarida yo'q.
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">✓ To'g'ri: qiymatni return bilan qaytaring</div>
+                    <div class="code-with-comment full">
+                        <div class="code-part">
+                            <span class="keyword">def</span> <span class="function">hisobla</span>():<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;yigindi = <span class="number">5</span> + <span class="number">3</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> yigindi<br><br>
+                            natija = <span class="function">hisobla</span>()<br>
+                            <span class="function">print</span>(natija)
+                        </div>
+                    </div>
+                    <div class="output-demo">
+                        >>> 8
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">Global</span> — funksiyadan tashqarida, hamma joyda ko'rinadi<br>
+                    • <span class="highlight-var">Local</span> — funksiya ichida, faqat o'sha yerda yashaydi<br>
+                    • Funksiya ichidagi o'zgaruvchi tashqarida ko'rinmaydi<br>
+                    • <span class="highlight-var">global</span> kalit so'zi global o'zgaruvchini o'zgartiradi<br>
+                    • Eng yaxshi usul — qiymatni <span class="highlight-var">return</span> bilan qaytarish
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Local va Global</h2>
+                <p style="color: var(--gray); font-size: 0.9em; margin-bottom: 12px;">
+                    Funksiya ichidagi <span class="highlight-var">local</span> o'zgaruvchiga tashqaridan
+                    kirib bo'lmaydi. Tugmani bosing va natijani ko'ring.
+                </p>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="localVal" placeholder="Local qiymat" value="10">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoLocalInside()">Funksiya ichida o'qish</button>
+                        <button onclick="demoLocalOutside()">Tashqarida o'qish</button>
+                    </div>
+                    <div class="demo-result" id="resultLocal"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: global Kalit So'zi</h2>
+                <p style="color: var(--gray); font-size: 0.9em; margin-bottom: 12px;">
+                    <span class="highlight-var">global</span> bilan funksiya ichidan umumiy hisoblagichni
+                    oshiramiz. "Oshir" tugmasini bir necha marta bosing.
+                </p>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="demoGlobalNo()">global'siz oshir</button>
+                        <button onclick="demoGlobalYes()">global bilan oshir</button>
+                        <button onclick="demoGlobalReset()">Reset</button>
+                    </div>
+                    <div class="demo-result" id="resultGlobal"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Scope Vizualizatori</h2>
+                <p style="color: var(--gray); font-size: 0.9em; margin-bottom: 12px;">
+                    Qaysi o'zgaruvchi qaysi doirada yashashini ko'ring.
+                </p>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="gName" placeholder="Global o'zgaruvchi" value="ism">
+                        <input type="text" id="lName" placeholder="Local o'zgaruvchi" value="natija">
+                    </div>
+                    <button onclick="demoVizScope()" style="width:100%;">Vizualizatsiya qil</button>
+                    <div class="scope-viz" id="scopeViz" style="display:none;">
+                        <div class="scope-global">
+                            <div class="scope-label">Global scope (hamma joyda)</div>
+                            <div id="vizGlobalVars"></div>
+                            <div class="scope-local">
+                                <div class="scope-label">Local scope (funksiya ichida)</div>
+                                <div id="vizLocalVars"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-result" id="resultViz"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 4: Scope Viktorina</h2>
+                <p style="color: var(--gray); font-size: 0.9em; margin-bottom: 12px;">
+                    Quyidagi kod uchun <span class="highlight-var">print(x)</span> tashqarida nima chiqaradi?
+                </p>
+                <div class="interactive-demo">
+                    <div class="code-with-comment full" style="margin-top:0;">
+                        <div class="code-part">
+                            x = <span class="number">5</span>  <span style="color:#6b7280;"># global</span><br>
+                            <span class="keyword">def</span> <span class="function">f</span>():<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;x = <span class="number">99</span>  <span style="color:#6b7280;"># local</span><br>
+                            <span class="function">f</span>()<br>
+                            <span class="function">print</span>(x)
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="demoQuiz(5)">5</button>
+                        <button onclick="demoQuiz(99)">99</button>
+                        <button onclick="demoQuiz('xato')">Xato</button>
+                    </div>
+                    <div class="demo-result" id="resultQuiz"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 5: Nested Funksiya</h2>
+                <p style="color: var(--gray); font-size: 0.9em; margin-bottom: 12px;">
+                    Ichki funksiya tashqi funksiyaning o'zgaruvchisini o'qiy oladi.
+                </p>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="outerVal" placeholder="Tashqi xabar" value="Salom">
+                        <button onclick="demoNested()">Ishga tushir</button>
+                    </div>
+                    <div class="demo-result" id="resultNested"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Global o'zgaruvchi yarating</strong>
+                            <p>Fayl boshida <span class="highlight-var">hisob = 0</span> yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Funksiya yozing</strong>
+                            <p><span class="highlight-var">qoshish()</span> nomli funksiya tuzing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>global ishlatib oshiring</strong>
+                            <p>Funksiya ichida <span class="highlight-var">global hisob</span> deb yozib, qiymatni 1 ga oshiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Natijani chiqaring</strong>
+                            <p>Funksiyani 3 marta chaqiring va <span class="highlight-var">print(hisob)</span> bilan natijani chiqaring (3 bo'lishi kerak)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 29: Closure va lambda</p>
+                    <p style="opacity: 0.9;">
+                        O'zgaruvchilarning ko'rinish doirasini o'rgandingiz!<br>
+                        Endi o'zini o'zi chaqiradigan funksiyalar — rekursiyani ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Misol 1: Local va Global
+        function demoLocalInside() {
+            const val = document.getElementById('localVal').value || "0";
+            const result = document.getElementById('resultLocal');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> def hisobla():<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;natija = ${val}<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;print(natija)  # funksiya ICHIDA<br>` +
+                `>>> hisobla()<br>` +
+                `${val}  ✓ ko'rinadi`;
+        }
+
+        function demoLocalOutside() {
+            const result = document.getElementById('resultLocal');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> hisobla()<br>` +
+                `>>> print(natija)  # funksiya TASHQARISIDA<br>` +
+                `NameError: name 'natija' is not defined  ✗`;
+        }
+
+        // Misol 2: global kalit so'zi
+        let globalHisob = 0;
+        function demoGlobalNo() {
+            // global'siz: funksiya ichida local yaratiladi, tashqaridagi o'zgarmaydi
+            const localCopy = globalHisob + 1; // faqat funksiya ichida
+            const result = document.getElementById('resultGlobal');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> def oshir():<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;hisob = hisob + 1  # local hisob<br>` +
+                `# Tashqi global hisob o'zgarmaydi<br>` +
+                `>>> print(hisob)<br>` +
+                `${globalHisob}  (o'zgarmadi)`;
+        }
+
+        function demoGlobalYes() {
+            globalHisob += 1;
+            const result = document.getElementById('resultGlobal');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> def oshir():<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;global hisob<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;hisob = hisob + 1<br>` +
+                `>>> oshir()  # chaqirildi<br>` +
+                `>>> print(hisob)<br>` +
+                `${globalHisob}  ✓ oshdi`;
+        }
+
+        function demoGlobalReset() {
+            globalHisob = 0;
+            const result = document.getElementById('resultGlobal');
+            result.classList.add('show');
+            result.innerHTML = `>>> hisob = 0  # qayta tiklandi`;
+        }
+
+        // Misol 3: Scope vizualizatori
+        function demoVizScope() {
+            const g = document.getElementById('gName').value || "ism";
+            const l = document.getElementById('lName').value || "natija";
+            document.getElementById('scopeViz').style.display = 'block';
+            document.getElementById('vizGlobalVars').innerHTML =
+                `<span class="scope-var green">${g}</span>` +
+                `<span style="color:#9ca3af; font-size:0.8em;">← hamma joyda ko'rinadi</span>`;
+            document.getElementById('vizLocalVars').innerHTML =
+                `<span class="scope-var">${l}</span>` +
+                `<span style="color:#9ca3af; font-size:0.8em;">← faqat shu yerda</span>`;
+            const result = document.getElementById('resultViz');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> ${g} — global: funksiya ichida ham, tashqarida ham OK<br>` +
+                `>>> ${l} — local: faqat funksiya ichida. Tashqarida print(${l}) → NameError`;
+        }
+
+        // Misol 4: Scope viktorina
+        function demoQuiz(javob) {
+            const result = document.getElementById('resultQuiz');
+            result.classList.add('show');
+            if (javob === 5) {
+                result.innerHTML =
+                    `>>> print(x)<br>` +
+                    `5  ✓ TO'G'RI!<br>` +
+                    `Funksiya ichidagi x = 99 local edi — u global x ni o'zgartirmadi.`;
+            } else if (javob === 99) {
+                result.innerHTML =
+                    `99  ✗ Noto'g'ri.<br>` +
+                    `Funksiya ichidagi x = 99 — local. global x = 5 saqlanib qoladi.`;
+            } else {
+                result.innerHTML =
+                    `Xato  ✗ Noto'g'ri.<br>` +
+                    `x global bo'lib mavjud, shuning uchun NameError bo'lmaydi. Javob: 5.`;
+            }
+        }
+
+        // Misol 5: Nested funksiya
+        function demoNested() {
+            const xabar = document.getElementById('outerVal').value || "Salom";
+            const result = document.getElementById('resultNested');
+            result.classList.add('show');
+            result.innerHTML =
+                `>>> def tashqi():<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;xabar = "${xabar}"<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;def ichki():<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(xabar)<br>` +
+                `...&nbsp;&nbsp;&nbsp;&nbsp;ichki()<br>` +
+                `>>> tashqi()<br>` +
+                `${xabar}  ✓ ichki funksiya tashqi xabar'ni o'qidi`;
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

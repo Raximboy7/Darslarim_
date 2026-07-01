@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 83: Dataclasses</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 13 — Regex va Type Hints · Dars 83 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Dataclasses</h1>
+                <p>Modul 13 — Regex va Type Hints | Dars 83</p>
+            </header>
+
+            <div class="section">
+                <h2>Dataclass Nima?</h2>
+                <div class="description">
+                    <strong>Dataclass</strong> — bu asosan <strong>ma'lumot saqlovchi</strong> klasslarni
+                    yozishni soddalashtiradigan vosita. Ya'ni vazifasi faqat bir nechta qiymatni
+                    (ism, yosh, narx...) birga ushlab turish bo'lgan klasslar uchun.
+                    Odatda bunday klassda ko'p takroriy kod yozasiz —
+                    <span class="highlight-var">__init__</span>,
+                    <span class="highlight-var">__repr__</span>,
+                    <span class="highlight-var">__eq__</span> — dataclass esa bularni
+                    <strong>siz uchun avtomatik yozadi</strong>.
+                </div>
+                <div class="info-box">
+                    <strong>Sodda qilib aytganda</strong>
+                    <p>
+                        Dataclass — "kamroq yozib, ko'proq ish bajaradigan" klass.
+                        Siz faqat qanday maydonlar borligini aytasiz, qolganini Python o'zi qiladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>@dataclass Dekoratori</h2>
+                <div class="description">
+                    Dataclass yaratish uchun avval uni <span class="highlight-var">dataclasses</span>
+                    modulidan import qilamiz, so'ng klass ustiga
+                    <span class="highlight-var">@dataclass</span> dekoratorini qo'yamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass<br><br>
+                        <span class="operator">@</span>dataclass<br>
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ism: <span class="function">str</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;yosh: <span class="function">int</span> <span class="operator">=</span> <span class="number">0</span>
+                    </div>
+                    <div class="comment-part">
+                        # @dataclass dekoratori klassni "dataclass" qiladi<br>
+                        # ism va yosh — maydonlar (fields)<br>
+                        # yosh ning standart qiymati 0
+                    </div>
+                </div>
+                <div class="description">
+                    Maydonlarni <span class="highlight-var">ism: tur</span> ko'rinishida yozamiz
+                    (avvalgi darsdagi type hint). Standart qiymat berish uchun
+                    <span class="highlight-var">= qiymat</span> qo'shamiz.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Avtomatik Tayyorlanadigan Narsalar</h2>
+                <div class="description">
+                    <span class="highlight-var">@dataclass</span> dekoratorini qo'yganingizdan
+                    keyin Python uchta muhim metodni siz uchun yozib beradi:
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Metod</th><th>Vazifasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>__init__</code></td><td>Obyekt yaratganda maydonlarni qabul qiladi: Talaba("Ali", 20)</td></tr>
+                        <tr><td><code>__repr__</code></td><td>Obyektni chiroyli matn ko'rinishida chiqaradi: Talaba(ism='Ali', yosh=20)</td></tr>
+                        <tr><td><code>__eq__</code></td><td>Ikki obyektni == orqali taqqoslash imkonini beradi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>Oddiy Klass vs Dataclass</h2>
+                <div class="description">
+                    Quyida bir xil natija beradigan ikkita yozuvni solishtiramiz.
+                    Oddiy klassda hamma narsani qo'lda yozish kerak:
+                </div>
+                <h3>Oddiy klass (uzun)</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, ism, yosh):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.ism <span class="operator">=</span> ism<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.yosh <span class="operator">=</span> yosh<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__repr__</span>(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">f"Talaba({self.ism}, {self.yosh})"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__eq__</span>(self, other):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.ism <span class="operator">==</span> other.ism <span class="keyword">and</span> self.yosh <span class="operator">==</span> other.yosh
+                    </div>
+                    <div class="comment-part">
+                        # 8 qator kod — hammasi qo'lda yozilgan
+                    </div>
+                </div>
+                <h3>Dataclass (qisqa)</h3>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass<br><br>
+                        <span class="operator">@</span>dataclass<br>
+                        <span class="keyword">class</span> <span class="function">Talaba</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ism: <span class="function">str</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;yosh: <span class="function">int</span>
+                    </div>
+                    <div class="comment-part">
+                        # Faqat 3 qator! __init__, __repr__, __eq__ avtomatik tayyor
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Natija bir xil, kod kamroq</strong>
+                    <p>
+                        Ikkala holatda ham obyekt bir xil ishlaydi, lekin dataclass bilan
+                        ancha kam kod yozasiz va xatolik ehtimoli kamayadi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Obyekt Yaratish va Ishlatish</h2>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        t1 <span class="operator">=</span> <span class="function">Talaba</span>(<span class="string">"Ali"</span>, <span class="number">20</span>)<br>
+                        t2 <span class="operator">=</span> <span class="function">Talaba</span>(<span class="string">"Ali"</span>, <span class="number">20</span>)<br><br>
+                        <span class="function">print</span>(t1)<br>
+                        <span class="function">print</span>(t1.ism)<br>
+                        <span class="function">print</span>(t1 <span class="operator">==</span> t2)
+                    </div>
+                    <div class="comment-part">
+                        # Obyekt yaratish va taqqoslash
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> Talaba(ism='Ali', yosh=20)<br>
+                    >>> Ali<br>
+                    >>> True
+                </div>
+                <div class="description">
+                    E'tibor bering: oddiy klassda <span class="highlight-var">t1 == t2</span>
+                    odatda <span class="highlight-var">False</span> bo'lardi (chunki ikki alohida obyekt),
+                    lekin dataclass maydonlar qiymatini taqqoslab <span class="highlight-var">True</span> beradi.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>field() va default_factory</h2>
+                <div class="description">
+                    Agar maydonning standart qiymati <strong>ro'yxat (list)</strong> yoki
+                    <strong>lug'at (dict)</strong> kabi o'zgaruvchan bo'lsa, uni to'g'ridan-to'g'ri
+                    <span class="highlight-var">= []</span> deb yozish <strong>xato</strong>. Buning
+                    o'rniga <span class="highlight-var">field(default_factory=list)</span> ishlatamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field<br><br>
+                        <span class="operator">@</span>dataclass<br>
+                        <span class="keyword">class</span> <span class="function">Guruh</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;nom: <span class="function">str</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;talabalar: <span class="function">list</span> <span class="operator">=</span> <span class="function">field</span>(default_factory<span class="operator">=</span><span class="function">list</span>)
+                    </div>
+                    <div class="comment-part">
+                        # talabalar — har bir yangi obyektda bo'sh ro'yxat bo'lib boshlanadi<br>
+                        # default_factory=list → har safar yangi [] yaratadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> g = Guruh("Python-1")<br>
+                    >>> g.talabalar.append("Ali")<br>
+                    >>> print(g)<br>
+                    >>> Guruh(nom='Python-1', talabalar=['Ali'])
+                </div>
+                <div class="info-box">
+                    <strong>Nega field() kerak?</strong>
+                    <p>
+                        Agar barcha obyektlar bir xil <span class="highlight-var">[]</span> ni baham ko'rsa,
+                        bittasiga qo'shilgan element boshqalariga ham tegadi.
+                        <span class="highlight-var">default_factory</span> har bir obyektga
+                        alohida yangi ro'yxat beradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Oddiy Klass vs Dataclass — Kod Miqdori</h2>
+                <div class="interactive-demo">
+                    <div class="description" style="background:rgba(255,255,255,0.6);">
+                        Tugmani bosing va bir xil natija beradigan ikki yozuvda necha qator kod
+                        kerakligini taqqoslang.
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="showCompare()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultCompare"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Avtomatik __repr__ va __eq__</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="reprIsm" placeholder="ism" value="Ali">
+                        <input type="number" id="reprYosh" placeholder="yosh" value="20" style="min-width:80px;">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="showRepr()">__repr__ ko'rsat</button>
+                        <button onclick="showEq()">__eq__ tekshir</button>
+                    </div>
+                    <div class="demo-result" id="resultRepr"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Dataclass Obyekt Yaratish</h2>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="objNom" placeholder="mahsulot nomi" value="Olma">
+                        <input type="number" id="objNarx" placeholder="narx" value="5000" style="min-width:90px;">
+                        <input type="number" id="objSoni" placeholder="soni" value="3" style="min-width:80px;">
+                        <button onclick="createObj()">Obyekt yarat</button>
+                    </div>
+                    <div class="demo-result" id="resultObj"></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • <span class="highlight-var">from dataclasses import dataclass</span> — import qiling<br>
+                    • Klass ustiga <span class="highlight-var">@dataclass</span> qo'ying<br>
+                    • Maydonlarni <span class="highlight-var">ism: tur = qiymat</span> ko'rinishida yozing<br>
+                    • <span class="highlight-var">__init__</span>, <span class="highlight-var">__repr__</span>,
+                    <span class="highlight-var">__eq__</span> avtomatik tayyor bo'ladi<br>
+                    • Ro'yxat/lug'at standart qiymati uchun
+                    <span class="highlight-var">field(default_factory=list)</span> ishlating
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Dataclass yarating</strong>
+                            <p>@dataclass bilan Kitob klassini yozing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Maydonlar qo'shing</strong>
+                            <p>nom: str va yil: int = 2024 maydonlarini bering</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Obyekt yarating</strong>
+                            <p>Kitob("Python") yaratib, print() qiling</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Taqqoslang</strong>
+                            <p>Ikki bir xil obyekt yaratib == bilan tekshiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 84: HTTP va web</p>
+                    <p style="opacity: 0.9;">
+                        Dataclasslar bilan ma'lumotni toza saqlashni o'rgandingiz!<br>
+                        Endi asinxron dasturlashni chuqurroq ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showCompare() {
+            const result = document.getElementById('resultCompare');
+            result.classList.add('show');
+            result.innerHTML =
+                ">>> Oddiy klass: 8 qator kod<br>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;(__init__ + __repr__ + __eq__ qo'lda)<br><br>" +
+                ">>> Dataclass: 3 qator kod<br>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;(@dataclass hammasini avtomatik yozadi)<br><br>" +
+                ">>> Natija: bir xil, lekin 5 qator kam!";
+        }
+
+        function showRepr() {
+            const ism = document.getElementById('reprIsm').value || "Ali";
+            const yosh = parseInt(document.getElementById('reprYosh').value) || 0;
+            const result = document.getElementById('resultRepr');
+            result.classList.add('show');
+            result.innerHTML =
+                ">>> t = Talaba(\"" + ism + "\", " + yosh + ")<br>" +
+                ">>> print(t)<br>" +
+                ">>> Talaba(ism='" + ism + "', yosh=" + yosh + ")";
+        }
+
+        function showEq() {
+            const ism = document.getElementById('reprIsm').value || "Ali";
+            const yosh = parseInt(document.getElementById('reprYosh').value) || 0;
+            const result = document.getElementById('resultRepr');
+            result.classList.add('show');
+            result.innerHTML =
+                ">>> t1 = Talaba(\"" + ism + "\", " + yosh + ")<br>" +
+                ">>> t2 = Talaba(\"" + ism + "\", " + yosh + ")<br>" +
+                ">>> t1 == t2<br>" +
+                ">>> True&nbsp;&nbsp;# maydonlar bir xil bo'lgani uchun";
+        }
+
+        function createObj() {
+            const nom = document.getElementById('objNom').value || "Mahsulot";
+            const narx = parseInt(document.getElementById('objNarx').value) || 0;
+            const soni = parseInt(document.getElementById('objSoni').value) || 0;
+            const jami = narx * soni;
+            const result = document.getElementById('resultObj');
+            result.classList.add('show');
+            result.innerHTML =
+                ">>> m = Mahsulot(\"" + nom + "\", " + narx + ", " + soni + ")<br>" +
+                ">>> print(m)<br>" +
+                ">>> Mahsulot(nom='" + nom + "', narx=" + narx + ", soni=" + soni + ")<br><br>" +
+                ">>> m.narx * m.soni = " + jami + " so'm";
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

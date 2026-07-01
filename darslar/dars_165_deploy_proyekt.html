@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 165: Proyekt — deploy pipeline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f59e0b; font-weight: bold; }
+        .comment { color: #6b7280; font-style: italic; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* PIPELINE FLOW VISUALIZER */
+        .pipeline { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; margin: 18px 0; }
+        .pipe-stage {
+            flex: 1; min-width: 130px;
+            background: #1f2937; color: #9ca3af;
+            border: 2px solid #374151; border-radius: 10px;
+            padding: 14px 10px; text-align: center;
+            transition: all 0.4s ease;
+        }
+        .pipe-stage .pipe-icon { font-size: 1.6em; margin-bottom: 6px; }
+        .pipe-stage .pipe-name { font-weight: bold; font-size: 0.9em; }
+        .pipe-stage .pipe-note { font-size: 0.72em; margin-top: 4px; opacity: 0.85; }
+        .pipe-stage.active {
+            border-color: var(--primary); background: var(--primary); color: var(--white);
+            transform: translateY(-4px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.35);
+        }
+        .pipe-stage.done { border-color: var(--primary-dark); background: rgba(16, 185, 129, 0.18); color: #d1fae5; }
+        .pipe-stage.failed { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); color: #fecaca; }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        .download-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .download-box h3 { color: var(--white); margin-bottom: 15px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 21 — DevOps — Docker va CI/CD · Dars 165 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Proyekt — Deploy Pipeline</h1>
+                <p>Modul 21 — DevOps — Docker va CI/CD | Dars 165</p>
+            </header>
+
+            <div class="section">
+                <h2>Bu Darsda Nima Qilamiz?</h2>
+                <div class="description">
+                    Bu modulning <strong>yakuniy proyekti</strong>. Biz shu paytgacha o'rgangan
+                    hamma narsani — <strong>Docker</strong>, <strong>docker-compose</strong>,
+                    <strong>GitHub Actions</strong>, <strong>secrets</strong> va
+                    <strong>monitoring</strong>ni — bitta to'liq <span class="highlight-var">deploy pipeline</span>ga
+                    birlashtiramiz. Maqsad: kodni yozganingizdan keyin u <strong>avtomatik</strong>
+                    tarzda tekshirilib, qadoqlab, serverga joylanishi (deploy) va kuzatilishi.
+                </div>
+                <div class="info-box">
+                    <strong>Pipeline (oqim) nima?</strong>
+                    <p>
+                        Pipeline — bu kodingiz boshidan oxirigacha o'tadigan
+                        <strong>avtomatik bosqichlar zanjiri</strong>. Siz faqat kod yozasiz va
+                        <span class="highlight-var">git push</span> qilasiz — qolgan hammasi o'zi bajariladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>To'liq Oqim: 5 Bosqich</h2>
+                <div class="description">
+                    Bizning pipeline 5 bosqichdan iborat. Har bosqich faqat oldingisi
+                    muvaffaqiyatli tugagandagina ishga tushadi.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>#</th><th>Bosqich</th><th>Nima bo'ladi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td><code>Commit</code></td><td>Kodni yozib, GitHub'ga <code>git push</code> qilasiz</td></tr>
+                        <tr><td>2</td><td><code>Test</code></td><td>GitHub Actions testlarni avtomatik ishga tushiradi</td></tr>
+                        <tr><td>3</td><td><code>Build</code></td><td>Docker image tayyorlanadi (qadoqlanadi)</td></tr>
+                        <tr><td>4</td><td><code>Deploy</code></td><td>Image serverga joylanadi va ishga tushadi</td></tr>
+                        <tr><td>5</td><td><code>Monitor</code></td><td>Healthcheck va loglar holatni kuzatadi</td></tr>
+                    </tbody>
+                </table>
+                <div class="output-demo">
+                    kod → commit → test → build → deploy → monitor
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1-Bosqich: Dockerfile Yozish</h2>
+                <div class="description">
+                    Dockerfile — bu ilovangizni qadoqlash uchun retsept. U Python o'rnatadi,
+                    kutubxonalarni yuklaydi va ilovani ishga tushiradigan buyruqni belgilaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Tayyor Python image'dan boshlaymiz</span><br>
+                        <span class="keyword">FROM</span> python:3.11-slim<br><br>
+                        <span class="comment"># Ish papkasini belgilaymiz</span><br>
+                        <span class="keyword">WORKDIR</span> /app<br><br>
+                        <span class="comment"># Avval kutubxonalar ro'yxatini ko'chiramiz</span><br>
+                        <span class="keyword">COPY</span> requirements.txt .<br>
+                        <span class="keyword">RUN</span> pip install --no-cache-dir -r requirements.txt<br><br>
+                        <span class="comment"># Endi qolgan kodni ko'chiramiz</span><br>
+                        <span class="keyword">COPY</span> . .<br><br>
+                        <span class="comment"># Ilovani ishga tushiramiz</span><br>
+                        <span class="keyword">CMD</span> [<span class="string">"python"</span>, <span class="string">"app.py"</span>]
+                    </div>
+                    <div class="comment-part">
+                        # requirements.txt ni alohida ko'chirish — keshdan unumli foydalanish uchun
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2-Bosqich: docker-compose bilan Xizmatlar</h2>
+                <div class="description">
+                    Ilova ko'pincha bir nechta xizmatdan iborat bo'ladi (masalan ilova + ma'lumotlar bazasi).
+                    <span class="highlight-var">docker-compose.yml</span> ularni bitta joyda boshqaradi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">services</span>:<br>
+                        &nbsp;&nbsp;web:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;build: .<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">"8000:8000"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- DB_URL=${DB_URL}<br>
+                        &nbsp;&nbsp;db:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;image: postgres:16<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- POSTGRES_PASSWORD=${DB_PASS}
+                    </div>
+                    <div class="comment-part">
+                        # ${DB_URL} va ${DB_PASS} — maxfiy qiymatlar kodda emas, .env yoki secrets'dan keladi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3-Bosqich: GitHub Actions Workflow</h2>
+                <div class="description">
+                    Bu eng muhim qism. <span class="highlight-var">.github/workflows/deploy.yml</span>
+                    faylida test → build → deploy bosqichlarini yozamiz. Har <code>git push</code>da
+                    bu avtomatik ishlaydi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">name</span>: Deploy Pipeline<br>
+                        <span class="keyword">on</span>:<br>
+                        &nbsp;&nbsp;push:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;branches: [main]<br><br>
+                        <span class="keyword">jobs</span>:<br>
+                        &nbsp;&nbsp;test:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/checkout@v4<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- run: pip install -r requirements.txt<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- run: pytest
+                    </div>
+                    <div class="comment-part">
+                        # 1-job: testlar. main branch'ga push bo'lganda ishga tushadi
+                    </div>
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        &nbsp;&nbsp;build:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;needs: test<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/checkout@v4<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- run: docker build -t myapp:latest .<br><br>
+                        &nbsp;&nbsp;deploy:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;needs: build<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- run: ./deploy.sh
+                    </div>
+                    <div class="comment-part">
+                        # needs: test → build faqat test o'tgach ishlaydi. needs: build → deploy faqat build o'tgach
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4-Bosqich: Secrets (Maxfiy Ma'lumotlar)</h2>
+                <div class="description">
+                    Parol, API kalit yoki server ma'lumotlarini <strong>hech qachon kodga
+                    yozmang</strong>. Ularni GitHub'da <span class="highlight-var">Settings → Secrets</span>
+                    bo'limiga saqlaysiz va workflow ichida <code>${{ secrets.NOM }}</code> orqali olasiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        &nbsp;&nbsp;deploy:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- run: ssh deploy@${{ secrets.SERVER_IP }}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DB_PASS: ${{ secrets.DB_PASS }}
+                    </div>
+                    <div class="comment-part">
+                        # secrets.SERVER_IP va secrets.DB_PASS loglar ichida ham yashirin (***) ko'rinadi
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Xavfsizlik qoidasi</strong>
+                    <p>
+                        Parolni kodga yozsangiz va GitHub'ga push qilsangiz — u butun dunyoga
+                        ochiq bo'ladi. Har doim <span class="highlight-var">secrets</span> ishlating.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5-Bosqich: Monitoring</h2>
+                <div class="description">
+                    Deploy tugagach ish bitmaydi. Ilova ishlayotganini
+                    <strong>healthcheck</strong> va <strong>loglar</strong> orqali kuzatamiz.
+                    Agar xato chiqsa — darhol bilamiz.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="comment"># Healthcheck: ilova "tirik"mi?</span><br>
+                        <span class="keyword">HEALTHCHECK</span> --interval=30s \<br>
+                        &nbsp;&nbsp;CMD curl -f http://localhost:8000/health || <span class="keyword">exit</span> <span class="number">1</span>
+                    </div>
+                    <div class="comment-part">
+                        # Har 30 soniyada /health tekshiriladi. Javob bermasa konteyner "unhealthy" deb belgilanadi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> docker ps<br>
+                    STATUS: Up 5 minutes (healthy)
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Eslab Qoling</strong>
+                <p>
+                    • Pipeline = avtomatik bosqichlar zanjiri<br>
+                    • <span class="highlight-var">needs:</span> bosqichlar tartibini belgilaydi<br>
+                    • Maxfiy ma'lumotlar — faqat <span class="highlight-var">secrets</span>da<br>
+                    • Bitta bosqich yiqilsa — keyingilari ishlamaydi<br>
+                    • Deploy'dan keyin <span class="highlight-var">monitoring</span> shart
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: To'liq Deploy Pipeline Oqimi</h2>
+                <div class="description">
+                    Quyidagi tugma butun oqimni — commit'dan monitoring'gacha — bosqichma-bosqich
+                    jonlantiradi. Har bosqich o'z navbatida yashil bo'ladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="pipeline" id="flowPipe">
+                        <div class="pipe-stage" id="fp-0"><div class="pipe-icon">📝</div><div class="pipe-name">Commit</div><div class="pipe-note">git push</div></div>
+                        <div class="pipe-stage" id="fp-1"><div class="pipe-icon">🧪</div><div class="pipe-name">Test</div><div class="pipe-note">pytest</div></div>
+                        <div class="pipe-stage" id="fp-2"><div class="pipe-icon">📦</div><div class="pipe-name">Build</div><div class="pipe-note">docker build</div></div>
+                        <div class="pipe-stage" id="fp-3"><div class="pipe-icon">🚀</div><div class="pipe-name">Deploy</div><div class="pipe-note">serverga</div></div>
+                        <div class="pipe-stage" id="fp-4"><div class="pipe-icon">📊</div><div class="pipe-name">Monitor</div><div class="pipe-note">healthcheck</div></div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="runFlow()">▶ Pipeline'ni ishga tushir</button>
+                        <button onclick="resetFlow()">↺ Tozalash</button>
+                    </div>
+                    <div class="demo-result" id="resultFlow"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: Pipeline Qismlarini Ko'rish</h2>
+                <div class="description">
+                    Pipeline'ning har bir qismi qaysi faylda yoziladi va nima vazifa bajaradi?
+                    Tugmani bosib ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="btn-row">
+                        <button onclick="showPart('docker')">🐳 Docker</button>
+                        <button onclick="showPart('compose')">📋 Compose</button>
+                        <button onclick="showPart('actions')">⚙️ Actions</button>
+                        <button onclick="showPart('secrets')">🔐 Secrets</button>
+                    </div>
+                    <div class="demo-result" id="resultPart"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Muvaffaqiyatli yoki Muvaffaqiyatsiz Deploy</h2>
+                <div class="description">
+                    Testlar o'tsa — deploy davom etadi. Test yiqilsa — pipeline to'xtaydi va deploy
+                    bo'lmaydi. Ikkala holatni ham sinab ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="pipeline" id="statePipe">
+                        <div class="pipe-stage" id="sp-0"><div class="pipe-icon">🧪</div><div class="pipe-name">Test</div></div>
+                        <div class="pipe-stage" id="sp-1"><div class="pipe-icon">📦</div><div class="pipe-name">Build</div></div>
+                        <div class="pipe-stage" id="sp-2"><div class="pipe-icon">🚀</div><div class="pipe-name">Deploy</div></div>
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="runState(true)">✅ Testlar o'tdi</button>
+                        <button onclick="runState(false)">❌ Test yiqildi</button>
+                    </div>
+                    <div class="demo-result" id="resultState"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Dockerfile yozing</strong>
+                            <p>Python ilovangiz uchun FROM, WORKDIR, COPY, RUN va CMD bilan to'liq Dockerfile tayyorlang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>Workflow yarating</strong>
+                            <p>.github/workflows/deploy.yml ichida test → build → deploy joblarini needs bilan bog'lang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>Secrets qo'shing</strong>
+                            <p>Server IP va parolni GitHub Secrets'ga saqlab, workflow ichida ${{ secrets.NOM }} bilan ishlating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Monitoring qo'shing</strong>
+                            <p>HEALTHCHECK qo'shib, deploy'dan keyin docker ps bilan "healthy" ekanini tekshiring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div class="download-box">
+                    <h3>Tabriklaymiz — Modul 22 yakunlandi!</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">
+                        Siz endi to'liq DevOps oqimini bilasiz: Docker, docker-compose,
+                        GitHub Actions, secrets va monitoring.
+                    </p>
+                    <p style="opacity: 0.9;">
+                        Kod → commit → test → build → deploy → monitor — barchasi avtomatik!<br>
+                        Keyingi qadam: <strong>Modul 23 — Pro daraja va Capstone</strong>,
+                        bu yerda hamma o'rganganlaringizni bitta katta yakuniy proyektda birlashtirasiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const flowSteps = [
+            { name: 'Commit', log: 'git push origin main  →  kod GitHub\'ga yuborildi' },
+            { name: 'Test', log: 'pytest  →  12 passed in 1.4s  ✓' },
+            { name: 'Build', log: 'docker build -t myapp:latest .  →  image tayyor  ✓' },
+            { name: 'Deploy', log: 'serverga joylandi va ishga tushdi  ✓' },
+            { name: 'Monitor', log: 'healthcheck: Up (healthy)  ✓' }
+        ];
+
+        function resetFlow() {
+            for (let i = 0; i < 5; i++) {
+                const el = document.getElementById('fp-' + i);
+                el.classList.remove('active', 'done', 'failed');
+            }
+            const r = document.getElementById('resultFlow');
+            r.classList.remove('show');
+            r.innerHTML = '';
+        }
+
+        function runFlow() {
+            resetFlow();
+            const r = document.getElementById('resultFlow');
+            r.classList.add('show');
+            r.innerHTML = '';
+            let i = 0;
+            function step() {
+                if (i > 0) {
+                    document.getElementById('fp-' + (i - 1)).classList.remove('active');
+                    document.getElementById('fp-' + (i - 1)).classList.add('done');
+                }
+                if (i < 5) {
+                    document.getElementById('fp-' + i).classList.add('active');
+                    r.innerHTML += `>>> [${i + 1}/5] ${flowSteps[i].log}<br>`;
+                    i++;
+                    setTimeout(step, 900);
+                } else {
+                    r.innerHTML += '>>> 🎉 Pipeline muvaffaqiyatli tugadi!';
+                }
+            }
+            step();
+        }
+
+        function showPart(kind) {
+            const parts = {
+                docker: 'Fayl: Dockerfile<br>Vazifa: ilovani qadoqlash (Python + kutubxonalar + ishga tushirish buyrug\'i)<br>Buyruq: docker build -t myapp .',
+                compose: 'Fayl: docker-compose.yml<br>Vazifa: bir nechta xizmatni (web + db) birga boshqarish<br>Buyruq: docker compose up -d',
+                actions: 'Fayl: .github/workflows/deploy.yml<br>Vazifa: test → build → deploy ni avtomatlashtirish<br>Ishga tushadi: har git push da',
+                secrets: 'Joy: GitHub → Settings → Secrets<br>Vazifa: parol/kalitlarni kodsiz xavfsiz saqlash<br>Ishlatish: ${{ secrets.NOM }}'
+            };
+            const r = document.getElementById('resultPart');
+            r.classList.add('show');
+            r.innerHTML = '>>> ' + parts[kind];
+        }
+
+        function runState(success) {
+            for (let i = 0; i < 3; i++) {
+                document.getElementById('sp-' + i).classList.remove('done', 'failed', 'active');
+            }
+            const r = document.getElementById('resultState');
+            r.classList.add('show');
+            if (success) {
+                document.getElementById('sp-0').classList.add('done');
+                document.getElementById('sp-1').classList.add('done');
+                document.getElementById('sp-2').classList.add('done');
+                r.innerHTML = '>>> Test: passed ✓<br>>>> Build: image tayyor ✓<br>>>> Deploy: serverga joylandi ✓<br>>>> ✅ Deploy muvaffaqiyatli!';
+            } else {
+                document.getElementById('sp-0').classList.add('failed');
+                r.innerHTML = '>>> Test: FAILED ✗ (2 ta test yiqildi)<br>>>> Build: o\'tkazib yuborildi (test o\'tmadi)<br>>>> Deploy: o\'tkazib yuborildi<br>>>> ❌ Deploy bo\'lmadi — avval testlarni tuzating!';
+            }
+        }
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>

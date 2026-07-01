@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dars 62: Sorting algoritmlari</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #10b981;
+            --primary-light: #d1fae5;
+            --primary-dark: #059669;
+            --secondary: #0891b2;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .panel.right { animation: slideInRight 0.8s ease-out; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header {
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        header h1 { font-size: 2em; color: var(--dark); margin-bottom: 8px; }
+        header p { color: var(--gray); }
+
+        .section { margin-bottom: 30px; }
+        h2 { font-size: 1.35em; color: var(--dark); margin-bottom: 15px; }
+        h3 { font-size: 1.1em; color: var(--primary-dark); margin-top: 20px; margin-bottom: 12px; }
+
+        .description {
+            background: var(--primary-light);
+            padding: 18px;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            line-height: 1.7;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--primary);
+            padding: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .info-box strong { display: block; margin-bottom: 8px; color: var(--primary-dark); }
+        .info-box p { color: var(--dark); }
+
+        .code-with-comment {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-part {
+            padding: 15px 20px;
+            color: #d4d4d4;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+            background: #1f2937;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment-part {
+            padding: 12px 20px;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary-dark);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .keyword { color: #60a5fa; font-weight: bold; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; font-weight: bold; }
+        .function { color: #a78bfa; }
+        .operator { color: #f87171; font-weight: bold; }
+        .boolean { color: #f472b6; font-weight: bold; }
+
+        .output-demo {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+            line-height: 1.6;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 13px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.92em;
+        }
+        .comparison-table td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 0.88em; }
+        .comparison-table tr:hover { background: var(--primary-light); }
+        .comparison-table td code {
+            font-family: 'Monaco', monospace;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .step-list { background: var(--light); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--white);
+            border-left: 3px solid var(--primary);
+        }
+        .step-item:last-child { margin-bottom: 0; }
+        .step-icon {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1em; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: var(--dark); display: block; margin-bottom: 4px; }
+        .step-content p { color: var(--gray); font-size: 0.9em; }
+
+        .highlight-var {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .demo-input { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input, button {
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 120px; background: var(--white); }
+        input:focus { outline: none; border-color: var(--primary-dark); box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-row button { flex: 1; min-width: 80px; font-size: 0.85em; padding: 9px 10px; }
+        .demo-result {
+            background: #1f2937;
+            color: #34d399;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 10px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+            line-height: 1.6;
+        }
+        .demo-result.show { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SORT BARS VISUALIZER */
+        .bars-box {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            height: 220px;
+            margin: 15px 0;
+            padding: 10px;
+            background: #1f2937;
+            border-radius: 10px;
+        }
+        .bar {
+            width: 42px;
+            background: linear-gradient(180deg, var(--secondary) 0%, #0e7490 100%);
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: var(--white);
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.85em;
+            padding-bottom: 4px;
+            transition: height 0.35s ease, background 0.25s ease;
+        }
+        .bar.compare { background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%); }
+        .bar.swap { background: linear-gradient(180deg, #f87171 0%, #b91c1c 100%); }
+        .bar.done { background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%); }
+        .status-line {
+            text-align: center;
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.95em;
+            margin: 10px 0;
+            min-height: 22px;
+        }
+
+        .example-box {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .example-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 10px; }
+
+        /* LESSON NAVIGATION */
+        .lesson-nav {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        .lesson-nav .nav-btn {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .lesson-nav .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .lesson-nav .nav-btn.disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .lesson-nav .nav-center { color: var(--dark); font-weight: bold; font-size: 0.9em; text-align: center; flex: 1; }
+        .lesson-nav .nav-center a { color: var(--secondary); text-decoration: none; }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .code-with-comment { grid-template-columns: 1fr; }
+            .code-part { border-right: none; }
+        }
+        @media (max-width: 768px) {
+            .panel { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+            .bar { width: 32px; font-size: 0.75em; }
+        }
+        @media (max-width: 600px) {
+            .lesson-nav { flex-wrap: wrap; }
+            .lesson-nav .nav-center { order: -1; flex-basis: 100%; margin-bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="lesson-nav">
+        <img src="../profil.jpg" alt="Raximboy" class="author-nav-img" style="width:80px;height:80px;border-radius:50%;border:3px solid #10b981;object-fit:cover;flex-shrink:0;">
+        <span class="nav-center">Modul 12 — Algoritmlar va optimizatsiya · Dars 62 · <a href="../index.html">🏠 Barcha darslar</a></span>
+    </nav>
+    <div class="container">
+        <div class="panel">
+            <header>
+                <h1>Saralash Algoritmlari (Sorting)</h1>
+                <p>Modul 12 — Algoritmlar va optimizatsiya | Dars 62</p>
+            </header>
+
+            <div class="section">
+                <h2>Saralash Nima?</h2>
+                <div class="description">
+                    <strong>Saralash (Sorting)</strong> — bu ma'lumotlarni ma'lum bir tartibda joylashtirish demakdir.
+                    Masalan, raqamlarni <span class="highlight-var">kichikdan kattaga</span> yoki ismlarni
+                    <span class="highlight-var">alifbo tartibida</span> joylashtirish.
+                </div>
+                <div class="description">
+                    Saralash juda muhim, chunki tartiblangan ma'lumotda biror narsani topish ancha oson va tez bo'ladi.
+                    Telefon kontaktlari, do'kondagi narxlar, o'quvchilar reytingi — barchasi saralash yordamida tartibga solinadi.
+                </div>
+                <div class="info-box">
+                    <strong>Hayotiy misol</strong>
+                    <p>
+                        Kutubxonadagi kitoblar alifbo bo'yicha terilgan. Agar ular tartibsiz bo'lsa,
+                        kerakli kitobni topish uchun har bir kitobni ko'rib chiqishga to'g'ri kelardi.
+                        Saralash aynan shu ishni avtomatlashtiradi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Python'da Tayyor Saralash</h2>
+                <div class="description">
+                    Python'da saralash uchun tayyor vositalar bor: <span class="highlight-var">sorted()</span> funksiyasi
+                    va <span class="highlight-var">.sort()</span> metodi. Lekin algoritmlar ichida qanday ishlashini
+                    bilish — yaxshi dasturchi bo'lish uchun zarur.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        raqamlar = [<span class="number">5</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">9</span>]<br>
+                        natija = <span class="function">sorted</span>(raqamlar)<br>
+                        <span class="function">print</span>(natija)
+                    </div>
+                    <div class="comment-part">
+                        # sorted() yangi tartiblangan ro'yxat qaytaradi
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [1, 2, 5, 8, 9]
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        raqamlar = [<span class="number">5</span>, <span class="number">2</span>, <span class="number">8</span>, <span class="number">1</span>]<br>
+                        raqamlar.<span class="function">sort</span>(reverse=<span class="boolean">True</span>)<br>
+                        <span class="function">print</span>(raqamlar)
+                    </div>
+                    <div class="comment-part">
+                        # .sort() ro'yxatning o'zini o'zgartiradi; reverse=True — kattadan kichikka
+                    </div>
+                </div>
+                <div class="output-demo">
+                    >>> [8, 5, 2, 1]
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Bubble Sort (Pufakcha Saralash)</h2>
+                <div class="description">
+                    Eng sodda algoritm. <strong>Yonma-yon turgan ikki elementni</strong> taqqoslaydi va
+                    agar chap tarafdagisi katta bo'lsa, ularni <span class="highlight-var">almashtiradi</span>.
+                    Bu jarayon takrorlanaveradi: eng katta raqam har bir aylanishda oxirga "suzib" chiqadi —
+                    xuddi pufakcha suvda yuqoriga ko'tarilgandek.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">bubble_sort</span>(arr):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;n = <span class="function">len</span>(arr)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> j <span class="keyword">in</span> <span class="function">range</span>(<span class="number">0</span>, n - i - <span class="number">1</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> arr[j] <span class="operator">&gt;</span> arr[j + <span class="number">1</span>]:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arr[j], arr[j + <span class="number">1</span>] = arr[j + <span class="number">1</span>], arr[j]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> arr
+                    </div>
+                    <div class="comment-part">
+                        # Yonma-yon elementlarni taqqoslab almashtiradi.<br>
+                        # arr[j], arr[j+1] = arr[j+1], arr[j] — bir qatorda almashtirish
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Qadamlar (5, 2, 8, 1)</strong>
+                    <p>
+                        1-bosqich: 5&gt;2 → 2,5,8,1 · 5&lt;8 (qoladi) · 8&gt;1 → 2,5,1,8<br>
+                        2-bosqich: 2&lt;5 (qoladi) · 5&gt;1 → 2,1,5,8<br>
+                        3-bosqich: 2&gt;1 → 1,2,5,8 ✓ tartiblandi
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>2. Selection Sort (Tanlash bilan Saralash)</h2>
+                <div class="description">
+                    Har bir aylanishda <strong>eng kichik elementni topadi</strong> va uni boshqa o'rinlardan
+                    boshiga olib qo'yadi. Ya'ni: tartiblanmagan qismdan eng kichigini tanlab,
+                    tartiblangan qismga qo'shadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">selection_sort</span>(arr):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;n = <span class="function">len</span>(arr)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eng_kichik = i<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> j <span class="keyword">in</span> <span class="function">range</span>(i + <span class="number">1</span>, n):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> arr[j] <span class="operator">&lt;</span> arr[eng_kichik]:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eng_kichik = j<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arr[i], arr[eng_kichik] = arr[eng_kichik], arr[i]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> arr
+                    </div>
+                    <div class="comment-part">
+                        # Har aylanishda eng kichik elementni topib, boshiga qo'yadi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Insertion Sort (Joylash bilan Saralash)</h2>
+                <div class="description">
+                    Xuddi qartani qo'lda terib chiqqandek ishlaydi. Har bir yangi elementni olib,
+                    uni tartiblangan qismdagi <strong>to'g'ri joyiga qo'yadi</strong> (joylaydi).
+                    Kichik ro'yxatlar va deyarli tartiblangan ma'lumot uchun juda tez.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">insertion_sort</span>(arr):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="function">len</span>(arr)):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kalit = arr[i]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j = i - <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span> j <span class="operator">&gt;=</span> <span class="number">0</span> <span class="keyword">and</span> arr[j] <span class="operator">&gt;</span> kalit:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arr[j + <span class="number">1</span>] = arr[j]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j = j - <span class="number">1</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arr[j + <span class="number">1</span>] = kalit<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> arr
+                    </div>
+                    <div class="comment-part">
+                        # Har elementni tartiblangan qismdagi to'g'ri joyiga joylaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>4. Merge Sort va Quick Sort (G'oyasi)</h2>
+                <div class="description">
+                    Bu ikki algoritm <strong>"bo'l va hukmronlik qil"</strong> (divide and conquer) tamoyiliga asoslanadi:
+                    katta masalani kichik bo'laklarga bo'lib yechadi. Shuning uchun ular yuqoridagi uchta sodda
+                    algoritmdan ancha tezroq.
+                </div>
+                <h3>Merge Sort (Birlashtirib Saralash)</h3>
+                <div class="description">
+                    Ro'yxatni ikkiga bo'ladi, har bir yarmini alohida saralaydi, so'ng ikki tartiblangan
+                    yarmni <strong>birlashtiradi</strong>. Bu bo'lish toki bitta elementgacha davom etadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">merge_sort</span>(arr):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> <span class="function">len</span>(arr) <span class="operator">&lt;=</span> <span class="number">1</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> arr<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;orta = <span class="function">len</span>(arr) <span class="operator">//</span> <span class="number">2</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;chap = <span class="function">merge_sort</span>(arr[:orta])<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ong = <span class="function">merge_sort</span>(arr[orta:])<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">birlashtir</span>(chap, ong)
+                    </div>
+                    <div class="comment-part">
+                        # Ro'yxatni o'rtasidan bo'lib, har yarmini saralab, qayta birlashtiradi
+                    </div>
+                </div>
+                <h3>Quick Sort (Tez Saralash)</h3>
+                <div class="description">
+                    Bitta element <strong>"tayanch" (pivot)</strong> sifatida tanlanadi. Undan kichiklar chapga,
+                    kattalar o'ngga ajratiladi. So'ng har ikki tomon uchun shu jarayon takrorlanadi.
+                </div>
+                <div class="code-with-comment">
+                    <div class="code-part">
+                        <span class="keyword">def</span> <span class="function">quick_sort</span>(arr):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> <span class="function">len</span>(arr) <span class="operator">&lt;=</span> <span class="number">1</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> arr<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;tayanch = arr[<span class="function">len</span>(arr) <span class="operator">//</span> <span class="number">2</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;chap = [x <span class="keyword">for</span> x <span class="keyword">in</span> arr <span class="keyword">if</span> x <span class="operator">&lt;</span> tayanch]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;orta = [x <span class="keyword">for</span> x <span class="keyword">in</span> arr <span class="keyword">if</span> x <span class="operator">==</span> tayanch]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ong = [x <span class="keyword">for</span> x <span class="keyword">in</span> arr <span class="keyword">if</span> x <span class="operator">&gt;</span> tayanch]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="function">quick_sort</span>(chap) + orta + <span class="function">quick_sort</span>(ong)
+                    </div>
+                    <div class="comment-part">
+                        # Tayanchdan kichiklar chapga, kattalar o'ngga; so'ng har tomonni qayta saralaydi
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Big O bilan Taqqoslash</h2>
+                <div class="description">
+                    <span class="highlight-var">Big O</span> — algoritm elementlar soni (n) oshganda qancha
+                    sekinlashishini ko'rsatadi. <strong>O(n²)</strong> sekin (n katta bo'lsa juda sekin),
+                    <strong>O(n log n)</strong> esa ancha tez.
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Algoritm</th><th>O'rtacha tezlik</th><th>Eng yomon holat</th><th>Baho</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Bubble Sort</code></td><td>O(n²)</td><td>O(n²)</td><td>Sekin · faqat o'rganish uchun</td></tr>
+                        <tr><td><code>Selection Sort</code></td><td>O(n²)</td><td>O(n²)</td><td>Sekin</td></tr>
+                        <tr><td><code>Insertion Sort</code></td><td>O(n²)</td><td>O(n²)</td><td>Kichik ro'yxatlar uchun yaxshi</td></tr>
+                        <tr><td><code>Merge Sort</code></td><td>O(n log n)</td><td>O(n log n)</td><td>Tez · barqaror</td></tr>
+                        <tr><td><code>Quick Sort</code></td><td>O(n log n)</td><td>O(n²)</td><td>Odatda eng tez</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Sodda tushuntirish</strong>
+                    <p>
+                        n = 1000 element uchun:<br>
+                        • O(n²) ≈ 1 000 000 qadam (sekin)<br>
+                        • O(n log n) ≈ 10 000 qadam (100 marta tezroq!)<br>
+                        Shuning uchun katta ma'lumotda Merge yoki Quick Sort ishlatiladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 1: Bubble Sort Vizualizatori</h2>
+                <div class="description">
+                    "Saralash" tugmasini bosing — har qadamda taqqoslanayotgan ustunlar
+                    <span class="highlight-var">sariq</span>, almashtirilayotganlar <span class="highlight-var">qizil</span>,
+                    tartiblangani <span class="highlight-var">yashil</span> bo'ladi.
+                </div>
+                <div class="interactive-demo">
+                    <div class="bars-box" id="barsBox"></div>
+                    <div class="status-line" id="bubbleStatus">Tayyor</div>
+                    <div class="btn-row">
+                        <button onclick="startBubble()">▶ Saralash</button>
+                        <button onclick="shuffleBars()">🔀 Aralashtir</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 2: O'z Raqamlaringizni Saralang</h2>
+                <div class="description">
+                    Vergul bilan ajratib raqamlar kiriting va istalgan tartibni tanlang.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="text" id="userNums" placeholder="Masalan: 5, 2, 8, 1, 9" value="5, 2, 8, 1, 9, 3">
+                    </div>
+                    <div class="btn-row">
+                        <button onclick="sortUser('asc')">Kichikdan kattaga ↑</button>
+                        <button onclick="sortUser('desc')">Kattadan kichikka ↓</button>
+                    </div>
+                    <div class="demo-result" id="resultUser"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Misol 3: Tezlikni Taqqoslash</h2>
+                <div class="description">
+                    Element soni (n) ni kiriting va O(n²) hamda O(n log n) algoritmlar taxminan nechta
+                    qadam bajarishini ko'ring.
+                </div>
+                <div class="interactive-demo">
+                    <div class="demo-input">
+                        <input type="number" id="nValue" placeholder="n (element soni)" value="1000" min="1">
+                        <button onclick="compareSpeed()">Taqqosla</button>
+                    </div>
+                    <div class="demo-result" id="resultSpeed"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sizning Mashqingiz</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div class="step-content">
+                            <strong>Ro'yxat tayyorlang</strong>
+                            <p>raqamlar = [7, 3, 9, 1, 5] kabi tartibsiz ro'yxat yarating</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div class="step-content">
+                            <strong>bubble_sort() yozing</strong>
+                            <p>Yuqoridagi kodni o'zingiz qaytadan yozib, ro'yxatni saralang</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div class="step-content">
+                            <strong>sorted() bilan solishtiring</strong>
+                            <p>Natijangiz Python'ning sorted() natijasiga teng ekanini tekshiring</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">4</div>
+                        <div class="step-content">
+                            <strong>Teskari tartib</strong>
+                            <p>reverse=True yordamida kattadan kichikka saralab ko'ring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Endi Siz Tayyorsiz!</h2>
+                <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 25px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: var(--white); margin-bottom: 15px;">Keyingi Dars:</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">Dars 63: Searching algoritmlari</p>
+                    <p style="opacity: 0.9;">
+                        Saralash algoritmlarini o'rgandingiz!<br>
+                        Endi tartiblangan ma'lumotdan tez qidirishni ko'ramiz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bars = [5, 2, 8, 1, 9, 3];
+        let sorting = false;
+
+        function renderBars(highlight) {
+            highlight = highlight || {};
+            const box = document.getElementById('barsBox');
+            const maxV = Math.max(...bars);
+            box.innerHTML = '';
+            bars.forEach((v, i) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                if (highlight.done && highlight.done.includes(i)) bar.classList.add('done');
+                else if (highlight.swap && highlight.swap.includes(i)) bar.classList.add('swap');
+                else if (highlight.compare && highlight.compare.includes(i)) bar.classList.add('compare');
+                bar.style.height = (30 + (v / maxV) * 160) + 'px';
+                bar.textContent = v;
+                box.appendChild(bar);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(function (resolve) { setTimeout(resolve, ms); });
+        }
+
+        async function startBubble() {
+            if (sorting) return;
+            sorting = true;
+            const status = document.getElementById('bubbleStatus');
+            const n = bars.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    status.textContent = bars[j] + ' va ' + bars[j + 1] + ' taqqoslanmoqda';
+                    renderBars({ compare: [j, j + 1] });
+                    await sleep(600);
+                    if (bars[j] > bars[j + 1]) {
+                        status.textContent = bars[j] + ' > ' + bars[j + 1] + ' — almashtirilmoqda';
+                        renderBars({ swap: [j, j + 1] });
+                        await sleep(600);
+                        const t = bars[j];
+                        bars[j] = bars[j + 1];
+                        bars[j + 1] = t;
+                        renderBars({ swap: [j, j + 1] });
+                        await sleep(300);
+                    }
+                }
+                renderBars({ done: range(n - i - 1, n) });
+                await sleep(300);
+            }
+            status.textContent = 'Tartiblandi! ✓';
+            renderBars({ done: range(0, n) });
+            sorting = false;
+        }
+
+        function range(a, b) {
+            const r = [];
+            for (let k = a; k < b; k++) r.push(k);
+            return r;
+        }
+
+        function shuffleBars() {
+            if (sorting) return;
+            bars = [];
+            for (let i = 0; i < 6; i++) bars.push(Math.floor(Math.random() * 9) + 1);
+            document.getElementById('bubbleStatus').textContent = 'Tayyor';
+            renderBars();
+        }
+
+        function sortUser(order) {
+            const raw = document.getElementById('userNums').value;
+            const nums = raw.split(',')
+                .map(function (s) { return parseFloat(s.trim()); })
+                .filter(function (x) { return !isNaN(x); });
+            const result = document.getElementById('resultUser');
+            result.classList.add('show');
+            if (nums.length === 0) {
+                result.innerHTML = '>>> Iltimos, raqamlar kiriting (masalan: 5, 2, 8)';
+                return;
+            }
+            const sorted = nums.slice().sort(function (a, b) {
+                return order === 'asc' ? a - b : b - a;
+            });
+            const label = order === 'asc' ? 'sorted(arr)' : 'sorted(arr, reverse=True)';
+            result.innerHTML = '>>> kiritilgan: [' + nums.join(', ') + ']<br>' +
+                '>>> ' + label + '<br>' +
+                '>>> [' + sorted.join(', ') + ']';
+        }
+
+        function compareSpeed() {
+            let n = parseInt(document.getElementById('nValue').value);
+            if (isNaN(n) || n < 1) n = 1;
+            const quad = n * n;
+            const nlogn = Math.round(n * Math.log2(n || 1)) || n;
+            const tezlik = quad > 0 ? Math.round(quad / (nlogn || 1)) : 1;
+            const result = document.getElementById('resultSpeed');
+            result.classList.add('show');
+            result.innerHTML = 'n = ' + n + ' element uchun:<br>' +
+                '>>> O(n²)      ≈ ' + quad.toLocaleString() + ' qadam (Bubble/Selection/Insertion)<br>' +
+                '>>> O(n log n) ≈ ' + nlogn.toLocaleString() + ' qadam (Merge/Quick)<br>' +
+                '>>> O(n log n) taxminan ' + tezlik.toLocaleString() + ' marta tezroq';
+        }
+
+        // dastlabki ko'rinish
+        renderBars();
+    </script>
+<div class="author-card" style="max-width:900px;margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(16,185,129,0.35);border-radius:14px;font-family:'Segoe UI',Tahoma,sans-serif;"><img src="../profil.jpg" alt="Raximboy" style="width:46px;height:46px;border-radius:50%;border:2px solid #10b981;object-fit:cover;flex-shrink:0;"><span style="color:#e2e8f0;font-size:0.92em;">Muallif: <b>Raximboy</b> &middot; <a href="https://github.com/Raximboy7" target="_blank" style="color:#34d399;text-decoration:none;font-weight:bold;">GitHub profil</a></span></div>
+</body>
+</html>
